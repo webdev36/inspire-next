@@ -17,7 +17,8 @@ describe SendMessageAction do
 
   describe "#" do
     subject {create(:send_message_action,message_to_send:"40")}
-    its(:get_message_to_send_from_text) {should == "40"}
+    # its(:get_message_to_send_from_text) {should == "40"}
+    expect(subject.get_message_to_send_from_text == '40').to be_truthy
     describe "virtual attribute" do
       describe "message_to_send" do
         it "returns new value if set" do
@@ -28,7 +29,7 @@ describe SendMessageAction do
           subject.message_to_send = nil
           subject.message_to_send.should == "40"
         end
-      end            
+      end
     end
     describe "execute" do
       let(:user) {create(:user)}
@@ -40,7 +41,7 @@ describe SendMessageAction do
         expect {
           cmd.execute({subscribers:[subs]}).should == true
         }.to change{DeliveryNotice.count}.by(1)
-        DeliveryNotice.last.subscriber_id.should == subs.id 
+        DeliveryNotice.last.subscriber_id.should == subs.id
         DeliveryNotice.last.message_id.should == msg.id
       end
       it "returns false if message does not exist" do
@@ -49,5 +50,5 @@ describe SendMessageAction do
       end
     end
   end
- 
+
 end
