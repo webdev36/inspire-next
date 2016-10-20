@@ -19,19 +19,19 @@ describe TpartyScheduledMessageSender do
 
     describe "channels_pending_send" do
       it "returns channels which are pending send" do
-        subject.channels_pending_send.to_a.should =~ [@channel1,@channel2]
+        expect(subject.channels_pending_send.to_a).to match_array([@channel1,@channel2])
       end
       it "returns channels only if it is active" do
         @channel1.active=false
         @channel1.save!
-        subject.channels_pending_send.to_a.should =~ [@channel2]
+        expect(subject.channels_pending_send.to_a).to match_array([@channel2])
       end
     end
 
     it "calls scheduled_send for the channels" do
-      subject.stub(:channels_pending_send){[@channel1,@channel2]}
-      @channel1.should_receive(:send_scheduled_messages){}
-      @channel2.should_receive(:send_scheduled_messages){}
+      allow(subject).to receive(:channels_pending_send){[@channel1,@channel2]}
+      expect(@channel1).to receive(:send_scheduled_messages){}
+      expect(@channel2).to receive(:send_scheduled_messages){}
       subject.send_scheduled_messages
     end
   end
@@ -39,7 +39,7 @@ describe TpartyScheduledMessageSender do
   describe "instance" do
     subject {TpartyScheduledMessageSender.new}
     it "perform calls send_scheduled_messages class method" do
-      subject.class.should_receive(:send_scheduled_messages){}
+      expect(subject.class).to receive(:send_scheduled_messages){}
       subject.perform
     end
   end

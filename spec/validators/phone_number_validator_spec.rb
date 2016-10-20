@@ -9,27 +9,27 @@ describe PhoneNumberValidator do
     end    
     it 'local phone numbers' do
       subject.validate_each(@record,@attribute,'(408)232-3434')
-      @record.errors[:some_phone_number].should == []      
+      expect(@record.errors[:some_phone_number]).to eq([])      
       subject.validate_each(@record,@attribute,'4082323434')
-      @record.errors[:some_phone_number].should == []            
+      expect(@record.errors[:some_phone_number]).to eq([])            
       subject.validate_each(@record,@attribute,'408 232 3434')
-      @record.errors[:some_phone_number].should == []            
+      expect(@record.errors[:some_phone_number]).to eq([])            
     end
     it 'international phone numbers' do
       subject.validate_each(@record,@attribute,'+14082323434')
-      @record.errors[:some_phone_number].should == []      
+      expect(@record.errors[:some_phone_number]).to eq([])      
       subject.validate_each(@record,@attribute,'+1 408 232 3434')
-      @record.errors[:some_phone_number].should == []      
+      expect(@record.errors[:some_phone_number]).to eq([])      
       subject.validate_each(@record,@attribute,'+1 (408) 232-3434')
-      @record.errors[:some_phone_number].should == []      
+      expect(@record.errors[:some_phone_number]).to eq([])      
     end
     it 'flags short numbers as invalid' do
       subject.validate_each(@record,@attribute,'2343434')
-      @record.errors[:some_phone_number].length.should > 0
+      expect(@record.errors[:some_phone_number].length).to be > 0
     end
     it 'flags long numbers as invalid' do
       subject.validate_each(@record,@attribute,'140823434343434')
-      @record.errors[:some_phone_number].length.should > 0
+      expect(@record.errors[:some_phone_number].length).to be > 0
     end    
   end
 end

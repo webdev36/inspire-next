@@ -50,7 +50,7 @@
     <div class="container">
         <div class="row">
           <div id="page" class="span12">
-            <%= bootstrap_flash %>
+            <%= flash_messages %>
             <%= content_for?(:content) ? yield(:content) : yield %>
           </div>
         </div><!--/row-->

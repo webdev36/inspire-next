@@ -36,20 +36,20 @@ feature 'Channels' do
     end
 
     scenario 'it is possible to select the type of channel' do
-      page.should have_css "select#channel_type"
-      page.should_not have_css "select#channel_type.readonly"
+      expect(page).to have_css "select#channel_type"
+      expect(page).not_to have_css "select#channel_type.readonly"
     end
     
     scenario "displays the keyword and tparty_keyword fields" do
-      page.should have_css("input#channel_keyword")
-      page.should have_css("input#channel_tparty_keyword")
+      expect(page).to have_css("input#channel_keyword")
+      expect(page).to have_css("input#channel_tparty_keyword")
     end
 
     scenario "shows/hides scheduling controls based on channel type", :js=>true do
       select 'Ordered messages channel', from:'channel_type'
-      page.should have_css("select#channel_schedule")
+      expect(page).to have_css("select#channel_schedule")
       select 'OnDemand messages channel', from:'channel_type'
-      page.should_not have_css("select#channel_schedule")      
+      expect(page).not_to have_css("select#channel_schedule")      
     end
   end
 
@@ -65,7 +65,7 @@ feature 'Channels' do
     end
     scenario 'it is not possible to change channel type' do
       within 'div#page' do
-        page.should have_css "select#channel_type.readonly"
+        expect(page).to have_css "select#channel_type.readonly"
       end
     end
   end
@@ -152,42 +152,42 @@ feature 'Channels' do
       scenario "the default sort order of messages is chronological" do
         within_table 'messages_table' do
           rows = all('tr')
-          rows[1].should have_content(@messages[0].title)
-          rows[2].should have_content(@messages[1].title)
-          rows[3].should have_content(@messages[2].title)
+          expect(rows[1]).to have_content(@messages[0].title)
+          expect(rows[2]).to have_content(@messages[1].title)
+          expect(rows[3]).to have_content(@messages[2].title)
         end
       end  
 
       scenario "it is possible to move the messages up and down" do
         within_table 'messages_table' do
           rows = all('tr')
-          rows[1].should have_content(@messages[0].title)
-          rows[2].should have_content(@messages[1].title)
-          rows[3].should have_content(@messages[2].title)
+          expect(rows[1]).to have_content(@messages[0].title)
+          expect(rows[2]).to have_content(@messages[1].title)
+          expect(rows[3]).to have_content(@messages[2].title)
           rows[3].click_link('Up')        
         end
         within_table 'messages_table' do
           rows = all('tr')
-          rows[2].should have_content(@messages[2].title)
+          expect(rows[2]).to have_content(@messages[2].title)
           rows[2].click_link('Up')
         end
         within_table 'messages_table' do
           rows = all('tr')
-          rows[1].should have_content(@messages[2].title)
-          rows[2].should have_content(@messages[0].title)
-          rows[3].should have_content(@messages[1].title)
+          expect(rows[1]).to have_content(@messages[2].title)
+          expect(rows[2]).to have_content(@messages[0].title)
+          expect(rows[3]).to have_content(@messages[1].title)
           rows[1].click_link('Down')
         end
         within_table 'messages_table' do
           rows = all('tr')
-          rows[2].should have_content(@messages[2].title)
+          expect(rows[2]).to have_content(@messages[2].title)
           rows[2].click_link('Down')
         end
         within_table 'messages_table' do
           rows = all('tr')
-          rows[1].should have_content(@messages[0].title)
-          rows[2].should have_content(@messages[1].title)
-          rows[3].should have_content(@messages[2].title)
+          expect(rows[1]).to have_content(@messages[0].title)
+          expect(rows[2]).to have_content(@messages[1].title)
+          expect(rows[3]).to have_content(@messages[2].title)
         end
       end      
     end
@@ -220,9 +220,9 @@ feature 'Channels' do
       scenario "the default sort order of messages is reverse chronological" do
         within_table 'messages_table' do
           rows = all('tr')
-          rows[1].should have_content(@random_messages[2].title)
-          rows[2].should have_content(@random_messages[1].title)
-          rows[3].should have_content(@random_messages[0].title)
+          expect(rows[1]).to have_content(@random_messages[2].title)
+          expect(rows[2]).to have_content(@random_messages[1].title)
+          expect(rows[3]).to have_content(@random_messages[0].title)
         end
       end  
     end
@@ -242,7 +242,7 @@ feature 'Channels' do
         end
       end
       scenario "displays scheduling controls" do
-        page.should have_css("select#channel_schedule")
+        expect(page).to have_css("select#channel_schedule")
       end
     end
   end
@@ -261,7 +261,7 @@ feature 'Channels' do
         end
       end
       scenario "does not display scheduling controls" do
-        page.should_not have_css("select#schedule")
+        expect(page).not_to have_css("select#schedule")
       end
     end    
   end     

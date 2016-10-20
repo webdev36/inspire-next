@@ -48,38 +48,38 @@ describe Subscriber do
   
   it "converts phone number to international format upon save" do
     subscriber = create(:subscriber,phone_number:'408-234-3434')
-    subscriber.phone_number.should == '+14082343434'
+    expect(subscriber.phone_number).to eq('+14082343434')
     subscriber = create(:subscriber,phone_number:'(408) 234 3434')
-    subscriber.phone_number.should == '+14082343434'
+    expect(subscriber.phone_number).to eq('+14082343434')
     subscriber = create(:subscriber,phone_number:'14082343434')
-    subscriber.phone_number.should == '+14082343434'
+    expect(subscriber.phone_number).to eq('+14082343434')
     subscriber = create(:subscriber,phone_number:'+14082343434')
-    subscriber.phone_number.should == '+14082343434'
+    expect(subscriber.phone_number).to eq('+14082343434')
   end
 
   it "find_by_phone_number works for all formats of the same number" do
     subscriber = create(:subscriber, phone_number:'(408) 234 3434')
-    Subscriber.find_by_phone_number('+14082343434').should == subscriber
-    Subscriber.find_by_phone_number('408 234 3434').should == subscriber
-    Subscriber.find_by_phone_number('(408)234-3434').should == subscriber
-    Subscriber.find_by_phone_number('+1(408)234 3434').should == subscriber
+    expect(Subscriber.find_by_phone_number('+14082343434')).to eq(subscriber)
+    expect(Subscriber.find_by_phone_number('408 234 3434')).to eq(subscriber)
+    expect(Subscriber.find_by_phone_number('(408)234-3434')).to eq(subscriber)
+    expect(Subscriber.find_by_phone_number('+1(408)234 3434')).to eq(subscriber)
   end
 
   describe 'format_phone_number' do
     it 'works for phone numbers in international format' do
-      Subscriber.format_phone_number('+14082322324').should == '+14082322324'
-      Subscriber.format_phone_number('+1(408)232-2324').should == '+14082322324'
-      Subscriber.format_phone_number('+1(408) 232 2324').should == '+14082322324'
+      expect(Subscriber.format_phone_number('+14082322324')).to eq('+14082322324')
+      expect(Subscriber.format_phone_number('+1(408)232-2324')).to eq('+14082322324')
+      expect(Subscriber.format_phone_number('+1(408) 232 2324')).to eq('+14082322324')
     end
     it 'works for phone numbers in local format' do
-      Subscriber.format_phone_number('4082322324').should == '+14082322324'
-      Subscriber.format_phone_number('14082322324').should == '+14082322324'
-      Subscriber.format_phone_number('(408)232-2324').should == '+14082322324'
-      Subscriber.format_phone_number('(408) 232 2324').should == '+14082322324'
+      expect(Subscriber.format_phone_number('4082322324')).to eq('+14082322324')
+      expect(Subscriber.format_phone_number('14082322324')).to eq('+14082322324')
+      expect(Subscriber.format_phone_number('(408)232-2324')).to eq('+14082322324')
+      expect(Subscriber.format_phone_number('(408) 232 2324')).to eq('+14082322324')
     end
     it 'returns nil for incomplete or longer phone numbers' do
-      Subscriber.format_phone_number('2322324').should be_nil
-      Subscriber.format_phone_number('(408) 232 2324 6754').should be_nil
+      expect(Subscriber.format_phone_number('2322324')).to be_nil
+      expect(Subscriber.format_phone_number('(408) 232 2324 6754')).to be_nil
     end
   end  
 

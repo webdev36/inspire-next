@@ -25,7 +25,7 @@ feature 'Subscribers' do
       end
     end
     scenario 'has the subscriber phone number' do
-      page.should have_content(@subscriber.phone_number)
+      expect(page).to have_content(@subscriber.phone_number)
     end
     scenario 'has a button that leads to the list of subscriber activities' do
       click_link 'Subscriber Activities'

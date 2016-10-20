@@ -63,7 +63,7 @@ feature 'Channel Groups' do
       end      
     end
     scenario "shows the default channel field" do
-      page.should have_select('channel_group_default_channel_id')
+      expect(page).to have_select('channel_group_default_channel_id')
     end
   end
   context "show page" do
@@ -97,7 +97,7 @@ feature 'Channel Groups' do
       end      
       expect(page).to have_title("New Channel")
       within "form#new_channel" do
-        page.should have_select('channel_channel_group_id',:selected=>@cg1.name)
+        expect(page).to have_select('channel_channel_group_id',:selected=>@cg1.name)
         @new_channel_name = Faker::Lorem.word
         fill_in 'channel_name', with: @new_channel_name
         click_button 'Create Channel'

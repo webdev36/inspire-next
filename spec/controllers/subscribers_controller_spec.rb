@@ -27,7 +27,7 @@ describe SubscribersController do
             post :create, {:subscriber => valid_attributes}
           }.to_not change(Subscriber, :count).by(1)
       
-      Subscriber.any_instance.should_not_receive(:update_attributes)
+      expect_any_instance_of(Subscriber).not_to receive(:update_attributes)
           put :update, {:id => subscriber.to_param, :subscriber => { "name" => "MyString" }}
 
       expect {
@@ -48,7 +48,7 @@ describe SubscribersController do
       get :edit, {:id => subscriber.to_param}
       expect(response).to redirect_to root_url
       
-      Subscriber.any_instance.should_not_receive(:update_attributes)
+      expect_any_instance_of(Subscriber).not_to receive(:update_attributes)
           put :update, {:id => subscriber.to_param, :subscriber => { "name" => "MyString" }}
 
       expect {
@@ -66,7 +66,7 @@ describe SubscribersController do
       it "assigns all subscribers as @subscribers" do
         subscriber = user.subscribers.create! valid_attributes
         get :index, {}
-        assigns(:subscribers).should eq([subscriber])
+        expect(assigns(:subscribers)).to eq([subscriber])
       end
     end
 
@@ -74,14 +74,14 @@ describe SubscribersController do
       it "assigns the requested subscriber as @subscriber" do
         subscriber = user.subscribers.create! valid_attributes
         get :show, {:id => subscriber.to_param}
-        assigns(:subscriber).should eq(subscriber)
+        expect(assigns(:subscriber)).to eq(subscriber)
       end
     end
 
     describe "GET new" do
       it "assigns a new subscriber as @subscriber" do
         get :new, {}
-        assigns(:subscriber).should be_a_new(Subscriber)
+        expect(assigns(:subscriber)).to be_a_new(Subscriber)
       end
     end
 
@@ -89,7 +89,7 @@ describe SubscribersController do
       it "assigns the requested subscriber as @subscriber" do
         subscriber = user.subscribers.create! valid_attributes
         get :edit, {:id => subscriber.to_param}
-        assigns(:subscriber).should eq(subscriber)
+        expect(assigns(:subscriber)).to eq(subscriber)
       end
     end
 
@@ -103,29 +103,29 @@ describe SubscribersController do
 
         it "assigns a newly created subscriber as @subscriber" do
           post :create, {:subscriber => valid_attributes}
-          assigns(:subscriber).should be_a(Subscriber)
-          assigns(:subscriber).should be_persisted
+          expect(assigns(:subscriber)).to be_a(Subscriber)
+          expect(assigns(:subscriber)).to be_persisted
         end
 
         it "redirects to the created subscriber" do
           post :create, {:subscriber => valid_attributes}
-          response.should redirect_to(Subscriber.last)
+          expect(response).to redirect_to(Subscriber.last)
         end
       end
 
       describe "with invalid params" do
         it "assigns a newly created but unsaved subscriber as @subscriber" do
           # Trigger the behavior that occurs when invalid params are submitted
-          Subscriber.any_instance.stub(:save).and_return(false)
+          allow_any_instance_of(Subscriber).to receive(:save).and_return(false)
           post :create, {:subscriber => { "name" => "invalid value" }}
-          assigns(:subscriber).should be_a_new(Subscriber)
+          expect(assigns(:subscriber)).to be_a_new(Subscriber)
         end
 
         it "re-renders the 'new' template" do
           # Trigger the behavior that occurs when invalid params are submitted
-          Subscriber.any_instance.stub(:save).and_return(false)
+          allow_any_instance_of(Subscriber).to receive(:save).and_return(false)
           post :create, {:subscriber => { "name" => "invalid value" }}
-          response.should render_template("new")
+          expect(response).to render_template("new")
         end
       end
     end
@@ -138,20 +138,20 @@ describe SubscribersController do
           # specifies that the Subscriber created on the previous line
           # receives the :update_attributes message with whatever params are
           # submitted in the request.
-          Subscriber.any_instance.should_receive(:update_attributes).with({ "name" => "MyString" })
+          expect_any_instance_of(Subscriber).to receive(:update_attributes).with({ "name" => "MyString" })
           put :update, {:id => subscriber.to_param, :subscriber => { "name" => "MyString" }}
         end
 
         it "assigns the requested subscriber as @subscriber" do
           subscriber = user.subscribers.create! valid_attributes
           put :update, {:id => subscriber.to_param, :subscriber => valid_attributes}
-          assigns(:subscriber).should eq(subscriber)
+          expect(assigns(:subscriber)).to eq(subscriber)
         end
 
         it "redirects to the subscriber" do
           subscriber = user.subscribers.create! valid_attributes
           put :update, {:id => subscriber.to_param, :subscriber => valid_attributes}
-          response.should redirect_to(subscriber)
+          expect(response).to redirect_to(subscriber)
         end
       end
 
@@ -159,17 +159,17 @@ describe SubscribersController do
         it "assigns the subscriber as @subscriber" do
           subscriber = user.subscribers.create! valid_attributes
           # Trigger the behavior that occurs when invalid params are submitted
-          Subscriber.any_instance.stub(:save).and_return(false)
+          allow_any_instance_of(Subscriber).to receive(:save).and_return(false)
           put :update, {:id => subscriber.to_param, :subscriber => { "name" => "invalid value" }}
-          assigns(:subscriber).should eq(subscriber)
+          expect(assigns(:subscriber)).to eq(subscriber)
         end
 
         it "re-renders the 'edit' template" do
           subscriber = user.subscribers.create! valid_attributes
           # Trigger the behavior that occurs when invalid params are submitted
-          Subscriber.any_instance.stub(:save).and_return(false)
+          allow_any_instance_of(Subscriber).to receive(:save).and_return(false)
           put :update, {:id => subscriber.to_param, :subscriber => { "name" => "invalid value" }}
-          response.should render_template("edit")
+          expect(response).to render_template("edit")
         end
       end
     end
@@ -185,7 +185,7 @@ describe SubscribersController do
       it "redirects to channel show" do
         subscriber = user.subscribers.create! valid_attributes
         delete :destroy, {:id => subscriber.to_param}
-        response.should redirect_to(subscribers_url)
+        expect(response).to redirect_to(subscribers_url)
       end
     end
   end

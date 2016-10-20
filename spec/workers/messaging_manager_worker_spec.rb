@@ -7,9 +7,9 @@ describe MessagingManagerWorker do
     it "calls MessagingManager#add_keyword" do
       mw = double.as_null_object
       my_keyword = Faker::Lorem.word
-      MessagingManager.stub(:new_instance){mw}
-      mw.should_receive(:add_keyword){|kw|
-        kw.should == my_keyword
+      allow(MessagingManager).to receive(:new_instance){mw}
+      expect(mw).to receive(:add_keyword){|kw|
+        expect(kw).to eq(my_keyword)
       }
       subject.add_keyword(my_keyword)
     end  
@@ -19,10 +19,10 @@ describe MessagingManagerWorker do
     it "calls MessagingManager#remove_keyword" do
       mw = double.as_null_object
       my_keyword = Faker::Lorem.word
-      MessagingManager.stub(:new_instance){mw}
-      mw.stub(:list_keywords){[my_keyword]}
-      mw.should_receive(:remove_keyword){|kw|
-        kw.should == my_keyword
+      allow(MessagingManager).to receive(:new_instance){mw}
+      allow(mw).to receive(:list_keywords){[my_keyword]}
+      expect(mw).to receive(:remove_keyword){|kw|
+        expect(kw).to eq(my_keyword)
       }
       subject.remove_keyword(my_keyword)      
     end
@@ -38,10 +38,10 @@ describe MessagingManagerWorker do
       channel.subscribers << subs1
       channel.subscribers << subs2
       mw = double.as_null_object
-      MessagingManager.stub(:new_instance){mw}
-      mw.should_receive(:broadcast_message){|msg,subs|
-        msg.should == Message.find(message)
-        subs.to_a.should =~ [subs1,subs2]
+      allow(MessagingManager).to receive(:new_instance){mw}
+      expect(mw).to receive(:broadcast_message){|msg,subs|
+        expect(msg).to eq(Message.find(message))
+        expect(subs.to_a).to match_array([subs1,subs2])
       }
       subject.broadcast_message(message.id)
     end
@@ -52,18 +52,18 @@ describe MessagingManagerWorker do
     describe "perform" do
       it "calls add_keyword class method when action is add" do
         keyword = Faker::Lorem.word
-        subject.class.should_receive(:add_keyword).with(keyword){}
+        expect(subject.class).to receive(:add_keyword).with(keyword){}
         subject.perform('add_keyword',{'keyword'=>keyword})
       end  
       it "calls remove_keyword class method when action is remove" do
         keyword = Faker::Lorem.word
-        subject.class.should_receive(:remove_keyword).with(keyword){}
+        expect(subject.class).to receive(:remove_keyword).with(keyword){}
         subject.perform('remove_keyword',{'keyword'=>keyword})
       end
       it "calls broadcast_message class method when action is broadcast" do
         message_id = 100
-        subject.class.should_receive(:broadcast_message){|msg_id|
-          msg_id.should == message_id
+        expect(subject.class).to receive(:broadcast_message){|msg_id|
+          expect(msg_id).to eq(message_id)
         }
         subject.perform('broadcast_message',{'message_id'=>message_id})
       end

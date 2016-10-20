@@ -26,18 +26,37 @@
 require 'spec_helper'
 
 describe AnnouncementsChannel do
-  its "factory works" do
+  describe '#factory works' do
+    subject { super().factory works }
+    it do
     expect(build(:announcements_channel)).to be_valid
+  end
   end
   describe "#" do
     subject { create(:announcements_channel) }
-    its(:has_schedule?) {should be_false}
-    its(:sequenced?) { should be_false}
-    its(:broadcastable?) { should be_true}
-    its(:type_abbr){should == 'Announcements'}
+
+    describe '#has_schedule?' do
+      subject { super().has_schedule? }
+      it {is_expected.to be_falsey}
+    end
+
+    describe '#sequenced?' do
+      subject { super().sequenced? }
+      it { is_expected.to be_falsey}
+    end
+
+    describe '#broadcastable?' do
+      subject { super().broadcastable? }
+      it { is_expected.to be_truthy}
+    end
+
+    describe '#type_abbr' do
+      subject { super().type_abbr }
+      it {is_expected.to eq('Announcements')}
+    end
     it "reset_next_send_time resets next_send_time to 10 years" do
       subject.reset_next_send_time 
-      subject.next_send_time.should > 9.years.from_now
+      expect(subject.next_send_time).to be > 9.years.from_now
     end
   end
 end

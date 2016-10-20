@@ -23,7 +23,7 @@ feature 'Announcements Channel' do
       expect(page).to have_title(name.titleize)
     end
     scenario "does not allow schedule to be set" do
-      page.should_not have_css("select#channel_schedule")      
+      expect(page).not_to have_css("select#channel_schedule")      
     end
   end
 
@@ -56,9 +56,9 @@ feature 'Announcements Channel' do
     scenario "the default sort order of messages is reverse chronological" do
       within_table 'messages_table' do
         rows = all('tr')
-        rows[1].should have_content(@messages[2].title)
-        rows[2].should have_content(@messages[1].title)
-        rows[3].should have_content(@messages[0].title)
+        expect(rows[1]).to have_content(@messages[2].title)
+        expect(rows[2]).to have_content(@messages[1].title)
+        expect(rows[3]).to have_content(@messages[0].title)
       end
     end  
   end

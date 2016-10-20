@@ -23,7 +23,7 @@ feature 'Ordered Messages Channel', :js=>true do
       expect(page).to have_title(name.titleize)
     end
     scenario "allows schedule to be set" do
-      page.should have_css("select#channel_schedule")
+      expect(page).to have_css("select#channel_schedule")
     end    
     
   end  
@@ -56,42 +56,42 @@ feature 'Ordered Messages Channel', :js=>true do
     scenario "the default sort order of messages is chronological" do
       within_table 'messages_table' do
         rows = all('tr')
-        rows[1].should have_content(@messages[0].title)
-        rows[2].should have_content(@messages[1].title)
-        rows[3].should have_content(@messages[2].title)
+        expect(rows[1]).to have_content(@messages[0].title)
+        expect(rows[2]).to have_content(@messages[1].title)
+        expect(rows[3]).to have_content(@messages[2].title)
       end
     end  
 
     scenario "it is possible to move the messages up and down" do
       within_table 'messages_table' do
         rows = all('tr')
-        rows[1].should have_content(@messages[0].title)
-        rows[2].should have_content(@messages[1].title)
-        rows[3].should have_content(@messages[2].title)
+        expect(rows[1]).to have_content(@messages[0].title)
+        expect(rows[2]).to have_content(@messages[1].title)
+        expect(rows[3]).to have_content(@messages[2].title)
         rows[3].click_link('Up')        
       end
       within_table 'messages_table' do
         rows = all('tr')
-        rows[2].should have_content(@messages[2].title)
+        expect(rows[2]).to have_content(@messages[2].title)
         rows[2].click_link('Up')
       end
       within_table 'messages_table' do
         rows = all('tr')
-        rows[1].should have_content(@messages[2].title)
-        rows[2].should have_content(@messages[0].title)
-        rows[3].should have_content(@messages[1].title)
+        expect(rows[1]).to have_content(@messages[2].title)
+        expect(rows[2]).to have_content(@messages[0].title)
+        expect(rows[3]).to have_content(@messages[1].title)
         rows[1].click_link('Down')
       end
       within_table 'messages_table' do
         rows = all('tr')
-        rows[2].should have_content(@messages[2].title)
+        expect(rows[2]).to have_content(@messages[2].title)
         rows[2].click_link('Down')
       end
       within_table 'messages_table' do
         rows = all('tr')
-        rows[1].should have_content(@messages[0].title)
-        rows[2].should have_content(@messages[1].title)
-        rows[3].should have_content(@messages[2].title)
+        expect(rows[1]).to have_content(@messages[0].title)
+        expect(rows[2]).to have_content(@messages[1].title)
+        expect(rows[3]).to have_content(@messages[2].title)
       end
     end      
   end

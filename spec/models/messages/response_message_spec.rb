@@ -39,11 +39,22 @@ describe ResponseMessage do
     let(:response_message){create(:response_message,channel:channel)}
     subject {response_message}
 
-    its(:type_abbr) {should == 'Response'}
-    its(:primary) {should be_true}
-    its(:requires_user_response?){should be_true}
+    describe '#type_abbr' do
+      subject { super().type_abbr }
+      it {is_expected.to eq('Response')}
+    end
+
+    describe '#primary' do
+      subject { super().primary }
+      it {is_expected.to be_truthy}
+    end
+
+    describe '#requires_user_response?' do
+      subject { super().requires_user_response? }
+      it {is_expected.to be_truthy}
+    end
     it "should have right value in requires_response in the db" do 
-      Message.find(response_message.id).requires_response.should be_true
+      expect(Message.find(response_message.id).requires_response).to be_truthy
     end
 
     describe "process_subscriber_response" do
@@ -60,9 +71,9 @@ describe ResponseMessage do
         ra2 = create(:response_action,response_text:'2',message:response_message,action:@action)
         sr = create(:subscriber_response,message_content:'2',subscriber:@subs)
         response_message.process_subscriber_response(sr)
-        channel.reload.subscribers.count.should == 0
-        @to_channel.reload.subscribers.count.should == 1
-        @to_channel.subscribers[0].should == @subs
+        expect(channel.reload.subscribers.count).to eq(0)
+        expect(@to_channel.reload.subscribers.count).to eq(1)
+        expect(@to_channel.subscribers[0]).to eq(@subs)
       end
 
       it "supports regular expression" do
@@ -70,9 +81,9 @@ describe ResponseMessage do
         ra2 = create(:response_action,response_text:'a.*',message:response_message,action:@action)
         sr = create(:subscriber_response,message_content:'a text starting with a',subscriber:@subs)
         response_message.process_subscriber_response(sr)
-        channel.reload.subscribers.count.should == 0
-        @to_channel.reload.subscribers.count.should == 1
-        @to_channel.subscribers[0].should == @subs
+        expect(channel.reload.subscribers.count).to eq(0)
+        expect(@to_channel.reload.subscribers.count).to eq(1)
+        expect(@to_channel.subscribers[0]).to eq(@subs)
       end
 
 
@@ -81,9 +92,9 @@ describe ResponseMessage do
         ra2 = create(:response_action,response_text:'\*',message:response_message,action:@action)
         sr = create(:subscriber_response,message_content:'*',subscriber:@subs)
         response_message.process_subscriber_response(sr)
-        channel.reload.subscribers.count.should == 0
-        @to_channel.reload.subscribers.count.should == 1
-        @to_channel.subscribers[0].should == @subs        
+        expect(channel.reload.subscribers.count).to eq(0)
+        expect(@to_channel.reload.subscribers.count).to eq(1)
+        expect(@to_channel.subscribers[0]).to eq(@subs)        
       end   
 
       it "supports escape characters-negative" do
@@ -91,8 +102,8 @@ describe ResponseMessage do
         ra2 = create(:response_action,response_text:'\*',message:response_message,action:@action)
         sr = create(:subscriber_response,message_content:'abc',subscriber:@subs)
         response_message.process_subscriber_response(sr)
-        channel.reload.subscribers.count.should == 1
-        @to_channel.reload.subscribers.count.should == 0
+        expect(channel.reload.subscribers.count).to eq(1)
+        expect(@to_channel.reload.subscribers.count).to eq(0)
       end            
 
     end
@@ -115,7 +126,7 @@ describe ResponseMessage do
       end
       it "returns subscriber_responses and subscribers grouped by message" do
         grouped_responses = subject.grouped_responses
-        grouped_responses.length.should == 2
+        expect(grouped_responses.length).to eq(2)
         if grouped_responses[0][:message_content] =~/^Male$/i
           mi = 0
           fi = 1
@@ -123,12 +134,12 @@ describe ResponseMessage do
           mi=1
           fi=0
         end
-        grouped_responses[mi][:message_content].should =~/^Male$/i
-        grouped_responses[mi][:subscriber_responses].to_a.should =~[@sr1,@sr2]
-        grouped_responses[mi][:subscribers].to_a.should =~[@subs1,@subs2]
-        grouped_responses[fi][:message_content].should =~/^Female$/i
-        grouped_responses[fi][:subscriber_responses].to_a.should =~[@sr3,@sr4]
-        grouped_responses[fi][:subscribers].to_a.should =~[@subs3]
+        expect(grouped_responses[mi][:message_content]).to match(/^Male$/i)
+        expect(grouped_responses[mi][:subscriber_responses].to_a).to match_array([@sr1,@sr2])
+        expect(grouped_responses[mi][:subscribers].to_a).to match_array([@subs1,@subs2])
+        expect(grouped_responses[fi][:message_content]).to match(/^Female$/i)
+        expect(grouped_responses[fi][:subscriber_responses].to_a).to match_array([@sr3,@sr4])
+        expect(grouped_responses[fi][:subscribers].to_a).to match_array([@subs3])
       end
     end
   end

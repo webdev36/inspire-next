@@ -4,54 +4,54 @@ describe MessagingManager do
   describe 'new_instance' do
     it 'returns TwilioMessagingManager by default' do
       stub_const('ENV',ENV.to_hash.merge('TPARTY_MESSAGING_SYSTEM'=>''))
-      MessagingManager.new_instance.class.should == TwilioMessagingManager
+      expect(MessagingManager.new_instance.class).to eq(TwilioMessagingManager)
     end
 
     it 'returns TwilioMessagingManager when specified' do
       stub_const('ENV',ENV.to_hash.merge('TPARTY_MESSAGING_SYSTEM'=>'Twilio'))
-      MessagingManager.new_instance.class.should == TwilioMessagingManager
+      expect(MessagingManager.new_instance.class).to eq(TwilioMessagingManager)
     end
   end
   describe 'mmclass' do
     it 'returns TwilioMessagingManager by default' do
       stub_const('ENV',ENV.to_hash.merge('TPARTY_MESSAGING_SYSTEM'=>''))
-      MessagingManager.mmclass.should == TwilioMessagingManager
+      expect(MessagingManager.mmclass).to eq(TwilioMessagingManager)
     end
 
     it 'returns TwilioMessagingManager when specified' do
       stub_const('ENV',ENV.to_hash.merge('TPARTY_MESSAGING_SYSTEM'=>'Twilio'))
-      MessagingManager.mmclass.should == TwilioMessagingManager
+      expect(MessagingManager.mmclass).to eq(TwilioMessagingManager)
     end
   end
 
   describe 'substitute_placeholders' do
     subject {MessagingManager}
     it 'substitutes placeholders as per the substitute string' do
-      subject.substitute_placeholders("Hello %%Salutations%% %%Name%%. How are you today?",
-          "Salutations=Mr.;Name=John Doe").should == 'Hello Mr. John Doe. How are you today?'
+      expect(subject.substitute_placeholders("Hello %%Salutations%% %%Name%%. How are you today?",
+          "Salutations=Mr.;Name=John Doe")).to eq('Hello Mr. John Doe. How are you today?')
     end
 
     it 'substitutes placeholders insensitive to case' do
-      subject.substitute_placeholders("Hello %%Salutations%% %%Name%%. How are you today?",
-          "salutations=Mr.;name=John Doe").should == 'Hello Mr. John Doe. How are you today?'
+      expect(subject.substitute_placeholders("Hello %%Salutations%% %%Name%%. How are you today?",
+          "salutations=Mr.;name=John Doe")).to eq('Hello Mr. John Doe. How are you today?')
     end
 
     it 'leaves string intact if placeholders are not present in string' do
-      subject.substitute_placeholders("Hello Mrs. Jane Doe. How are you today?",
-          "salutations=Mr.;name=John Doe").should == 'Hello Mrs. Jane Doe. How are you today?'
+      expect(subject.substitute_placeholders("Hello Mrs. Jane Doe. How are you today?",
+          "salutations=Mr.;name=John Doe")).to eq('Hello Mrs. Jane Doe. How are you today?')
     end
 
     it 'substitutes missing placeholders with empty string' do
-      subject.substitute_placeholders("Hello %%Salutations%% %%Name%%. How are you today?",
-          "name=John Doe").should == 'Hello  John Doe. How are you today?'
+      expect(subject.substitute_placeholders("Hello %%Salutations%% %%Name%%. How are you today?",
+          "name=John Doe")).to eq('Hello  John Doe. How are you today?')
 
-      subject.substitute_placeholders("Hello %%Salutations%%. How are you today?",
-          nil).should == 'Hello . How are you today?'
+      expect(subject.substitute_placeholders("Hello %%Salutations%%. How are you today?",
+          nil)).to eq('Hello . How are you today?')
     end
 
     it "substitutes placeholders even when they occur more than once" do
-    subject.substitute_placeholders("Hello %%Salutations%% %%Name%%. You are %%Salutations%% %%Name%%, right?",
-        "Salutations=Mr.;Name=John Doe").should == 'Hello Mr. John Doe. You are Mr. John Doe, right?'
+    expect(subject.substitute_placeholders("Hello %%Salutations%% %%Name%%. You are %%Salutations%% %%Name%%, right?",
+        "Salutations=Mr.;Name=John Doe")).to eq('Hello Mr. John Doe. You are Mr. John Doe, right?')
     end
 
   end
@@ -66,31 +66,31 @@ describe MessagingManager do
         my_caption = Faker::Lorem.sentence
         my_content_url = Faker::Internet.url
         content = OpenStruct.new({url:my_content_url,exists?:true})
-        message.stub(:title){my_title}
-        message.stub(:channel){nil}
-        message.stub(:caption){my_caption}
-        message.stub(:content){content}
-        message.stub(:options){{}}
-        message.stub(:primary?){true}
-        message.stub(:id){4242}
+        allow(message).to receive(:title){my_title}
+        allow(message).to receive(:channel){nil}
+        allow(message).to receive(:caption){my_caption}
+        allow(message).to receive(:content){content}
+        allow(message).to receive(:options){{}}
+        allow(message).to receive(:primary?){true}
+        allow(message).to receive(:id){4242}
         sub1 = double
         sub2 = double
         phone_numbers=[Faker::PhoneNumber.us_phone_number,Faker::PhoneNumber.us_phone_number]
-        sub1.stub(:phone_number){phone_numbers[0]}
-        sub2.stub(:phone_number){phone_numbers[1]}
-        sub1.stub(:id){4242}
-        sub2.stub(:id){424242}
+        allow(sub1).to receive(:phone_number){phone_numbers[0]}
+        allow(sub2).to receive(:phone_number){phone_numbers[1]}
+        allow(sub1).to receive(:id){4242}
+        allow(sub2).to receive(:id){424242}
         subscribers = [sub1,sub2]
         ret_phone_numbers=[]
-        subject.stub(:send_message){|phone_number,title,caption,content_url,from_num|
+        allow(subject).to receive(:send_message){|phone_number,title,caption,content_url,from_num|
           ret_phone_numbers << phone_number
-          title.should == my_title
-          caption.should == my_caption
-          content_url.should == my_content_url
+          expect(title).to eq(my_title)
+          expect(caption).to eq(my_caption)
+          expect(content_url).to eq(my_content_url)
         }
-        DeliveryNotice.stub(:create){}
+        allow(DeliveryNotice).to receive(:create){}
         subject.broadcast_message(message,subscribers)
-        ret_phone_numbers.should =~ phone_numbers
+        expect(ret_phone_numbers).to match(phone_numbers)
       end
 
       it "adds any channel suffix to message before send" do
@@ -102,8 +102,8 @@ describe MessagingManager do
         subscriber = create(:subscriber, user:user)
         channel.subscribers << subscriber
         mw = double
-        subject.should_receive(:send_message){|phone_number,subject,msg,content_url,from_num|
-          msg.should == "#{message.caption} #{channel.suffix}"
+        expect(subject).to receive(:send_message){|phone_number,subject,msg,content_url,from_num|
+          expect(msg).to eq("#{message.caption} #{channel.suffix}")
         }
         subject.broadcast_message(message,[subscriber])
       end
@@ -116,7 +116,7 @@ describe MessagingManager do
         subs2 = create(:subscriber,user:user)
         channel.subscribers << subs1
         channel.subscribers << subs2
-        subject.stub(:send_message){true}
+        allow(subject).to receive(:send_message){true}
         expect{
           subject.broadcast_message(message,[subs1,subs2])
           }.to change{DeliveryNotice.count}.by(2)

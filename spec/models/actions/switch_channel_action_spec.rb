@@ -19,26 +19,30 @@ describe SwitchChannelAction do
   end
 
   it 'requires to_channel' do
-    build(:switch_channel_action,to_channel:nil).should_not be_valid
+    expect(build(:switch_channel_action,to_channel:nil)).not_to be_valid
   end
 
   it 'stores the action in as_text' do
     sc = create(:switch_channel_action,to_channel:"40")
-    SwitchChannelAction.find(sc).as_text.should == "Switch channel to 40"
+    expect(SwitchChannelAction.find(sc).as_text).to eq("Switch channel to 40")
   end
 
   describe "#" do
     subject {create(:switch_channel_action,to_channel:"40")}
-    its(:get_to_channel_from_text) {should == "40"}
+
+    describe '#get_to_channel_from_text' do
+      subject { super().get_to_channel_from_text }
+      it {is_expected.to eq("40")}
+    end
     describe "virtual attribute" do
       describe "to_channel" do
         it "returns new value if set" do
           subject.to_channel = "33"
-          subject.to_channel.should == "33"
+          expect(subject.to_channel).to eq("33")
         end
         it "returns parsed value if not previously set" do
           subject.to_channel = nil
-          subject.to_channel.should == "40"
+          expect(subject.to_channel).to eq("40")
         end
       end            
     end
@@ -55,23 +59,23 @@ describe SwitchChannelAction do
       end
       it "moves a subscriber from one channel to another" do
         expect {
-          cmd.execute({subscribers:[subs],from_channel:ch1}).should == true
+          expect(cmd.execute({subscribers:[subs],from_channel:ch1})).to eq(true)
         }.to change{ActionNotice.count}.by(1)
-        ch1.subscribers.should_not be_include(subs)
-        ch2.subscribers.should be_include(subs)
+        expect(ch1.subscribers).not_to be_include(subs)
+        expect(ch2.subscribers).to be_include(subs)
       end
       it "returns false if subscriber or from_channel is blank" do
-        cmd.execute({subscribers:[],from_channel:ch1}).should == false
-        cmd.execute({subscribers:[subs],from_channel:nil}).should == false
+        expect(cmd.execute({subscribers:[],from_channel:ch1})).to eq(false)
+        expect(cmd.execute({subscribers:[subs],from_channel:nil})).to eq(false)
       end
       it "returns false if subscriber is not in from_channel" do
         ch1.subscribers.delete(subs)
-        cmd.execute({subscribers:[subs],from_channel:ch1}).should == false
+        expect(cmd.execute({subscribers:[subs],from_channel:ch1})).to eq(false)
       end
       it "returns true if subscriber is already in to_channel and removes him from from_channel" do
         ch2.subscribers << subs
-        cmd.execute({subscribers:[subs],from_channel:ch1}).should == true
-        ch1.subscribers.should_not be_include(subs)
+        expect(cmd.execute({subscribers:[subs],from_channel:ch1})).to eq(true)
+        expect(ch1.subscribers).not_to be_include(subs)
       end
 
 

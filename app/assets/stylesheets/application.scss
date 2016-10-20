@@ -1,0 +1,15 @@
+// "bootstrap-sprockets" must be imported before "bootstrap" and "bootstrap/variables"
+@import "bootstrap-sprockets";
+@import "bootstrap";
+@import "recurring_select";
+@import "bootstrap-datetimepicker";
+
+.voffset2      { margin-top: 2px;  }
+.voffset5      { margin-top: 5px;  }
+.voffset10     { margin-top: 10px; }
+.voffset15     { margin-top: 15px; }
+.voffset20     { margin-top: 20px; }
+.voffset30     { margin-top: 30px; }
+
+.remove_fields { margin-left: 180px; }
+.add_fields    { margin-left: 180px; }

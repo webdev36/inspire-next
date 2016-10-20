@@ -32,7 +32,7 @@ describe DeliveryNotice do
     dn1 = create(:delivery_notice,subscriber:subs,message:m1)
     dn2 = create(:delivery_notice,subscriber:subs,message:m2)
     dn3 = create(:delivery_notice,subscriber:subs,message:m3)
-    DeliveryNotice.of_primary_messages.to_a.should =~ [dn1,dn3]
+    expect(DeliveryNotice.of_primary_messages.to_a).to match_array([dn1,dn3])
   end
 
   it "of_primary_messages_that_require_response filters delivery notice of only primary messages" do
@@ -45,7 +45,7 @@ describe DeliveryNotice do
     dn2 = create(:delivery_notice,subscriber:subs,message:m2)
     dn3 = create(:delivery_notice,subscriber:subs,message:m3)
     dn4 = create(:delivery_notice,subscriber:subs,message:m4)
-    DeliveryNotice.of_primary_messages_that_require_response.to_a.should =~ [dn1,dn3]
+    expect(DeliveryNotice.of_primary_messages_that_require_response.to_a).to match_array([dn1,dn3])
   end  
 
   
@@ -60,10 +60,10 @@ describe DeliveryNotice do
     end
     subject {create(:delivery_notice,message:message,subscriber:subscriber)}
     it "populates the channel field using the message" do
-      subject.channel.should == Channel.find(channel)
+      expect(subject.channel).to eq(Channel.find(channel))
     end
     it "always sets the processed field to true" do
-      subject.processed.should == true
+      expect(subject.processed).to eq(true)
     end
   end
 end

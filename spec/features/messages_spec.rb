@@ -37,14 +37,14 @@ feature 'Messages' do
       end
     end
     scenario 'allows setting of title, caption, attachment and type' do
-      page.should have_css "select#message_type" 
-      page.should_not have_css "select#message_type.read_only"
-      page.should have_css "textarea#message_caption"     
-      page.should have_css "input#message_content"     
+      expect(page).to have_css "select#message_type" 
+      expect(page).not_to have_css "select#message_type.read_only"
+      expect(page).to have_css "textarea#message_caption"     
+      expect(page).to have_css "input#message_content"     
     end
 
     scenario 'does not allow setting schedule for channels which do not allow it' do
-      page.should_not have_css "input#message_next_send_time"
+      expect(page).not_to have_css "input#message_next_send_time"
     end
   end
   context 'in the new page for channels which allow individual message scheduling' do
@@ -57,7 +57,7 @@ feature 'Messages' do
       end     
     end
     scenario 'allows setting schedule' do
-      page.should have_css "input#message_next_send_time"
+      expect(page).to have_css "input#message_next_send_time"
     end    
   end
 
@@ -74,9 +74,9 @@ feature 'Messages' do
       end
     end
     scenario 'has title caption and content and readonly message type ' do
-      page.should have_css "select#message_type.readonly"
-      page.should have_css "textarea#message_caption"     
-      page.should have_css "input#message_content"     
+      expect(page).to have_css "select#message_type.readonly"
+      expect(page).to have_css "textarea#message_caption"     
+      expect(page).to have_css "input#message_content"     
     end
   end
 end

@@ -26,17 +26,36 @@
 require 'spec_helper'
 
 describe SecondaryMessagesChannel do
-  its "factory works" do
+  describe '#factory works' do
+    subject { super().factory works }
+    it do
     expect(build(:secondary_messages_channel)).to be_valid
+  end
   end
   describe "#" do
     let(:user) {create(:user)}
     let(:channel) {create(:secondary_messages_channel)}
     subject {channel}
-    its(:has_schedule?) {should be_false}
-    its(:sequenced?) { should be_false}
-    its(:broadcastable?) { should be_false}
-    its(:type_abbr){should == 'Secondary'} 
+
+    describe '#has_schedule?' do
+      subject { super().has_schedule? }
+      it {is_expected.to be_falsey}
+    end
+
+    describe '#sequenced?' do
+      subject { super().sequenced? }
+      it { is_expected.to be_falsey}
+    end
+
+    describe '#broadcastable?' do
+      subject { super().broadcastable? }
+      it { is_expected.to be_falsey}
+    end
+
+    describe '#type_abbr' do
+      subject { super().type_abbr }
+      it {is_expected.to eq('Secondary')}
+    end 
     it "group_subscribers_by_message groups messages with pending_send" do
       s1 = create(:subscriber,user:user)
       s2 = create(:subscriber,user:user)
@@ -52,9 +71,9 @@ describe SecondaryMessagesChannel do
       m3 = create(:message,channel:channel,options:options)
 
       msh = subject.group_subscribers_by_message
-      msh.length.should == 2
-      msh[m1.id].to_a.should =~ [s1,s2]
-      msh[m2.id].to_a.should =~ [s1,s2]
+      expect(msh.length).to eq(2)
+      expect(msh[m1.id].to_a).to match_array([s1,s2])
+      expect(msh[m2.id].to_a).to match_array([s1,s2])
     end 
     it "group_subscribers_by_message does not include messages for which subscriber response has been received" do
       s1 = create(:subscriber,user:user)
@@ -77,15 +96,15 @@ describe SecondaryMessagesChannel do
 
       create(:subscriber_response,message:orig_message1,subscriber:s1)
       msh = subject.group_subscribers_by_message
-      msh.length.should == 2
-      msh[m1.id].to_a.should =~ [s2]
-      msh[m2.id].to_a.should =~ [s1,s2]
-      subject.messages.count.should == 3
+      expect(msh.length).to eq(2)
+      expect(msh[m1.id].to_a).to match_array([s2])
+      expect(msh[m2.id].to_a).to match_array([s1,s2])
+      expect(subject.messages.count).to eq(3)
       create(:subscriber_response,message:orig_message1,subscriber:s2)
       msh = subject.group_subscribers_by_message
-      msh.length.should == 1
-      msh[m2.id].to_a.should =~ [s1,s2]
-      subject.messages.count.should == 2
+      expect(msh.length).to eq(1)
+      expect(msh[m2.id].to_a).to match_array([s1,s2])
+      expect(subject.messages.count).to eq(2)
     end  
        
     it "perform_post_send_ops removes the messages from the channel" do
@@ -93,7 +112,7 @@ describe SecondaryMessagesChannel do
       m2 = create(:message,channel:channel,next_send_time:2.days.ago)
       subject.perform_post_send_ops({m1.id=>[],m2.id=>[]})
       subject.reload
-      subject.messages.count.should == 0
+      expect(subject.messages.count).to eq(0)
     end
   end
 end

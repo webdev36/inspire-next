@@ -59,43 +59,43 @@ describe Channel do
   end
 
   it "validates keyword is unique for a given tparty_keyword" do
-    TpartyKeywordValidator.any_instance.stub(:validate_each){}
+    allow_any_instance_of(TpartyKeywordValidator).to receive(:validate_each){}
     create(:channel,keyword:'sample',tparty_keyword:'sample')
     expect(build(:channel,keyword:'sample',tparty_keyword:'sample')).to_not be_valid
   end
 
   it "allows similar keyword across different tparty_keyword" do
-    TpartyKeywordValidator.any_instance.stub(:validate_each){}
+    allow_any_instance_of(TpartyKeywordValidator).to receive(:validate_each){}
     create(:channel,keyword:'sample',tparty_keyword:'sample1')
     expect(build(:channel,keyword:'sample',tparty_keyword:'sample2')).to be_valid
   end
 
   it "validates tparty_keyword to check if primary or is available" do
-    TpartyKeywordValidator.any_instance.should_receive(:validate_each){|record,attribute,value|
-      attribute.should == :tparty_keyword
-      value.should == 'sample'
+    expect_any_instance_of(TpartyKeywordValidator).to receive(:validate_each){|record,attribute,value|
+      expect(attribute).to eq(:tparty_keyword)
+      expect(value).to eq('sample')
     }
     create(:channel,keyword:'sample',tparty_keyword:'sample')
   end
 
   it "validates one_word to ensure it is only a single word" do
-    OneWordValidator.any_instance.should_receive(:validate_each){|record,attribute,value|
-      attribute.should == :one_word
-      value.should == 'sample'
+    expect_any_instance_of(OneWordValidator).to receive(:validate_each){|record,attribute,value|
+      expect(attribute).to eq(:one_word)
+      expect(value).to eq('sample')
     }
     create(:channel,one_word:'sample')
   end
 
   it "validates moderator emails are valid" do
-    EmailsValidator.any_instance.should_receive(:validate_each){|record,attribute,value|
-      attribute.should == :moderator_emails
-      value.should == 'abc@def.com'
+    expect_any_instance_of(EmailsValidator).to receive(:validate_each){|record,attribute,value|
+      expect(attribute).to eq(:moderator_emails)
+      expect(value).to eq('abc@def.com')
     }
     create(:channel,moderator_emails:'abc@def.com')
   end
 
   it "allows moderator_emails to be blank" do
-    EmailsValidator.any_instance.should_not_receive(:validate_each){}
+    expect_any_instance_of(EmailsValidator).not_to receive(:validate_each){}
     create(:channel,moderator_emails:nil)
     create(:channel,moderator_emails:'')
   end
@@ -109,7 +109,7 @@ describe Channel do
     ch1.one_word = 'sample'
     ch1.save
     ch2.one_word = 'sample'
-    ch2.should_not be_valid
+    expect(ch2).not_to be_valid
   end
 
   it "does allow similar one_word across channel groups" do
@@ -123,24 +123,24 @@ describe Channel do
     ch1.one_word = 'sample'
     ch1.save
     ch2.one_word = 'sample'
-    ch2.should be_valid
+    expect(ch2).to be_valid
   end
 
   it "upon creation calls MessagingManagerWorker to create keyword if required" do
-      TpartyKeywordValidator.any_instance.stub(:validate_each){}
+      allow_any_instance_of(TpartyKeywordValidator).to receive(:validate_each){}
       keyword = Faker::Lorem.word
-      MessagingManagerWorker.should_receive(:perform_async){|action,opts|
-        action.should == 'add_keyword'
-        opts['keyword'].should == keyword
+      expect(MessagingManagerWorker).to receive(:perform_async){|action,opts|
+        expect(action).to eq('add_keyword')
+        expect(opts['keyword']).to eq(keyword)
       }
       create(:channel,tparty_keyword:keyword)
   end
 
   it "upon destroy calls MessagingManagerWorker to remove keyword if required" do
     channel = create(:channel)
-    MessagingManagerWorker.should_receive(:perform_async){|action,opts|
-      action.should == 'remove_keyword'
-      opts['keyword'].should == channel.tparty_keyword
+    expect(MessagingManagerWorker).to receive(:perform_async){|action,opts|
+      expect(action).to eq('remove_keyword')
+      expect(opts['keyword']).to eq(channel.tparty_keyword)
     }
     channel.destroy
   end
@@ -150,7 +150,7 @@ describe Channel do
     channel = create(:channel,user:user)
     subscriber = create(:subscriber,user:user)
     channel.subscribers << subscriber
-    channel.subscribers.count.should == 1
+    expect(channel.subscribers.count).to eq(1)
     expect{channel.subscribers << subscriber}.to raise_error(ActiveRecord::RecordInvalid)
   end
 
@@ -168,7 +168,7 @@ describe Channel do
   end
 
   it "sets the model_name of any subclass as channel to enable STI use single controller" do
-    AnnouncementsChannel.model_name.should == Channel.model_name
+    expect(AnnouncementsChannel.model_name).to eq(Channel.model_name)
   end
 
   it "keeps track of its child classes" do
@@ -183,19 +183,19 @@ describe Channel do
     channel2 = create(:random_messages_channel,schedule:IceCube::Rule.weekly.day((prev_time+1.day).strftime("%A").downcase.to_sym))
     channel4 = create(:random_messages_channel,schedule:IceCube::Rule.weekly.day((prev_time+3.days).strftime("%A").downcase.to_sym))
     Timecop.return
-    Channel.pending_send.should =~ [channel1,channel2]
+    expect(Channel.pending_send).to match_array([channel1,channel2])
   end
 
   describe "get_next_seq_no" do
     it "returns first seq no if current is nil or 0" do
-      Channel.get_next_seq_no(nil,[1,2,3]).should == 1
-      Channel.get_next_seq_no(0,[1,2,3]).should == 1
+      expect(Channel.get_next_seq_no(nil,[1,2,3])).to eq(1)
+      expect(Channel.get_next_seq_no(0,[1,2,3])).to eq(1)
     end
     it "returns correct seq no" do
-      Channel.get_next_seq_no(3,[1,2,3,5]).should == 5
+      expect(Channel.get_next_seq_no(3,[1,2,3,5])).to eq(5)
     end
     it "returns nil if there are no larger seq_no" do
-      Channel.get_next_seq_no(5,[1,2,3,5]).should == nil
+      expect(Channel.get_next_seq_no(5,[1,2,3,5])).to eq(nil)
     end
 
   end
@@ -204,9 +204,9 @@ describe Channel do
     it "is case insensitive" do
       channel = create(:channel,keyword:'SampleKeyword')
       channel = Channel.find(channel.id)
-      Channel.find_by_keyword(channel.keyword.upcase).should == channel
-      Channel.find_by_keyword(channel.keyword.downcase).should == channel
-      Channel.find_by_keyword(channel.keyword.swapcase).should == channel
+      expect(Channel.find_by_keyword(channel.keyword.upcase)).to eq(channel)
+      expect(Channel.find_by_keyword(channel.keyword.downcase)).to eq(channel)
+      expect(Channel.find_by_keyword(channel.keyword.swapcase)).to eq(channel)
     end
   end
 
@@ -214,33 +214,33 @@ describe Channel do
     it "is case insensitive" do
       channel = create(:channel,keyword:'SampleKeyword')
       channel = Channel.find(channel.id)
-      Channel.by_keyword(channel.keyword.upcase).first.should == channel
-      Channel.by_keyword(channel.keyword.downcase).first.should == channel
-      Channel.by_keyword(channel.keyword.swapcase).first.should == channel
+      expect(Channel.by_keyword(channel.keyword.upcase).first).to eq(channel)
+      expect(Channel.by_keyword(channel.keyword.downcase).first).to eq(channel)
+      expect(Channel.by_keyword(channel.keyword.swapcase).first).to eq(channel)
     end
   end
 
   describe "find_by_tparty_keyword" do
     it "is case insensitive" do
       kw = Faker::Lorem.word
-      TpartyKeywordValidator.any_instance.stub(:validate_each){}
+      allow_any_instance_of(TpartyKeywordValidator).to receive(:validate_each){}
       channel = create(:channel,keyword:kw,tparty_keyword:kw)
       channel = Channel.find(channel.id)
-      Channel.find_by_tparty_keyword(channel.tparty_keyword.upcase).should == channel
-      Channel.find_by_tparty_keyword(channel.tparty_keyword.downcase).should == channel
-      Channel.find_by_tparty_keyword(channel.tparty_keyword.swapcase).should == channel
+      expect(Channel.find_by_tparty_keyword(channel.tparty_keyword.upcase)).to eq(channel)
+      expect(Channel.find_by_tparty_keyword(channel.tparty_keyword.downcase)).to eq(channel)
+      expect(Channel.find_by_tparty_keyword(channel.tparty_keyword.swapcase)).to eq(channel)
     end
   end
 
   describe "by_tparty_keyword" do
     it "is case insensitive" do
       kw = Faker::Lorem.word
-      TpartyKeywordValidator.any_instance.stub(:validate_each){}
+      allow_any_instance_of(TpartyKeywordValidator).to receive(:validate_each){}
       channel = create(:channel,keyword:kw,tparty_keyword:kw)
       channel = Channel.find(channel.id)
-      Channel.by_tparty_keyword(channel.tparty_keyword.upcase).first.should == channel
-      Channel.by_tparty_keyword(channel.tparty_keyword.downcase).first.should == channel
-      Channel.by_tparty_keyword(channel.tparty_keyword.swapcase).first.should == channel
+      expect(Channel.by_tparty_keyword(channel.tparty_keyword.upcase).first).to eq(channel)
+      expect(Channel.by_tparty_keyword(channel.tparty_keyword.downcase).first).to eq(channel)
+      expect(Channel.by_tparty_keyword(channel.tparty_keyword.swapcase).first).to eq(channel)
     end
   end
 
@@ -252,22 +252,22 @@ describe Channel do
       phone_number = Faker::PhoneNumber.us_phone_number
       subs = create(:subscriber,phone_number:phone_number)
       ch2.subscribers << subs
-      Channel.with_subscriber(phone_number).should == [Channel.find(ch2)]
+      expect(Channel.with_subscriber(phone_number)).to eq([Channel.find(ch2)])
     end
   end
 
   describe "identify_command" do
     it "identifies start command" do
-      Channel.identify_command('Start').should == :start
+      expect(Channel.identify_command('Start')).to eq(:start)
     end
     it "identifies stop command" do
-      Channel.identify_command('Stop').should == :stop
+      expect(Channel.identify_command('Stop')).to eq(:stop)
     end
     it "identifies custom single word command" do
-      Channel.identify_command(Faker::Lorem.word).should == :custom
+      expect(Channel.identify_command(Faker::Lorem.word)).to eq(:custom)
     end
     it "identifies custom multi word command" do
-      Channel.identify_command(Faker::Lorem.sentence).should == :custom
+      expect(Channel.identify_command(Faker::Lorem.sentence)).to eq(:custom)
     end
   end
 
@@ -277,8 +277,8 @@ describe Channel do
       ch1 = create(:channel,user:user)
       ch2 = create(:channel,user:user)
       ch1.destroy
-      Channel.all.size.should == 1
-      Channel.unscoped.all.size.should == 2
+      expect(Channel.all.size).to eq(1)
+      expect(Channel.unscoped.all.size).to eq(2)
     end
   end
 
@@ -286,7 +286,7 @@ describe Channel do
     let(:tparty_keyword) {Faker::Lorem.word}
     let(:user) {create(:user)}
     before do
-      TpartyKeywordValidator.any_instance.stub(:validate_each){}
+      allow_any_instance_of(TpartyKeywordValidator).to receive(:validate_each){}
       @channel = create(:channel,user:user,tparty_keyword:tparty_keyword)
     end
     let(:channel) {@channel}
@@ -297,16 +297,16 @@ describe Channel do
         @channel = create(:channel,schedule:IceCube::Rule.daily.hour_of_day(9))
       end
       it "properly" do
-        @channel.next_send_time.should == Time.new(2013,10,19,9,0)
+        expect(@channel.next_send_time).to eq(Time.new(2013,10,19,9,0))
         @channel.schedule = IceCube::Rule.daily.hour_of_day(4)
         @channel.save
-        @channel.next_send_time.should == Time.new(2013,10,20,4,0)
+        expect(@channel.next_send_time).to eq(Time.new(2013,10,20,4,0))
         @channel.schedule = IceCube::Rule.weekly.day(:monday).hour_of_day(4)
         @channel.save
-        @channel.next_send_time.should == Time.new(2013,10,21,4,0)
+        expect(@channel.next_send_time).to eq(Time.new(2013,10,21,4,0))
         @channel.schedule = IceCube::Rule.weekly.day(:saturday).hour_of_day(0)
         @channel.save
-        @channel.next_send_time.should == Time.new(2013,10,26,0,0)
+        expect(@channel.next_send_time).to eq(Time.new(2013,10,26,0,0))
       end
       after do
         Timecop.return
@@ -316,14 +316,14 @@ describe Channel do
     describe "schedule= " do
       it "with empty schedule returns an empty hash when accessed" do
         channel = create(:channel,schedule:"{}")
-        channel.schedule.should == {}
+        expect(channel.schedule).to eq({})
       end
     end
 
     it "get_all_seq_nos returns sequence numbers of all messages" do
       msg1 = create(:message,channel:channel)
       msg2 = create(:message,channel:channel)
-      channel.get_all_seq_nos.should =~ [msg1.seq_no,msg2.seq_no]
+      expect(channel.get_all_seq_nos).to match_array([msg1.seq_no,msg2.seq_no])
     end
 
     it "lists all subscriber responses" do
@@ -346,21 +346,21 @@ describe Channel do
         Timecop.return
       end
       it "works fine when schedule is daily" do
-        @channel.next_send_time.should == Time.new(2013,10,19,9,0)
+        expect(@channel.next_send_time).to eq(Time.new(2013,10,19,9,0))
         Timecop.return
         Timecop.freeze(Time.new(2013,10,26,5,0))
         @channel.reset_next_send_time
-        @channel.next_send_time.should == Time.new(2013,10,26,9,0)
+        expect(@channel.next_send_time).to eq(Time.new(2013,10,26,9,0))
         Timecop.return
       end
       it "works fine when schedule is weekly" do
         @channel.schedule = IceCube::Rule.weekly.day(:wednesday).hour_of_day(9)
         @channel.save
-        @channel.next_send_time.should == Time.new(2013,10,23,9,0)
+        expect(@channel.next_send_time).to eq(Time.new(2013,10,23,9,0))
         Timecop.return
         Timecop.freeze(Time.new(2013,10,26,5,0))
         @channel.reset_next_send_time
-        @channel.next_send_time.should == Time.new(2013,10,30,9,0)
+        expect(@channel.next_send_time).to eq(Time.new(2013,10,30,9,0))
         Timecop.return
       end
     end
@@ -374,16 +374,16 @@ describe Channel do
           message = create(:message,channel:channel)
           messages << message
         end
-        channel.sent_messages_ids(subscriber).should =~ []
-        channel.pending_messages_ids(subscriber).should =~ (0..3).map{|i| messages[i].id}
+        expect(channel.sent_messages_ids(subscriber)).to match_array([])
+        expect(channel.pending_messages_ids(subscriber)).to match((0..3).map{|i| messages[i].id})
         DeliveryNotice.create(subscriber:subscriber,message:messages[1])
         DeliveryNotice.create(subscriber:subscriber,message:messages[2])
-        channel.sent_messages_ids(subscriber).should =~ [messages[1].id,messages[2].id]
-        channel.pending_messages_ids(subscriber).should =~ [messages[0].id,messages[3].id]
+        expect(channel.sent_messages_ids(subscriber)).to match_array([messages[1].id,messages[2].id])
+        expect(channel.pending_messages_ids(subscriber)).to match_array([messages[0].id,messages[3].id])
         DeliveryNotice.create(subscriber:subscriber,message:messages[0])
         DeliveryNotice.create(subscriber:subscriber,message:messages[3])
-        channel.sent_messages_ids(subscriber).should =~ (0..3).map{|i| messages[i].id}
-        channel.pending_messages_ids(subscriber).should =~ []
+        expect(channel.sent_messages_ids(subscriber)).to match((0..3).map{|i| messages[i].id})
+        expect(channel.pending_messages_ids(subscriber)).to match_array([])
       end
 
     end
@@ -397,54 +397,54 @@ describe Channel do
         channel.subscribers << subs2
       end
       it "calls group_subscribers_by_message" do
-        subject.should_receive(:group_subscribers_by_message){}
+        expect(subject).to receive(:group_subscribers_by_message){}
         subject.send_scheduled_messages
       end
 
       it "for non-internal messages, uses MessagingManager to broadcast messages to right subscribers" do
-        subject.stub(:group_subscribers_by_message){{msg.id=>[subs1,subs2]}}
+        allow(subject).to receive(:group_subscribers_by_message){{msg.id=>[subs1,subs2]}}
         mm = double.as_null_object
-        MessagingManager.stub(:new_instance){mm}
-        mm.should_receive(:broadcast_message){|message,subscribers|
-          message.should == Message.find(msg)
-          subscribers.should =~ [subs1,subs2]
+        allow(MessagingManager).to receive(:new_instance){mm}
+        expect(mm).to receive(:broadcast_message){|message,subscribers|
+          expect(message).to eq(Message.find(msg))
+          expect(subscribers).to match_array([subs1,subs2])
         }
         subject.send_scheduled_messages
       end
 
       it "for internal messages, calls send_to_subscribers method of the message itself instead of MessagingManager" do
         imsg = create(:action_message)
-        subject.stub(:group_subscribers_by_message){{imsg.id=>[subs1,subs2]}}
-        ActionMessage.any_instance.should_receive(:send_to_subscribers){|subscribers|
-          subscribers.should =~ [subs1,subs2]
+        allow(subject).to receive(:group_subscribers_by_message){{imsg.id=>[subs1,subs2]}}
+        expect_any_instance_of(ActionMessage).to receive(:send_to_subscribers){|subscribers|
+          expect(subscribers).to match_array([subs1,subs2])
         }
         mm = double.as_null_object
-        MessagingManager.stub(:new_instance){mm}
-        mm.should_not_receive(:broadcast_message)
+        allow(MessagingManager).to receive(:new_instance){mm}
+        expect(mm).not_to receive(:broadcast_message)
         subject.send_scheduled_messages
       end
 
       it "calls perform_post_send_ops" do
-        subject.stub(:group_subscribers_by_message){{msg.id=>[subs1,subs2]}}
+        allow(subject).to receive(:group_subscribers_by_message){{msg.id=>[subs1,subs2]}}
         mm = double.as_null_object
-        MessagingManager.stub(:new_instance){mm}
-        subject.should_receive(:perform_post_send_ops){}
+        allow(MessagingManager).to receive(:new_instance){mm}
+        expect(subject).to receive(:perform_post_send_ops){}
         subject.send_scheduled_messages
       end
 
       it "calls perform_post_send_ops for all messages" do
-        subject.stub(:group_subscribers_by_message){{msg.id=>[subs1,subs2]}}
-        subject.stub(:perform_post_send_ops){}
+        allow(subject).to receive(:group_subscribers_by_message){{msg.id=>[subs1,subs2]}}
+        allow(subject).to receive(:perform_post_send_ops){}
         mm = double.as_null_object
-        MessagingManager.stub(:new_instance){mm}
+        allow(MessagingManager).to receive(:new_instance){mm}
         message_stub = double.as_null_object
-        Message.stub(:find){message_stub}
-        message_stub.should_receive(:perform_post_send_ops){}
+        allow(Message).to receive(:find){message_stub}
+        expect(message_stub).to receive(:perform_post_send_ops){}
         subject.send_scheduled_messages
       end
 
       it "calls reset_next_send_time" do
-        subject.should_receive(:reset_next_send_time){}
+        expect(subject).to receive(:reset_next_send_time){}
         subject.send_scheduled_messages
       end
     end
@@ -452,21 +452,21 @@ describe Channel do
     describe "remove_keyword" do
       it "does not call the MessagingManagerWorker if there are other channels sharing the keyword" do
         keyword = Faker::Lorem.word
-        TpartyKeywordValidator.any_instance.stub(:validate_each){}
+        allow_any_instance_of(TpartyKeywordValidator).to receive(:validate_each){}
         ch1 = create(:channel,tparty_keyword:keyword,keyword:'sample1')
         ch2 = create(:channel,tparty_keyword:keyword,keyword:'sample2')
-        MessagingManagerWorker.should_not_receive(:perform_async)
+        expect(MessagingManagerWorker).not_to receive(:perform_async)
         ch1.destroy
       end
     end
     it "does calls MessagingManagerWorker when all uses of keyword is deleted" do
       keyword = Faker::Lorem.word
-      TpartyKeywordValidator.any_instance.stub(:validate_each){}
+      allow_any_instance_of(TpartyKeywordValidator).to receive(:validate_each){}
       ch1 = create(:channel,tparty_keyword:keyword,keyword:'sample1')
       ch2 = create(:channel,tparty_keyword:keyword,keyword:'sample2')
-      MessagingManagerWorker.should_receive(:perform_async){|action,opts|
-        action.should == 'remove_keyword'
-        opts['keyword'].should == keyword
+      expect(MessagingManagerWorker).to receive(:perform_async){|action,opts|
+        expect(action).to eq('remove_keyword')
+        expect(opts['keyword']).to eq(keyword)
       }
       ch1.destroy
       ch2.destroy
@@ -476,26 +476,26 @@ describe Channel do
       it "initiate start command processing on receiving start com" do
         sr = create(:subscriber_response,message_content:'start',
           origin:Faker::PhoneNumber.us_phone_number)
-        subject.should_receive(:process_start_command){true}
-        subject.process_subscriber_response(sr).should == true
+        expect(subject).to receive(:process_start_command){true}
+        expect(subject.process_subscriber_response(sr)).to eq(true)
       end
 
       it "initiates stop command processing on receiving stop command" do
         sr = create(:subscriber_response,message_content:'stop',
           origin:Faker::PhoneNumber.us_phone_number)
-        subject.should_receive(:process_stop_command){true}
-        subject.process_subscriber_response(sr).should == true
+        expect(subject).to receive(:process_stop_command){true}
+        expect(subject.process_subscriber_response(sr)).to eq(true)
       end
 
       it "initiates custom command processing on receiving custom command" do
         sr = create(:subscriber_response,message_content:'',
           origin:Faker::PhoneNumber.us_phone_number)
-        subject.should_receive(:process_custom_command)
+        expect(subject).to receive(:process_custom_command)
         subject.process_subscriber_response(sr)
         sr = create(:subscriber_response,message_content:Faker::Lorem.sentence,
           origin:Faker::PhoneNumber.us_phone_number)
-        subject.should_receive(:process_custom_command){true}
-        subject.process_subscriber_response(sr).should == true
+        expect(subject).to receive(:process_custom_command){true}
+        expect(subject.process_subscriber_response(sr)).to eq(true)
       end
     end
 
@@ -505,7 +505,7 @@ describe Channel do
         sr = create(:subscriber_response,message_content:'start',
           origin:phone_number)
         expect{
-          subject.process_start_command(sr).should == true}.to change{
+          expect(subject.process_start_command(sr)).to eq(true)}.to change{
           subject.user.subscribers.count
         }.by 1
       end
@@ -514,7 +514,7 @@ describe Channel do
         subscriber = create(:subscriber,phone_number:phone_number,user:user)
         sr = create(:subscriber_response,message_content:'start',
           origin:phone_number)
-        expect{subject.process_start_command(sr).should == true}.to change{
+        expect{expect(subject.process_start_command(sr)).to eq(true)}.to change{
           subject.subscribers.count
         }.by 1
       end
@@ -523,7 +523,7 @@ describe Channel do
         subscriber = create(:subscriber,phone_number:phone_number,user:user)
         sr = create(:subscriber_response,message_content:'start',
           origin:phone_number)
-        expect{subject.process_start_command(sr).should ==true}.to_not change{
+        expect{expect(subject.process_start_command(sr)).to eq(true)}.to_not change{
           subject.user.subscribers.count
         }
       end
@@ -533,7 +533,7 @@ describe Channel do
         sr = create(:subscriber_response,message_content:'start',
           origin:phone_number)
         subject.subscribers << subscriber
-        expect{subject.process_start_command(sr).should == true}.to_not change{
+        expect{expect(subject.process_start_command(sr)).to eq(true)}.to_not change{
           subject.subscribers.count
         }
       end
@@ -543,7 +543,7 @@ describe Channel do
           origin:phone_number)
         subject.allow_mo_subscription=false
         subject.save!
-        expect{subject.process_start_command(sr).should == false}.to_not change{
+        expect{expect(subject.process_start_command(sr)).to eq(false)}.to_not change{
           subject.subscribers.count
         }
       end
@@ -553,7 +553,7 @@ describe Channel do
           origin:phone_number)
         subject.mo_subscription_deadline=2.days.ago
         subject.save!
-        expect{subject.process_start_command(sr).should == false}.to_not change{
+        expect{expect(subject.process_start_command(sr)).to eq(false)}.to_not change{
           subject.subscribers.count
         }
       end
@@ -564,7 +564,7 @@ describe Channel do
         subject.mo_subscription_deadline = 2.days.from_now
         subject.save!
         expect{
-          subject.process_start_command(sr).should == true}.to change{
+          expect(subject.process_start_command(sr)).to eq(true)}.to change{
           subject.user.subscribers.count
         }.by 1
       end
@@ -577,7 +577,7 @@ describe Channel do
         subject.subscribers << subscriber
         sr = create(:subscriber_response,origin:phone_number,
           message_content:'stop')
-        expect{subject.process_stop_command(sr).should == true}.to change{
+        expect{expect(subject.process_stop_command(sr)).to eq(true)}.to change{
           subject.subscribers.count
         }.by -1
       end
@@ -587,7 +587,7 @@ describe Channel do
         subject.subscribers << subscriber
         sr = create(:subscriber_response,origin:phone_number,
           message_content:'stop')
-        expect{subject.process_stop_command(sr).should == true}.to_not change{
+        expect{expect(subject.process_stop_command(sr)).to eq(true)}.to_not change{
           subject.user.subscribers.count
         }
       end
@@ -596,7 +596,7 @@ describe Channel do
         subscriber = create(:subscriber,user:user,phone_number:phone_number)
         sr = create(:subscriber_response,origin:phone_number,
           message_content:'stop')
-        expect{subject.process_stop_command(sr).should == false}.to_not change{
+        expect{expect(subject.process_stop_command(sr)).to eq(false)}.to_not change{
           subject.subscribers.count
         }
       end
@@ -605,22 +605,22 @@ describe Channel do
     describe "process_custom_command" do
       it "calls process_custom_channel_command" do
         sr = create(:subscriber_response)
-        subject.should_receive(:process_custom_channel_command){true}
-        subject.process_custom_command(sr).should == true
+        expect(subject).to receive(:process_custom_channel_command){true}
+        expect(subject.process_custom_command(sr)).to eq(true)
       end
       it "if not channel command, associates a message with it" do
         sr = create(:subscriber_response)
-        subject.stub(:process_custom_channel_command){false}
-        subject.should_receive(:associate_response_with_last_primary_message){nil}
+        allow(subject).to receive(:process_custom_channel_command){false}
+        expect(subject).to receive(:associate_response_with_last_primary_message){nil}
         subject.process_custom_command(sr)
       end
       it "if not channel command, asks message to process subscriber response" do
         sr = create(:subscriber_response)
         message = build(:response_message)
-        subject.stub(:process_custom_channel_command){false}
-        subject.stub(:associate_response_with_last_primary_message){message}
-        ResponseMessage.any_instance.should_receive(:process_subscriber_response){true}
-        subject.process_custom_command(sr).should == true
+        allow(subject).to receive(:process_custom_channel_command){false}
+        allow(subject).to receive(:associate_response_with_last_primary_message){message}
+        expect_any_instance_of(ResponseMessage).to receive(:process_subscriber_response){true}
+        expect(subject.process_custom_command(sr)).to eq(true)
       end
     end
 
@@ -637,7 +637,7 @@ describe Channel do
         create(:delivery_notice,message:m3,subscriber:sub1)
         sr = create(:subscriber_response,origin:phone_number)
         subject.associate_response_with_last_primary_message(sr)
-        SubscriberResponse.find(sr).message.should == Message.find(m1)
+        expect(SubscriberResponse.find(sr).message).to eq(Message.find(m1))
       end
     end
 

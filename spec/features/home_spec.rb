@@ -1,9 +1,9 @@
 require 'spec_helper'
 
 feature 'home page' do
-  scenario 'has the welcome text' do
+  scenario 'has welcome text' do
     visit root_path
-    expect(page).to have_content('Welcome to Live Inspired')
+    expect(page).to have_content('Welcome')
   end
 
   scenario 'has signin and signup buttons for non-logged in users' do

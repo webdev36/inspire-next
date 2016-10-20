@@ -30,10 +30,10 @@ describe  SubscriberActivitiesController do
       get :edit, {subscriber_id:subscriber,:id => subscriber_response.to_param}
       expect(response).to redirect_to new_user_session_path
 
-      SubscriberResponse.any_instance.should_not_receive(:update_attributes)
+      expect_any_instance_of(SubscriberResponse).not_to receive(:update_attributes)
       put :update, {subscriber_id:subscriber,:id => subscriber_response.to_param, :caption => "Some Caption"}
 
-      SubscriberResponse.any_instance.should_not_receive(:process)
+      expect_any_instance_of(SubscriberResponse).not_to receive(:process)
       post :reprocess, {subscriber_id:subscriber,:id => subscriber_response.to_param, :caption => "Some Caption"}
 
     end
@@ -53,10 +53,10 @@ describe  SubscriberActivitiesController do
       get :edit, {subscriber_id:subscriber,:id => subscriber_response.to_param}
       expect(response).to redirect_to root_url
 
-      SubscriberActivity.any_instance.should_not_receive(:update_attributes)
+      expect_any_instance_of(SubscriberActivity).not_to receive(:update_attributes)
       put :update, {subscriber_id:subscriber,:id => subscriber_response.to_param, :caption => "Some Caption"}
 
-      SubscriberActivity.any_instance.should_not_receive(:process)
+      expect_any_instance_of(SubscriberActivity).not_to receive(:process)
       post :reprocess, {subscriber_id:subscriber,:id => subscriber_response.to_param, :caption => "Some Caption"}
 
     end
@@ -69,20 +69,20 @@ describe  SubscriberActivitiesController do
     describe "GET index" do
       it "when called with subscriber id,  lists all his activities" do
         get :index, {subscriber_id:subscriber}
-        assigns(:subscriber_activities).should eq([SubscriberActivity.find(subscriber_response)])
+        expect(assigns(:subscriber_activities)).to eq([SubscriberActivity.find(subscriber_response)])
       end
       it "when called for a message, lists all its subscriber activities" do
         get :index, {message_id:message,channel_id:channel}
-        assigns(:subscriber_activities).should eq([SubscriberActivity.find(subscriber_response)])
+        expect(assigns(:subscriber_activities)).to eq([SubscriberActivity.find(subscriber_response)])
       end
       it "when called for a channel, lists all its subscriber activities" do
         get :index, {channel_id:channel}
-        assigns(:subscriber_activities).should =~ [SubscriberActivity.find(subscriber_response),
-                    SubscriberActivity.find(other_subscriber_response)]
+        expect(assigns(:subscriber_activities)).to match_array([SubscriberActivity.find(subscriber_response),
+                    SubscriberActivity.find(other_subscriber_response)])
       end
       it "when called for a channel_group, lists all its subscriber activities" do
         get :index, {channel_group_id:channel_group}
-        assigns(:subscriber_activities).should =~ [SubscriberActivity.find(channel_group_response)]
+        expect(assigns(:subscriber_activities)).to match_array([SubscriberActivity.find(channel_group_response)])
       end
 
     end
@@ -90,77 +90,77 @@ describe  SubscriberActivitiesController do
     describe "GET show" do
       it "assigns the requested message's subscriber activity as @subscriber_activity" do
         get :show, {message_id:message,channel_id:channel,:id => subscriber_response.to_param}
-        assigns(:subscriber_activity).should == SubscriberActivity.find(subscriber_response)
+        expect(assigns(:subscriber_activity)).to eq(SubscriberActivity.find(subscriber_response))
       end
       it "assigns the requested subscriber's subscriber activity as @subscriber_activity" do
         get :show, {subscriber_id:subscriber,:id => subscriber_response.to_param}
-        assigns(:subscriber_activity).should == SubscriberActivity.find(subscriber_response)
+        expect(assigns(:subscriber_activity)).to eq(SubscriberActivity.find(subscriber_response))
       end   
       it "assigns the requested channel's subscriber activity as @subscriber_activity" do
         get :show, {channel_id:channel,:id => subscriber_response.to_param}
-        assigns(:subscriber_activity).should == SubscriberActivity.find(subscriber_response)
+        expect(assigns(:subscriber_activity)).to eq(SubscriberActivity.find(subscriber_response))
       end   
       it "assigns the requested channel_group's subscriber activity as @subscriber_activity" do
         get :show, {channel_group_id:channel_group,:id => channel_group_response.to_param}
-        assigns(:subscriber_activity).should == SubscriberActivity.find(channel_group_response)
+        expect(assigns(:subscriber_activity)).to eq(SubscriberActivity.find(channel_group_response))
       end                  
     end
 
     describe "GET edit" do
       it "assigns the requested message's subscriber activity as @subscriber_activity" do
         get :edit, {message_id:message,channel_id:channel,:id => subscriber_response.to_param}
-        assigns(:subscriber_activity).should == SubscriberActivity.find(subscriber_response)
+        expect(assigns(:subscriber_activity)).to eq(SubscriberActivity.find(subscriber_response))
       end
       it "assigns the requested subscriber's subscriber activity as @subscriber_activity" do
         get :edit, {subscriber_id:subscriber,:id => subscriber_response.to_param}
-        assigns(:subscriber_activity).should == SubscriberActivity.find(subscriber_response)
+        expect(assigns(:subscriber_activity)).to eq(SubscriberActivity.find(subscriber_response))
       end   
       it "assigns the requested channel's subscriber activity as @subscriber_activity" do
         get :edit, {channel_id:channel,:id => subscriber_response.to_param}
-        assigns(:subscriber_activity).should == SubscriberActivity.find(subscriber_response)
+        expect(assigns(:subscriber_activity)).to eq(SubscriberActivity.find(subscriber_response))
       end   
       it "assigns the requested channel_group's subscriber activity as @subscriber_activity" do
         get :edit, {channel_group_id:channel_group,:id => channel_group_response.to_param}
-        assigns(:subscriber_activity).should == SubscriberActivity.find(channel_group_response)
+        expect(assigns(:subscriber_activity)).to eq(SubscriberActivity.find(channel_group_response))
       end      
     end
 
     describe "PUT update" do
       describe "with valid params" do
         it "updates the requested message's subscriber activity" do
-          SubscriberResponse.any_instance.should_receive(:update_attributes).with({ "caption" => "Sample Caption" })
+          expect_any_instance_of(SubscriberResponse).to receive(:update_attributes).with({ "caption" => "Sample Caption" })
           put :update, {message_id:message,channel_id:channel,:id => subscriber_response.to_param, :subscriber_activity=>{"caption" => "Sample Caption"} }
         end
         it "updates the requested subscriber's subscriber activity" do
-          SubscriberResponse.any_instance.should_receive(:update_attributes).with({ "caption" => "Sample Caption" })
+          expect_any_instance_of(SubscriberResponse).to receive(:update_attributes).with({ "caption" => "Sample Caption" })
           put :update, {subscriber_id:subscriber,:id => subscriber_response.to_param, :subscriber_activity=>{"caption" => "Sample Caption"} }
         end
         it "updates the requested channel's subscriber activity" do 
-          SubscriberResponse.any_instance.should_receive(:update_attributes).with({ "caption" => "Sample Caption" })
+          expect_any_instance_of(SubscriberResponse).to receive(:update_attributes).with({ "caption" => "Sample Caption" })
           put :update, {channel_id:channel,:id => subscriber_response.to_param, :subscriber_activity=>{"caption" => "Sample Caption"} }
         end
         it "updates the requested channel group's subscriber activity" do
-          SubscriberResponse.any_instance.should_receive(:update_attributes).with({ "caption" => "Sample Caption" })
+          expect_any_instance_of(SubscriberResponse).to receive(:update_attributes).with({ "caption" => "Sample Caption" })
           put :update, {channel_group_id:channel_group,:id => channel_group_response.to_param, :subscriber_activity=>{"caption" => "Sample Caption"} }
         end                        
 
         it "redirects to the subscriber activity" do
           put :update, {message_id:message,channel_id:channel,:id => subscriber_response.to_param, :subscriber_activity=>{"caption" => "Sample Caption"}}
-          response.should redirect_to :action => :show, message_id:message,channel_id:channel,id:subscriber_response.to_param
+          expect(response).to redirect_to :action => :show, message_id:message,channel_id:channel,id:subscriber_response.to_param
         end
       end
 
       describe "with invalid params" do
         it "re-renders the 'edit' template" do
-          SubscriberResponse.any_instance.stub(:save).and_return(false)
+          allow_any_instance_of(SubscriberResponse).to receive(:save).and_return(false)
           put :update, {message_id:message,channel_id:channel,:id => subscriber_response.to_param, :subscriber_activity=>{"caption" => "Sample Caption"}}
-          response.should render_template("edit")
+          expect(response).to render_template("edit")
         end
      end
     end
     describe "POST reprocess" do
       it "reprocesses the requested response" do
-        SubscriberResponse.any_instance.should_receive(:process){}
+        expect_any_instance_of(SubscriberResponse).to receive(:process){}
         post :reprocess, {message_id:message,channel_id:channel,:id => subscriber_response.to_param, :subscriber_activity=>{"caption" => "Sample Caption"} }
       end
     end

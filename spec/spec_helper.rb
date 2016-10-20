@@ -7,8 +7,8 @@ require 'timecop'
 Spork.prefork do
   ENV["RAILS_ENV"] ||= 'test'
   unless ENV['DRB']
-    require 'simplecov'
-    SimpleCov.start
+    #require 'simplecov'
+    # SimpleCov.start
   end
 
   require 'rails/application'
@@ -75,8 +75,8 @@ end
 
 Spork.each_run do
   if ENV['DRB']
-    require 'simplecov'
-    SimpleCov.start 'rails'
+    # require 'simplecov'
+    # SimpleCov.start 'rails'
   end
   FactoryGirl.reload
   ActiveRecord::Base.shared_connection = ActiveRecord::Base.connection

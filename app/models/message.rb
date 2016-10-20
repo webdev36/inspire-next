@@ -81,9 +81,9 @@ class Message < ActiveRecord::Base
     end
   end
 
-  scope :primary, where(primary:true)
-  scope :secondary, where(primary:false)
-  scope :active, where(active:true)
+  scope :primary,   -> { where( primary: true ) }
+  scope :secondary, -> { where( primary:false)  }
+  scope :active,    -> { where( active: true)   }
 
   @child_classes = []
 

@@ -26,17 +26,36 @@
 require 'spec_helper'
 
 describe OrderedMessagesChannel do
-  its "factory works" do
+  describe '#factory works' do
+    subject { super().factory works }
+    it do
     expect(build(:ordered_messages_channel)).to be_valid
+  end
   end
   describe "#" do
     let(:user){create(:user)}
     let(:channel){create(:ordered_messages_channel,user:user)}
     subject { channel }
-    its(:has_schedule?) {should be_true}
-    its(:sequenced?) { should be_true}
-    its(:broadcastable?) { should be_false}
-    its(:type_abbr){should == 'Ordered'}
+
+    describe '#has_schedule?' do
+      subject { super().has_schedule? }
+      it {is_expected.to be_truthy}
+    end
+
+    describe '#sequenced?' do
+      subject { super().sequenced? }
+      it { is_expected.to be_truthy}
+    end
+
+    describe '#broadcastable?' do
+      subject { super().broadcastable? }
+      it { is_expected.to be_falsey}
+    end
+
+    describe '#type_abbr' do
+      subject { super().type_abbr }
+      it {is_expected.to eq('Ordered')}
+    end
     
     describe "perform_post_send_ops" do
       it "updates the seq_no in subscribers" do
@@ -46,8 +65,8 @@ describe OrderedMessagesChannel do
         sub2 = create(:subscriber,user:user)
         h={msg.id=>[sub1,sub2]}
         subject.perform_post_send_ops(h)
-        sub1.last_msg_seq_no.should == msg.seq_no
-        sub2.last_msg_seq_no.should == msg.seq_no
+        expect(sub1.last_msg_seq_no).to eq(msg.seq_no)
+        expect(sub2.last_msg_seq_no).to eq(msg.seq_no)
       end
     end
 
@@ -63,9 +82,9 @@ describe OrderedMessagesChannel do
         sub5 = create(:subscriber,user:user,last_msg_seq_no:msg3.seq_no)
         channel.subscribers = [sub1,sub2,sub3,sub4,sub5]
         h = channel.group_subscribers_by_message
-        h[msg1.id].should =~ [sub1,sub2]
-        h[msg2.id].should == nil
-        h[msg3.id].should =~ [sub3,sub4]
+        expect(h[msg1.id]).to match_array([sub1,sub2])
+        expect(h[msg2.id]).to eq(nil)
+        expect(h[msg3.id]).to match_array([sub3,sub4])
       end
     end    
   end

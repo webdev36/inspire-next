@@ -37,15 +37,15 @@ describe UsersController do
       end
       it "assigns the channels, channel groups and subscribers" do
         get :show, {id:user.id}
-        assigns(:channels).should  =~ @channels
-        assigns(:subscribers).should =~ @subscribers
-        assigns(:channel_groups).should =~ [@channel_group]
+        expect(assigns(:channels)).to  match(@channels)
+        expect(assigns(:subscribers)).to match(@subscribers)
+        expect(assigns(:channel_groups)).to match_array([@channel_group])
       end
       it "does not list channels that are part of group in @channels" do
         @channel_group.channels << @channels[1]
         get :show, {id:user.id}
-        assigns(:channels).should  =~ [@channels[0],@channels[2]]
-        assigns(:subscribers).should =~ @subscribers
+        expect(assigns(:channels)).to  match_array([@channels[0],@channels[2]])
+        expect(assigns(:subscribers)).to match(@subscribers)
       end      
 
     end    
