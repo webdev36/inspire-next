@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 ruby '2.3.1'
 
-gem 'rails', '4.0.13'
+gem 'rails', '4.1.16'
 gem 'activeresource' # active_resource/reailtie (http://stackoverflow.com/questions/16782198/cannot-load-railtie-after-upgrade-to-rails-4-per-ruby-railstutorial-org)
 gem 'pg'
 gem 'jquery-rails'
