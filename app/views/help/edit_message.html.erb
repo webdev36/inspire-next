@@ -1,0 +1,18 @@
+<h2>New/Edit message help </h2>
+<p>Use this screen to create a new message or edit one. Some of the fields in the form are:</p>
+<dl>
+  <%= dt 'Type' %>
+  <dd>There are different types of messages based on the way the user responds to it and the action we take on the response. Refer to the Glossary page for details on the various message types.</dd>
+  <%= dt 'Title' %>
+  <dd>This is relevant only for MMS. It goes into the subject field of the received message. Keep it empty for SMS(text messages)</dd>
+  <%= dt 'Caption' %>
+  <dd>This is the primary text that goes in a text message. In a MMS, the contents of the field go in as message content</dd>
+  <%= dt 'Content'%>
+  <dd>This field is relevant only for MMS(multi media message).Use this to select the image, audio or video that goes in as primary content of the MMS </dd>
+  <%= dt 'Send at' %>
+  <dd>For certain channel types such as individually scheduled messages channel, each message can have its own schedule. This schedule can be either absolute(specific time to send the message) or relative(relative to when the subscriber joins the channel). The configuration of whether the schedule is absolute or relative is in the channel configuration. When the schedule is relative, use this field to select the relative interval(minute,hour,day or week). When the interval is minute, the value of the number field will be used as the delay in minutes. E.g. if the number is 10, then the message is sent 10 minutes after subscriber has joined the channel. On the other hand if the Send at field is 'weekly' and if the number is 3, day field is Saturday and hour and minute are 10:20, then the message is sent on the third Saturday at 10:20 from the day the user joins.</dd>
+  <%= dt 'Reminder message' %>
+  <dd>If configured, a reminder message will be sent to the subscriber after a period of time configured in the Send reminder after field.</dd>
+  <%= dt 'Repeat reminder message' %>
+  <dd>If configured, a repeat reminder will be sent to the reminder after a period configured in the send repeat reminder field. You can control the number of such repeat reminders in the number of repeat reminders to send field</dd>
+</dl>

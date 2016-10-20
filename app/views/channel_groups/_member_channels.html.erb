@@ -1,0 +1,26 @@
+<h2> Member Channels </h2>
+<table class="table table-striped" id="member_channels_table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+    <tbody>
+      <% if @member_channels && @member_channels.count > 0 %>
+        <% @member_channels.each do |channel| %>
+          <tr id = "<%= "member_channel_#{channel.id}" %>">
+            <td><%= channel.name%></td>
+            <td><%= channel.type_abbr%></td>
+            <td>
+              <%= link_to "Remove",channel_group_remove_channel_path(@channel_group, channel), :method => 'post', :class => 'btn btn-mini' %>
+            </td>
+          </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+</table>
+<% if @member_channels && @member_channels.count > 0 %>
+  <%= will_paginate @member_channels, :param_name => 'member_channels_page'%>
+<% end %>

@@ -1,0 +1,45 @@
+en:
+  simple_form:
+    "yes": 'Yes'
+    "no": 'No'
+    required:
+      text: 'required'
+      mark: '*'
+      # You can uncomment the line below if you need to overwrite the whole required html.
+      # When using html, text and mark won't be used.
+      # html: '<abbr title="required">*</abbr>'
+    error_notification:
+      default_message: "Please review the problems below:"
+    # Labels and hints examples
+    # labels:
+    #   defaults:
+    #     password: 'Password'
+    #   user:
+    #     new:
+    #       email: 'E-mail to sign in.'
+    #     edit:
+    #       email: 'E-mail.'
+    # hints:
+    #   defaults:
+    #     username: 'User name to sign in.'
+    #     password: 'No special characters, please.'
+    options:
+      channel:
+        type:
+          AnnouncementsChannel: 'Announcements channel'
+          OnDemandMessagesChannel: 'OnDemand messages channel'
+          OrderedMessagesChannel: 'Ordered messages channel'
+          RandomMessagesChannel: 'Random messages channel'
+          ScheduledMessagesChannel: 'Scheduled messages channel'
+          IndividuallyScheduledMessagesChannel: 'Individually scheduled messages channel'
+      message:
+        type:
+          SimpleMessage: 'Simple message'
+          ActionMessage: 'Action message'
+          PollMessage: 'Poll message'
+          ResponseMessage: 'Response message'
+      action:
+        type:
+          SwitchChannelAction: 'Switch channel action'
+          SendMessageAction: 'Send message action'
+

@@ -1,0 +1,51 @@
+<%- message_model_class = Message -%>
+<h2> Messages </h2>
+<table class="table table-striped" id="messages_table">
+  <thead>
+    <tr>
+      <th>Text</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% if @messages && @messages.count > 0%>    
+    <% @messages.each_with_index do |message,index| %>
+      <tr id="<%= "message_#{message.id}"%>">
+        <td>
+          <% if message.title.present? %>
+            <%= link_to message.title,channel_message_path(@channel,message) %>
+          <% else %>
+            <%= link_to message.caption[0..40],channel_message_path(@channel,message) %>          
+          <% end %>
+          <%= message_subtext(@channel,message,index) %>
+        </td>
+        <td>
+          <% if @channel.broadcastable? %>
+            <%= link_to 'Broadcast', broadcast_channel_message_path(@channel,message), :method => 'post', :class => 'btn btn-mini' %>
+          <% end %>
+          <% if @channel.sequenced? %>
+            <%= link_to 'Up', move_up_channel_message_path(@channel,message), :method => 'post', :class => 'btn btn-mini' %>
+            <%= link_to 'Down', move_down_channel_message_path(@channel,message), :method => 'post', :class => 'btn btn-mini' %>
+          <% end %>
+          <%= link_to t('.edit', :default => t("helpers.links.edit")),
+                      edit_channel_message_path(@channel,message), :class => 'btn btn-mini' %>
+          <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
+                      channel_message_path(@channel,message),
+                      :method => :delete,
+                      :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
+                      :class => 'btn btn-mini btn-danger' %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+
+  </tbody>
+</table>
+<% if @messages && @messages.count > 0 %>
+  <%= will_paginate @messages, :param_name => 'messages_page'%>
+<% end %>
+
+
+<%= link_to t('.new', :default => t("helpers.links.new")),
+            new_channel_message_path(@channel),
+            :class => 'btn btn-primary' %>

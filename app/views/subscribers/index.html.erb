@@ -1,0 +1,33 @@
+<%- model_class = Subscriber -%>
+<div class="page-header">
+  <h1><%=t '.title', :default => model_class.model_name.human.pluralize.titleize %></h1>
+</div>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th><%= model_class.human_attribute_name(:name) %></th>
+      <th><%= model_class.human_attribute_name(:phone_number) %></th>
+      <th><%= model_class.human_attribute_name(:remarks) %></th>
+      <th><%= model_class.human_attribute_name(:created_at) %></th>
+      <th><%=t '.actions', :default => t("helpers.actions") %></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @subscribers.each do |subscriber| %>
+      <tr>
+        <td><%= link_to subscriber.name, subscriber_path(subscriber) %></td>
+        <td><%= subscriber.phone_number %></td>
+        <td><%= subscriber.remarks %></td>
+        <td><%= subscriber.created_at %></td>
+        <td>
+          <%= link_to t('.edit', :default => t("helpers.links.edit")),
+                      edit_subscriber_path(subscriber), :class => 'btn btn-mini' %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= link_to t('.new', :default => t("helpers.links.new")),
+            new_subscriber_path,
+            :class => 'btn btn-primary' %>

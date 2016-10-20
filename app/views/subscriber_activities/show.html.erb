@@ -1,0 +1,5 @@
+<% if @subscriber_activity.type == 'DeliveryNotice' %>
+  <%= render :partial => 'subscriber_activities/details/delivery_notice' %>
+<% elsif @subscriber_activity.type == 'SubscriberResponse' %>
+  <%= render :partial => 'subscriber_activities/details/subscriber_response' %>
+<% end %>

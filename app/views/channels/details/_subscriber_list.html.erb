@@ -1,0 +1,34 @@
+<%- subscriber_model_class = Subscriber -%>
+<h2> Subscribers </h2>
+<table class="table table-striped" id="subscribers_table">
+  <thead>
+    <tr>
+      <th><%= subscriber_model_class.human_attribute_name(:name) %></th>
+      <th><%= subscriber_model_class.human_attribute_name(:phone_number) %></th>
+      <th><%=t '.actions', :default => t("helpers.actions") %></th>
+    </tr>
+  </thead>
+    <tbody>
+      <% if @subscribers && @subscribers.count > 0 %>
+        <% @subscribers.each do |subscriber| %>
+          <tr id = "<%= "subscriber_#{subscriber.id}" %>">
+            <td><%= link_to subscriber.name, subscriber_path(subscriber) %></td>
+            <td><%= subscriber.phone_number %></td>
+            <td>
+              <%= link_to 'Remove',
+                          channel_remove_subscriber_path(@channel,subscriber),
+                          :method => :post,
+                          :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
+                          :class => 'btn btn-mini btn-danger' %>
+            </td>
+          </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+</table>
+<% if @subscribers && @subscribers.count > 0 %>
+  <%= will_paginate @subscribers, :param_name => 'subscribers_page'%>
+<% end %>
+<%= link_to "Add",
+            list_subscribers_channel_path(@channel),
+            :class => 'btn btn-primary' %>

@@ -1,0 +1,7 @@
+<% content_for :content do %>
+  <%= yield %>
+  <%= link_to 'Glossary', help_glossary_path, class:'btn' %>
+  <%= link_to 'Back',session[:referrer_page] || request.referrer,class:'btn' %>  
+<% end %>
+
+<%= render template:'layouts/application' %>

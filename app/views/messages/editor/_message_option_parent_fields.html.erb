@@ -1,0 +1,12 @@
+<div id="message_options_section" class="control-group" style='display:run-in'>
+  <%= f.simple_fields_for :message_options do |mo| %>
+      <p>
+      <%= render :partial => 'messages/editor/message_option_fields', :locals => {:f => mo} %>
+
+      </p>
+  <% end %>
+  <%= link_to_add_association 'add message option', f, :message_options, :partial => 'messages/editor/message_option_fields', :html_options => {'data-association-insertion-method' => 'after'} %>
+
+
+</div>
+

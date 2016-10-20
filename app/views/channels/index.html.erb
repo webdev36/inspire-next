@@ -1,0 +1,54 @@
+<div class="page-header clearfix">
+  <h2 class="pull-left">Channels and Channel Groups</h2>
+  <%= help_tag(help_index_channels_path) %>
+</div>
+<div id="channels-section">
+  <h2>Channels</h2>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th><th>Type</th><th>Description</th><th>Created at</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @channels.each do |channel| %>
+        <tr id="channel_<%=channel.id%>">
+          <td><%= link_to channel.name, channel_path(channel) %></td>
+          <td><%= channel.type_abbr %></td>
+          <td><%= channel.description %></td>
+          <td><%= channel.created_at %></td>
+          <td>
+            <%= link_to 'Edit',edit_channel_path(channel), :class => 'btn btn-mini' %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <%= will_paginate @channels, :param_name => 'channels_page'%>
+  <%= link_to 'New',new_channel_path,:class => 'btn btn-primary' %>
+</div>
+<p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p>
+<div id="channel-groups-section">
+  <h2>Channel Groups</h2>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th><th>Description</th><th>Created at</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @channel_groups.each do |channel_group| %>
+        <tr id="channel_group_<%=channel_group.id%>">
+          <td><%= link_to channel_group.name, channel_group_path(channel_group) %></td>
+          <td><%= channel_group.description %></td>
+          <td><%= channel_group.created_at %></td>
+          <td>
+            <%= link_to 'Edit',edit_channel_group_path(channel_group), :class => 'btn btn-mini' %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <%= will_paginate @channel_groups, :param_name => 'channel_groups_page'%>
+  <%= link_to 'New',new_channel_group_path,:class => 'btn btn-primary' %>
+</div>

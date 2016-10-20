@@ -1,0 +1,24 @@
+<h2>New/Edit channel help</h2>
+<p>Use this screen to add a new channel or edit one.Some of the fields of this form are:</p>
+<dl>
+  <%= dt 'Name' %>
+  <dd>The name for the channel has to be unique among your channels</dd>
+  <%= dt 'Type' %>
+  <dd>There are various types of channel based on how they treat messages and subscribers. Check the glossary for help on individual channel types</dd>
+  <%= dt 'Suffix' %>
+  <dd>You can optionally provide a phrase or sentence that will be appended to every message in this channel. Remember that the third party messaging service might also add its own suffix, which will appear after this suffix</dd>
+  <%= dt 'Keyword'%>
+  <dd>Give one word keyword to identify this channel from others. This identification is primarily needed to when subscribers send responses. This keyword is used to match the subscriber response to the corresponding channel. See the description of Messaging Service Keyword also.</dd>
+  <%= dt 'Messaging Service Keyword'%>
+  <dd>This is required to identify subscriber messages by the third party messaging provider to associate with our service and this channel. If this field is given a value of 'tips' and the keyword field is given a value of 'save', messages sent by subscribers with the prefix 'tips save' will be received by this channel. Refer to our support staff if you have questions on this field.</dd>
+  <%= dt 'Schedule' %>
+  <dd>For certain channel types, such as scheduled messages channel, ordered messages channel etc, a recurring schedule is required. Use the Set Schedule... selection and the pop-up dialog to specify a schedule on when to send messages to subscribers</dd>
+  <%= dt 'Relative Schedule' %>
+  <dd>For certain channel types, such as individually scheduled messages channel, you have an option to specify an absolute schedule(e.g. send at 12:00PM on 14th of Jan), or a relative schedule(e.g. send at 12:00PM on the first Sunday after subscriber joins the channel). If you need to specify a schedule that is relative to the subscriber joining the channel, check this box.</dd>
+  <%= dt 'Moderator emails'%>
+  <dd>Optional field. Emails are sent to the addresses in this field with reports on subscriber activities. Reports are by default sent daily.</dd>
+  <%= dt 'Real time update for moderators' %>
+  <dd>Subscriber Activity reports are sent to moderators(if configured above), daily. If you need a more frequent report, select this option to receive it hourly. </dd>
+
+</dl>
+  

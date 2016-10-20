@@ -1,0 +1,26 @@
+<%- model_class = Subscriber -%>
+<div class="page-header">
+  <h1><%=@subscriber.name%></h1>
+</div>
+
+<dl class="dl-horizontal">
+  <dt><strong>Name:</strong></dt>
+  <dd><%= print_or_dashes(@subscriber.name) %></dd>
+  <dt><strong>Phone number:</strong></dt>
+  <dd><%= print_or_dashes(@subscriber.phone_number) %></dd>
+  <dt><strong>Remarks:</strong></dt>
+  <dd><%= @subscriber.remarks %></dd>
+</dl>
+
+<div class="form-actions">
+  <%= link_to 'Back', request.referer, :class => 'btn'  %>
+  <%= link_to t('.edit', :default => t("helpers.links.edit")),
+              edit_subscriber_path(@subscriber), :class => 'btn' %>
+  <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
+              subscriber_path(@subscriber),
+              :method => 'delete',
+              :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
+              :class => 'btn btn-danger' %>
+  <%= link_to 'Subscriber Activities',{:controller=>'subscriber_activities',
+    :action=>'index',:subscriber_id => @subscriber.id}, :class => 'btn' %>
+</div>

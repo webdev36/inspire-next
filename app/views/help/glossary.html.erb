@@ -1,0 +1,67 @@
+<h2>Glossary</h2>
+
+<dl>
+  <%= dt 'Action' %>
+  <dd>An action that the system performs either on schedule or as part of response to the subscriber originating message. Various actions include:
+    <ul>
+      <li>
+        <b>Switch Channel Action: </b>Switches a subscriber from one channel to another.
+      </li>
+    </ul>
+  <%= dt 'Channel'%>
+  <dd>Channel holds messages and has subscribers. Messages can be created in a channel. Also subscribers can be added to a channel. There are various types of channels.
+    <ul>
+      <li>
+        <b>Announcements Channel: </b>Messages defined in this channel are sent to all subscribers at the same time. The user can choose a particular message and broadcast to all the subscribers of the channel at will.
+      </li>
+      <li>
+        <b>On Demand Messages Channel: </b>Messages in this channel are sent when subscriber requests them. Subscriber requests for a message from this channel by sending a text message to our shortcode
+      </li>  
+      <li>
+        <b>Scheduled Messages Channel: </b>Messages in this channel are sent one after another as per the recurring schedule specified in the channel. The same message is sent to all the subcribers of the channel. The order of messages is important and signifies the order of scheduled broadcast.
+      </li>
+      <li>
+        <b>Ordered Messages Channel: </b>Messages in this channel are sent one after another as per the recurring schedule specified in the channel. The message sent to the subscriber will depend on the date of joining. In the first scheduled slot since the subscriber joined, the first message is sent and so on. (Kind of like lessons sent to students. Begins from the first and is sent in right sequence individually to each subscriber.)
+      </li>
+      <li>
+        <b>Random Messages Channel: </b>Messages in this channel are sent as per the recurring schedule specified in the channel. Each subscriber receives random, previously unreceived message from the channel.
+      </li>                   
+      <li>
+        <b>Individually Scheduled Messages Channel: </b>Each message in this channel can be specified with a schedule of delivery. The schedule could be absolute(14 Jan at 12:20PM) or relative to the subscriber joining the channel(2nd Week Monday at 12:20PM). 
+      </li>                   
+    </ul>
+  </dd>
+  <%= dt 'Channel Group' %>
+  <dd>Channel group holds similar channels or those that share a single external keyword. Subscribers can belong to only one of the channels in a group </dd>
+  <%= dt 'Message'%>
+  <dd>A message can be a SMS(Text Message) or an MMS(multi-media message). A message needs to be created within a channel. A message is delivered as per the rules of the channel. There are different types of messages:
+    <ul>
+      <li>
+        <b>Simple Message: </b>Message can be both text or multi media. Use this for messages where we do not expect or care about subscriber responses
+      </li>
+      <li>
+        <b>Poll Message: </b>Use this message type if you are asking the user a poll question and want to tabulate the result.
+      </li>      
+      <li>
+        <b>Response Message: </b>Use this message type if you are asking the user a question and you want to perform certain actions in the system(e.g. switch to another channel) based on user response.
+      </li>      
+      <li>
+        <b>Action Message: </b>This message is not sent to the subscriber. Instead at the scheduled delivery time, the action configured with the message is performed. This message can be mixed with other message types in any channel type and will follow the channel rules to determine the execution time. It can be used to write and execute complex macro programming within the system.
+      </li>      
+    </ul>
+  </dd>
+  <%= dt 'Subscriber' %>
+  <dd>Subscriber is the target phone which receives message sent by us. Subscribers can enroll to the system themselves or be enrolled by the web application user. Once enrolled subscribers can send messages to the channel.</dd>
+  <%= dt 'Subscriber Activities' %>
+  <dd>All activities related to a subscriber, performed both by us as well as by the subscriber himself. The various types are:</dd>
+  <ul>
+    <li>
+      <b>Subscriber Response:</b> The mobile originating message sent by the subscriber to a channel.
+    </li>
+    <li>
+      <b>Delivery Notice:</b> A log of message delivered to the subscriber by the system.
+    </li>    
+</dl>
+
+
+<%= link_to 'Back',request.referrer,class:'btn' %>

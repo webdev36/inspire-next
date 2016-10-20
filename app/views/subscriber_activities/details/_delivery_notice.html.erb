@@ -1,0 +1,18 @@
+<div class="page-header">
+  <h1>Delivery Notice</h1>
+</div>
+<dl id= "delivery-notice" class="dl-horizontal">
+  <%= sa_delivery_notice_message_fields(@subscriber_activity) %>
+  <dt><strong>Subscriber:</strong></dt>
+  <dd><%= link_to(print_or_dashes(@subscriber_activity.subscriber.name), subscriber_path(@subscriber_activity.subscriber)) %></dd>
+  <% if @subscriber_activity.channel && !@subscriber_activity.channel.class.system_channel? %>
+    <dt><strong>Channel:</strong></dt>
+    <dd><%= link_to(print_or_dashes(@subscriber_activity.channel.name), channel_path(@subscriber_activity.channel))%></dd>  
+  <% end %>
+  <dt><strong>Sent:</strong></dt>
+  <dd><%= @subscriber_activity.created_at%></dd>
+</dl>
+
+<div class="form-actions">
+  <%= link_to 'Back', request.referer, :class => 'btn'  %>
+</div>

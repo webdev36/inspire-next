@@ -1,0 +1,59 @@
+<%- model_class = Message -%>
+<div class="page-header">
+  <h1>Message</h1>
+</div>
+
+<dl class="dl-horizontal">
+  <dt><strong>Type:</strong></dt>
+  <dd><%= print_or_dashes(@message.type.titlecase) %></dd>
+  <dt><strong>Text:</strong></dt>
+  <dd><%= print_or_dashes(@message.caption) %></dd>
+  <dt><strong>Active:</strong></dt>
+  <dd><%= print_or_dashes(@message.active) %></dd>
+  <% if @channel.individual_messages_have_schedule? %>
+    <% if @channel.relative_schedule %>
+      <dt><strong>Schedule:</strong></dt>
+      <dd><%= print_or_dashes(@message.schedule) %></dd>
+    <% else %>
+      <dt><strong>Next send time:</strong></dt>
+      <dd><%= print_or_dashes(@message.next_send_time) %></dd>    
+    <% end %>
+  <% end %>  
+  <% if @message.requires_user_response? %>
+    <dt><strong>Reminder message:</strong></dt>
+    <dd><%= print_or_dashes(@message.reminder_message_text) %></dd>
+    <dt><strong>Send reminder after:</strong></dt>
+    <dd><%= @message.reminder_delay %></dd>
+    <dt><strong>Repeat rem message:</strong></dt>
+    <dd><%= print_or_dashes(@message.repeat_reminder_message_text) %></dd>
+    <dt><strong>Send repeat after:</strong></dt>
+    <dd><%= @message.repeat_reminder_delay %></dd>
+    <dt><strong>No of repeat reminders:</strong></dt>
+    <dd><%= @message.number_of_repeat_reminders %></dd>
+  <% end %>
+</dl>
+<div>
+  <% if @message.content.content_type =~ /video/ %>
+    <%= video_tag @message.content.url , controls: true, autobuffer: true, width: '320px', height: '240px' %>
+  <% elsif @message.content.content_type =~ /image/%>
+    <%= image_tag @message.content.url(:thumb) %>
+  <% end %>
+</div>
+<%= render :partial=>'messages/details/message_type_specific_section'%>
+<% if @message.requires_user_response? %>
+  <%= render :partial=>'messages/details/message_response_details' %>
+<% end %>
+
+<div class="form-actions">
+  <%= link_to 'Back',channel_path(@channel), :class => 'btn'  %>
+  <%= link_to t('.edit', :default => t("helpers.links.edit")),
+              edit_channel_message_path(@channel,@message), :class => 'btn' %>
+  <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
+              channel_message_path(@channel,@message),
+              :method => 'delete',
+              :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
+              :class => 'btn btn-danger' %>
+  <%= link_to 'Subscriber Responses',{:controller=>'subscriber_activities',
+    :action=>'index',:message_id => @message.id,:channel_id=>@channel,
+    :type=>'SubscriberResponse'}, :class => 'btn' %>              
+</div>

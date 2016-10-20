@@ -1,0 +1,42 @@
+<div id="action_message_fields">
+  <%= render :partial=>'messages/editor/action_message_fields',:locals=>{f:f}%>
+</div>
+<div id="response_message_fields">
+  <%= render :partial=>'messages/editor/response_message_fields',:locals=>{f:f}%>
+</div>
+<div id="tag_message_fields">
+  <%= render :partial=>'messages/editor/message_option_parent_fields',:locals=>{f:f}%>
+</div>
+
+<% content_for :head_js do %>
+  <script type="text/javascript">
+    function choose_message_type_specific_section(value){
+      if( value == "ActionMessage"){
+        $("#action_message_fields").css('display','inline')
+      } else{
+        $("#action_message_fields").css('display','none')
+      }
+      if( value == "ResponseMessage"){
+        $("#response_message_fields").css('display','inline')
+      }else{
+        $("#response_message_fields").css('display','none')
+      }
+      if( value == "TagMessage"){
+        $("#tag_message_fields").css('display','inline');
+        $(".message_caption").css("display", "none");
+        $(".message_content").css("display", "none");
+      }else{
+        $("#tag_message_fields").css('display','none');
+        $(".message_caption").css("display", "inline");
+        $(".message_content").css("display", "inline");
+
+      }
+    }
+    $(document).ready(function(){
+      choose_message_type_specific_section($("#message_type").val())
+      $("#message_type").change(function(){
+        choose_message_type_specific_section($(this).val())
+      });
+    })
+  </script>
+<% end %>

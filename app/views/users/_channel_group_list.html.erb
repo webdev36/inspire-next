@@ -1,0 +1,28 @@
+<h2> Channel Groups </h2>
+<table class="table table-striped" id="channel_groups_table">
+  <thead>
+    <tr>
+      <th><%= 'Name' %></th>
+      <th><%= 'Actions' %></th>
+    </tr>
+  </thead>
+    <tbody>
+      <% if @channel_groups && @channel_groups.count > 0 %>
+        <% @channel_groups.each do |channel_group| %>
+          <tr id = "<%= "channel_group_#{channel_group.id}" %>">
+            <td><%= link_to channel_group.name, channel_group_path(channel_group) %></td>
+            <td>
+              <%= link_to 'Edit',
+                          edit_channel_group_path(channel_group), :class => 'btn btn-mini' %>
+            </td>
+          </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+</table>
+<% if @channel_groups && @channel_groups.count > 0 %>
+  <%= will_paginate @channel_groups, :param_name => 'channel_groups_page'%>
+<% end %>
+<%= link_to t('.new', :default => t("helpers.links.new")),
+            new_channel_group_path,
+            :class => 'btn btn-primary' %>

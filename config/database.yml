@@ -1,0 +1,32 @@
+development:
+  adapter: postgresql
+  host: <%= ENV['POSTGRES_HOST'] || Resolv.getaddress('db') %>
+  encoding: unicode
+  database: liveinspired_development
+  pool: 10
+  username: postgres
+
+test:
+  adapter: postgresql
+  encoding: unicode
+  host: <%= ENV['POSTGRES_HOST'] || Resolv.getaddress('db') %>
+  database: liveinspired_test
+  pool: 10
+  username: postgres
+  password: postgres
+
+production:
+  adapter: postgresql
+  encoding: unicode
+  database: liveinspired_production
+  pool: 10
+  username: postgres
+  password: postgres
+
+production_local:
+  adapter: postgresql
+  encoding: unicode
+  database: liveinspired_production
+  pool: 10
+  username: postgres
+  password: postgres

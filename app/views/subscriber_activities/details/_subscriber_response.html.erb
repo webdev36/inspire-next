@@ -1,0 +1,37 @@
+<div class="page-header">
+  <h1>Subscriber Response</h1>
+</div>
+<dl id= "subscriber-response" class="dl-horizontal">
+  <dt><strong>Subscriber Response:</strong></dt>
+  <dd><%= print_or_dashes(@subscriber_activity.caption)%></dd>
+  <% if @subscriber_activity.message %>
+    <dt><strong>Original Message:</strong></dt>
+    <dd><%= link_to(print_or_dashes(@subscriber_activity.message.caption),
+      channel_message_path(@subscriber_activity.message.channel, @subscriber_activity.message))%></dd>      
+  <% end %>
+  <% if @subscriber_activity.channel %>
+    <dt><strong>Channel:</strong></dt>
+    <dd><%= link_to(print_or_dashes(@subscriber_activity.channel.name),
+      channel_path(@subscriber_activity.channel))%></dd>      
+  <% end %>  
+  <% if @subscriber_activity.channel_group %>
+    <dt><strong>Channel group:</strong></dt>
+    <dd><%= link_to(print_or_dashes(@subscriber_activity.channel_group.name),
+      channel_group_path(@subscriber_activity.channel_group))%></dd>      
+  <% end %>  
+  <% if @subscriber_activity.subscriber %>
+    <dt><strong>Subscriber:</strong></dt>
+    <dd><%= link_to(print_or_dashes(@subscriber_activity.subscriber.name),
+            subscriber_path(@subscriber_activity.subscriber))%></dd>  
+  <% end %>
+  <dt><strong>Received:</strong></dt>
+  <dd><%= print_or_dashes(@subscriber_activity.created_at)%></dd>
+  <dt><strong>Processed:</strong></dt>
+  <dd><%= @subscriber_activity.processed %></dd>  
+</dl>
+
+<div class="form-actions">
+  <%= link_to 'Back', request.referer, :class => 'btn'  %>
+  <%= link_to 'Edit', sa_path(@subscriber_activity).merge({action:'edit'}), :class => 'btn' %>
+  <%= link_to 'Reprocess', sa_path(@subscriber_activity).merge({action:'reprocess'}),method: :post,:class => 'btn' %>
+</div>

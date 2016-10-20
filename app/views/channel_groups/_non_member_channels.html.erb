@@ -1,0 +1,26 @@
+<h2> Non-member Channels </h2>
+<table class="table table-striped" id="non_member_channels_table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+    <tbody>
+      <% if @non_member_channels && @non_member_channels.count > 0 %>
+        <% @non_member_channels.each do |channel| %>
+          <tr id = "<%= "non_member_channels_#{channel.id}" %>">
+            <td><%= channel.name%></td>
+            <td><%= channel.type_abbr %></td>
+            <td>
+              <%= link_to "Add to group",channel_group_add_channel_path(@channel_group, channel), :method => 'post', :class => 'btn btn-mini' %>
+            </td>
+          </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+</table>
+<% if @non_member_channels && @non_member_channels.count > 0 %>
+  <%= will_paginate @non_member_channels, :param_name => 'non_member_channels_page'%>
+<% end %>
