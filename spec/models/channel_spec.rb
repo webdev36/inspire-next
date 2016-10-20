@@ -71,7 +71,7 @@ describe Channel do
   end
 
   it "validates tparty_keyword to check if primary or is available" do
-    expect_any_instance_of(TpartyKeywordValidator).to receive(:validate_each){|record,attribute,value|
+    expect_any_instance_of(TpartyKeywordValidator).to receive(:validate_each){|validator, record,attribute,value|
       expect(attribute).to eq(:tparty_keyword)
       expect(value).to eq('sample')
     }
@@ -79,7 +79,7 @@ describe Channel do
   end
 
   it "validates one_word to ensure it is only a single word" do
-    expect_any_instance_of(OneWordValidator).to receive(:validate_each){|record,attribute,value|
+    expect_any_instance_of(OneWordValidator).to receive(:validate_each){|validator, record,attribute,value|
       expect(attribute).to eq(:one_word)
       expect(value).to eq('sample')
     }
@@ -87,7 +87,7 @@ describe Channel do
   end
 
   it "validates moderator emails are valid" do
-    expect_any_instance_of(EmailsValidator).to receive(:validate_each){|record,attribute,value|
+    expect_any_instance_of(EmailsValidator).to receive(:validate_each){|validator, record,attribute,value|
       expect(attribute).to eq(:moderator_emails)
       expect(value).to eq('abc@def.com')
     }
@@ -375,14 +375,14 @@ describe Channel do
           messages << message
         end
         expect(channel.sent_messages_ids(subscriber)).to match_array([])
-        expect(channel.pending_messages_ids(subscriber)).to match((0..3).map{|i| messages[i].id})
+        expect(channel.pending_messages_ids(subscriber).sort).to match((0..3).map{|i| messages[i].id}.sort)
         DeliveryNotice.create(subscriber:subscriber,message:messages[1])
         DeliveryNotice.create(subscriber:subscriber,message:messages[2])
-        expect(channel.sent_messages_ids(subscriber)).to match_array([messages[1].id,messages[2].id])
-        expect(channel.pending_messages_ids(subscriber)).to match_array([messages[0].id,messages[3].id])
+        expect(channel.sent_messages_ids(subscriber).sort).to match_array([messages[1].id,messages[2].id].sort)
+        expect(channel.pending_messages_ids(subscriber).sort).to match_array([messages[0].id,messages[3].id].sort)
         DeliveryNotice.create(subscriber:subscriber,message:messages[0])
         DeliveryNotice.create(subscriber:subscriber,message:messages[3])
-        expect(channel.sent_messages_ids(subscriber)).to match((0..3).map{|i| messages[i].id})
+        expect(channel.sent_messages_ids(subscriber).sort).to match((0..3).map{|i| messages[i].id}.sort)
         expect(channel.pending_messages_ids(subscriber)).to match_array([])
       end
 
@@ -415,8 +415,8 @@ describe Channel do
       it "for internal messages, calls send_to_subscribers method of the message itself instead of MessagingManager" do
         imsg = create(:action_message)
         allow(subject).to receive(:group_subscribers_by_message){{imsg.id=>[subs1,subs2]}}
-        expect_any_instance_of(ActionMessage).to receive(:send_to_subscribers){|subscribers|
-          expect(subscribers).to match_array([subs1,subs2])
+        expect_any_instance_of(ActionMessage).to receive(:send_to_subscribers){ |action_message, subscribers|
+          expect(subscribers.map(&:id).sort).to match_array([subs1,subs2].map(&:id).sort)
         }
         mm = double.as_null_object
         allow(MessagingManager).to receive(:new_instance){mm}

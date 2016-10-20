@@ -23,8 +23,8 @@ class ChannelGroup < ActiveRecord::Base
                   :web_signup
 
   belongs_to :user
-  has_many   :channels, :before_add => :check_channel_group_credentials
-  belongs_to :default_channel, :class_name => 'Channel'
+  has_many   :channels, before_add: :check_channel_group_credentials
+  belongs_to :default_channel, class_name: 'Channel'
   has_many   :subscriber_responses
 
   validates  :name, presence: true, uniqueness: { scope: [:user_id,:deleted_at] }
@@ -33,8 +33,8 @@ class ChannelGroup < ActiveRecord::Base
                                       :case_sensitive=>false,
                                       :allow_blank=>true
                                    }
-  validates  :tparty_keyword, presence:true, :tparty_keyword=>true
-  validates  :moderator_emails, :allow_blank=>true, :emails=>true
+  validates  :tparty_keyword,   presence:true,     tparty_keyword: true
+  validates  :moderator_emails, allow_blank: true, emails: true
 
   before_create  :add_keyword
   before_destroy :remove_keyword

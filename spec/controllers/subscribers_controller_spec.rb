@@ -8,7 +8,7 @@ describe SubscribersController do
   end
 
   describe "guest user" do
-    it "is redirected to signup form always and not allowed to alter db" do 
+    it "is redirected to signup form always and not allowed to alter db" do
       subscriber = user.subscribers.create! valid_attributes
 
       get :index, {}
@@ -25,14 +25,14 @@ describe SubscribersController do
 
       expect {
             post :create, {:subscriber => valid_attributes}
-          }.to_not change(Subscriber, :count).by(1)
-      
+          }.to_not change(Subscriber, :count)
+
       expect_any_instance_of(Subscriber).not_to receive(:update_attributes)
           put :update, {:id => subscriber.to_param, :subscriber => { "name" => "MyString" }}
 
       expect {
           delete :destroy, {:id => subscriber.to_param}
-        }.to_not change(Subscriber, :count).by(-1)
+        }.to_not change(Subscriber, :count)
     end
   end
 
@@ -47,20 +47,20 @@ describe SubscribersController do
 
       get :edit, {:id => subscriber.to_param}
       expect(response).to redirect_to root_url
-      
+
       expect_any_instance_of(Subscriber).not_to receive(:update_attributes)
           put :update, {:id => subscriber.to_param, :subscriber => { "name" => "MyString" }}
 
       expect {
           delete :destroy, {:id => subscriber.to_param}
-        }.to_not change(Subscriber, :count).by(-1)
+        }.to_not change(Subscriber, :count)
     end
-  end  
+  end
 
   describe "valid user" do
     before do
       sign_in user
-    end  
+    end
 
     describe "GET index" do
       it "assigns all subscribers as @subscribers" do

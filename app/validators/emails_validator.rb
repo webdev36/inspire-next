@@ -5,7 +5,7 @@ class EmailsValidator < ActiveModel::EachValidator
     emails.reject!(&:blank?)
     format = :fine
     emails.each do |email|
-      unless email=~/^.+@.+$/
+      unless email=~/\A.+@.+\z/
         format = :error
       end
     end

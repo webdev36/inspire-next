@@ -78,19 +78,24 @@ class SubscriberActivity < ActiveRecord::Base
 
   def self.for_channels(channels)
     where("channel_id in (?)", channels)
-  end 
+  end
 
   def self.for_channel_group(channel_group)
-    where(channel_group_id:channel_group)
+    where(channel_group_id: channel_group.id)
   end
 
   def self.for_channel_group_and_its_channels(channel_group)
-    where("channel_group_id = ? or channel_id in (?)",channel_group,channel_group.channels)
+    channel_ids_for_group = channel_group.channels.pluck(:id)
+    if channel_ids_for_group
+      where("channel_group_id = (?) or channel_id in (?)",channel_group.id, channel_ids_for_group)
+    else
+      where('channel_group_id = (?)', channel_group.id)
+    end
   end
 
   def self.for_channel_groups(channel_groups)
     where("channel_group_id in (?)", channel_groups)
-  end    
+  end
 
   def self.unprocessed
     where("processed=false")

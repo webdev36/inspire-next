@@ -152,7 +152,7 @@ class Channel < ActiveRecord::Base
 
   def self.with_subscriber(phone_number)
     phone_number = Subscriber.format_phone_number(phone_number)
-    includes(:subscribers).where("subscribers.phone_number=?",phone_number).where("subscribers.deleted_at IS NULL")
+    includes(:subscribers).where("subscribers.phone_number=?",phone_number).where("subscribers.deleted_at IS NULL").references(:subscribers)
   end
 
   def converted_schedule

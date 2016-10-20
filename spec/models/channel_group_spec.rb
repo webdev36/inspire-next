@@ -47,8 +47,9 @@ describe ChannelGroup do
     expect(build(:channel_group,keyword:'sample',tparty_keyword:'sample2')).to be_valid
   end
 
-  xit "validates tparty_keyword to check if primary or is available" do
-    expect_any_instance_of(TpartyKeywordValidator).to receive(:validate_each) { |record,attribute,value|
+  # this one is mogreet or used to be, why would or would it not pass now?
+  it "validates tparty_keyword to check if primary or is available" do
+    expect_any_instance_of(TpartyKeywordValidator).to receive(:validate_each) { |validator, record, attribute, value|
       expect(attribute).to eq(:tparty_keyword)
       expect(value).to eq('sample')
     }
@@ -56,8 +57,7 @@ describe ChannelGroup do
   end
 
   it "validates moderator emails are valid" do
-    expect_any_instance_of(EmailsValidator).to receive(:validate_each){|record,attribute,value|
-      binding.pry
+    expect_any_instance_of(EmailsValidator).to receive(:validate_each){ |validator, record, attribute, value|
       expect(attribute).to eq(:moderator_emails)
       expect(value).to eq('abc@def.com')
     }
@@ -351,34 +351,39 @@ describe ChannelGroup do
         expect(subject.ask_channel_to_process_subscriber_response(ch,sr)).to eq(true)
       end
     end
+
     describe "process_on_demand_channels" do
-      let(:one_word) {Faker::Lorem.word}
-      let(:phone_number) {Faker::PhoneNumber.us_phone_number}
-      let(:tparty_keyword) {Faker::Lorem.word}
-      let(:cg) {create(:channel_group,tparty_keyword:tparty_keyword,user:user)}
-      let(:subs) {create(:subscriber,user:user)}
-      let(:ch1) {create(:on_demand_messages_channel,tparty_keyword:tparty_keyword,
-                one_word:one_word,user:user)}
-      let(:ch2) {create(:channel,user:user,tparty_keyword:tparty_keyword)}
+      let(:one_word)       { Faker::Lorem.word                  }
+      let(:phone_number)   { Faker::PhoneNumber.us_phone_number }
+      let(:tparty_keyword) { Faker::Lorem.word                  }
+      let(:cg)   { create(:channel_group,tparty_keyword:tparty_keyword,user:user)}
+      let(:subs) { create(:subscriber,user:user)}
+      let(:ch1)  { create(:on_demand_messages_channel,tparty_keyword:tparty_keyword,
+                           one_word:one_word,user:user)}
+      let(:ch2)  { create(:channel,user:user,tparty_keyword:tparty_keyword)}
+
       before do
         ch2.subscribers << subs
         cg.channels << [ch1,ch2]
       end
-      it "calls process_subsriber_response of an on-demand channel if there is a match with one_word" do
+
+      it "calls process_subscriber_response of an on-demand channel if there is a match with one_word" do
         sr = create(:subscriber_response,message_content:one_word,tparty_keyword:tparty_keyword,
           origin:phone_number)
-        allow_any_instance_of(Channel).to receive(:process_subscriber_response){|psr|
+        allow_any_instance_of(Channel).to receive(:process_subscriber_response) {|channel, psr|
           expect(psr).to eq(SubscriberResponse.find(sr))
           true
         }
         expect(ch2).not_to receive(:process_subscriber_response)
         expect(cg.process_on_demand_channels(sr)).to eq(true)
       end
+
       it "returns false if the message was blank" do
         sr = create(:subscriber_response,tparty_keyword:tparty_keyword,
           origin:phone_number)
         expect(cg.process_on_demand_channels(sr)).to eq(false)
       end
+
       it "returns false if there were no matches among on-demand channels" do
         cg.channels.delete(ch1)
         ch3 = create(:on_demand_messages_channel,tparty_keyword:tparty_keyword,
@@ -386,17 +391,17 @@ describe ChannelGroup do
         cg.channels << ch3
         sr = create(:subscriber_response,tparty_keyword:tparty_keyword,message_content:one_word,
           origin:phone_number)
-        expect(Channel.any_instance).not_to receive(:process_subscriber_response)
+        expect_any_instance_of(Channel).not_to receive(:process_subscriber_response)
         expect(cg.process_on_demand_channels(sr)).to eq(false)
       end
+
       it "returns false if there are no on-demand channels" do
         cg.channels.delete(ch1)
         sr = create(:subscriber_response,tparty_keyword:tparty_keyword,message_content:one_word,
           origin:phone_number)
-        expect(Channel.any_instance).not_to receive(:process_subscriber_response)
+        expect_any_instance_of(Channel).not_to receive(:process_subscriber_response)
         expect(cg.process_on_demand_channels(sr)).to eq(false)
       end
     end
-
   end
 end

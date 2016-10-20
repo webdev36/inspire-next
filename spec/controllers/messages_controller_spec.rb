@@ -6,7 +6,7 @@ describe MessagesController do
   before do
     @request.env["devise.mapping"] = Devise.mappings[:user]
   end
-  
+
   describe "guest user" do
     it "is redirected to signup form always and not allowed to alter db" do
       message = channel.messages.create! valid_attributes
@@ -18,7 +18,7 @@ describe MessagesController do
       expect(response).to redirect_to new_user_session_path
 
       get :import, {channel_id:channel}
-      expect(response).to redirect_to new_user_session_path            
+      expect(response).to redirect_to new_user_session_path
 
       get :show, {channel_id:channel,:id => message.to_param}
       expect(response).to redirect_to new_user_session_path
@@ -34,14 +34,14 @@ describe MessagesController do
 
       expect {
             post :create, {channel_id:channel,:message => valid_attributes}
-          }.to_not change(Message, :count).by(1)
-      
+          }.to_not change(Message, :count)
+
       expect_any_instance_of(Message).not_to receive(:update_attributes)
       put :update, {channel_id:channel,:id => message.to_param, :message => { "title" => "MyText" }}
 
       expect {
           delete :destroy, {channel_id:channel,:id => message.to_param}
-        }.to_not change(Message, :count).by(-1)
+        }.to_not change(Message, :count)
     end
   end
 
@@ -58,7 +58,7 @@ describe MessagesController do
       expect(response).to redirect_to root_url
 
       get :index, {channel_id:channel}
-      expect(response).to redirect_to root_url      
+      expect(response).to redirect_to root_url
 
       get :show, {channel_id:channel,:id => message.to_param}
       expect(response).to redirect_to root_url
@@ -74,14 +74,14 @@ describe MessagesController do
 
       expect {
             post :create, {channel_id:channel,:message => valid_attributes}
-          }.to_not change(Message, :count).by(1)
-      
+          }.to_not change(Message, :count)
+
       expect_any_instance_of(Message).not_to receive(:update_attributes)
       put :update, {channel_id:channel,:id => message.to_param, :message => { "title" => "MyText" }}
 
       expect {
           delete :destroy, {channel_id:channel,:id => message.to_param}
-        }.to_not change(Message, :count).by(-1)
+        }.to_not change(Message, :count)
 
     end
   end
@@ -112,7 +112,7 @@ describe MessagesController do
         get :show, {channel_id:channel,:id => message.to_param}
         expect(assigns(:message)).to eq(Message.find(message))
       end
-    end    
+    end
 
     describe "GET new" do
       it "assigns a new message as @message" do
@@ -223,7 +223,7 @@ describe MessagesController do
         delete :destroy, {channel_id:channel,id: message.to_param}
         expect(response).to redirect_to(channel_url(channel))
       end
-    end    
+    end
 
     describe "POST broadcast" do
       it "calls broadcast for message for all subscribers" do
@@ -243,7 +243,7 @@ describe MessagesController do
     describe "GET select_import" do
       it "assigns @channel with the channel" do
         get :select_import, {user_id:user,channel_id:channel}
-        expect(assigns(:channel)).to eq(Channel.find(channel))        
+        expect(assigns(:channel)).to eq(Channel.find(channel))
       end
     end
 

@@ -14,7 +14,6 @@ gem 'figaro'
 gem 'bootstrap-sass', '3.3.7'
 
 gem 'json', '1.8.3'
-gem 'kaminari'
 
 gem 'paperclip'
 gem 'aws-sdk'

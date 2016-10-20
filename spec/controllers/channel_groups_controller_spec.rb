@@ -19,27 +19,27 @@ describe ChannelGroupsController do
       expect(response).to redirect_to new_user_session_path
 
       get :messages_report, {:id => channel_group.to_param}
-      expect(response).to redirect_to new_user_session_path      
+      expect(response).to redirect_to new_user_session_path
 
       get :edit, {:id => channel_group.to_param}
       expect(response).to redirect_to new_user_session_path
 
       expect {
             post :create, {:channel_group => valid_attributes}
-          }.to_not change(ChannelGroup, :count).by(1)
+          }.to_not change(ChannelGroup, :count)
 
       expect_any_instance_of(ChannelGroup).not_to receive(:update_attributes)
       put :update, {:id => channel_group.to_param, :channel_group => { "name" => "MyString" }}
 
       expect {
           delete :destroy, {:id => channel_group.to_param}
-      }.to_not change(ChannelGroup, :count).by(-1)
+      }.to_not change(ChannelGroup, :count)
 
       channel = create(:channel,user:user)
       channel_group.channels << channel
       expect {
         post :remove_channel, {channel_group_id:channel_group.to_param, id:channel.to_param }
-      }.to_not change(channel_group.channels, :count).by(-1)
+      }.to_not change(channel_group.channels, :count)
 
     end
   end
@@ -65,7 +65,7 @@ describe ChannelGroupsController do
 
       expect {
           delete :destroy, {:id => channel_group.to_param}
-      }.to_not change(ChannelGroup, :count).by(-1)     
+      }.to_not change(ChannelGroup, :count)
 
       channel = create(:channel,user:user)
       channel_group.channels << channel
@@ -89,7 +89,7 @@ describe ChannelGroupsController do
         expect(assigns(:channel_group)).to eq(channel_group)
         expect(assigns(:channels)).to match(channels)
       end
-    end    
+    end
     describe "GET new" do
       it "assigns a new channel as @channel" do
         get :new, {user_id:user.to_param}
@@ -137,7 +137,7 @@ describe ChannelGroupsController do
           expect(response).to render_template("new")
         end
       end
-    end   
+    end
     describe "PUT update" do
       describe "with valid params" do
         it "updates the requested channel_group" do
@@ -177,7 +177,7 @@ describe ChannelGroupsController do
           expect(response).to render_template("edit")
         end
       end
-    end   
+    end
     describe "DELETE destroy" do
       it "destroys the requested channel_group" do
         channel_group = user.channel_groups.create! valid_attributes
@@ -191,7 +191,7 @@ describe ChannelGroupsController do
         delete :destroy, {:id => channel_group.to_param}
         expect(response).to redirect_to(user_path(user))
       end
-    end   
+    end
     describe "POST remove_channel" do
       it "should decrease member channels array by one" do
         ch_group = create(:channel_group,user:user)
@@ -209,9 +209,9 @@ describe ChannelGroupsController do
         channel_to_remove = channels[1]
         post :remove_channel, {channel_group_id:ch_group.id, id:channel_to_remove.id}
         expect(response).to redirect_to(channel_group_url(ch_group))
-      end      
-    end  
-                
+      end
+    end
+
   end
 
 
