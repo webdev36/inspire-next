@@ -4,9 +4,8 @@ Liveinspired::Application.routes.draw do
 
   mount Sidekiq::Web => '/sidekiq'
 
-  root :to=>"home#index"
+  root :to => "home#index"
   devise_for :users
-  mount RailsAdmin::Engine => '/admin', :as => 'rails_admin'
   resources :channels do
     member do
       get 'list_subscribers'
