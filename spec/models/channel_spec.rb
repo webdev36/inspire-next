@@ -252,7 +252,7 @@ describe Channel do
       phone_number = Faker::PhoneNumber.us_phone_number
       subs = create(:subscriber,phone_number:phone_number)
       ch2.subscribers << subs
-      expect(Channel.with_subscriber(phone_number)).to eq([Channel.find(ch2)])
+      expect(Channel.with_subscriber(phone_number)).to eq([Channel.find(ch2.id)])
     end
   end
 
@@ -406,7 +406,7 @@ describe Channel do
         mm = double.as_null_object
         allow(MessagingManager).to receive(:new_instance){mm}
         expect(mm).to receive(:broadcast_message){|message,subscribers|
-          expect(message).to eq(Message.find(msg))
+          expect(message).to eq(Message.find(msg.id))
           expect(subscribers).to match_array([subs1,subs2])
         }
         subject.send_scheduled_messages
@@ -637,7 +637,7 @@ describe Channel do
         create(:delivery_notice,message:m3,subscriber:sub1)
         sr = create(:subscriber_response,origin:phone_number)
         subject.associate_response_with_last_primary_message(sr)
-        expect(SubscriberResponse.find(sr).message).to eq(Message.find(m1))
+        expect(SubscriberResponse.find(sr.id).message).to eq(Message.find(m1.id))
       end
     end
 

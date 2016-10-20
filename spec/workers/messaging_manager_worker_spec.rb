@@ -12,7 +12,7 @@ describe MessagingManagerWorker do
         expect(kw).to eq(my_keyword)
       }
       subject.add_keyword(my_keyword)
-    end  
+    end
   end
 
   describe "remove_keyword" do
@@ -24,7 +24,7 @@ describe MessagingManagerWorker do
       expect(mw).to receive(:remove_keyword){|kw|
         expect(kw).to eq(my_keyword)
       }
-      subject.remove_keyword(my_keyword)      
+      subject.remove_keyword(my_keyword)
     end
   end
 
@@ -40,7 +40,7 @@ describe MessagingManagerWorker do
       mw = double.as_null_object
       allow(MessagingManager).to receive(:new_instance){mw}
       expect(mw).to receive(:broadcast_message){|msg,subs|
-        expect(msg).to eq(Message.find(message))
+        expect(msg).to eq(Message.find(message.id))
         expect(subs.to_a).to match_array([subs1,subs2])
       }
       subject.broadcast_message(message.id)
@@ -54,7 +54,7 @@ describe MessagingManagerWorker do
         keyword = Faker::Lorem.word
         expect(subject.class).to receive(:add_keyword).with(keyword){}
         subject.perform('add_keyword',{'keyword'=>keyword})
-      end  
+      end
       it "calls remove_keyword class method when action is remove" do
         keyword = Faker::Lorem.word
         expect(subject.class).to receive(:remove_keyword).with(keyword){}
@@ -68,5 +68,5 @@ describe MessagingManagerWorker do
         subject.perform('broadcast_message',{'message_id'=>message_id})
       end
     end
-  end  
+  end
 end

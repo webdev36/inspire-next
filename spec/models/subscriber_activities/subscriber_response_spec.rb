@@ -47,11 +47,11 @@ describe SubscriberResponse do
     end
     it "returns nil when message is empty" do
       expect(SubscriberResponse.parse_message('')).to eq([nil,nil,nil,''])
-    end  
+    end
     it "identifies channel with primary tparty_keyword and keyword" do
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
         "#{@tparty_primary.swapcase}  #{@keyword.swapcase}    #{@message}")
-      expect(target).to eq(Channel.find(@ch_pri_key))
+      expect(target).to eq(Channel.find(@ch_pri_key.id))
       expect(tparty_keyword).to match(/^#{@tparty_primary}$/i)
       expect(keyword).to match(/^#{@keyword}$/i)
       expect(message).to eq(@message)
@@ -59,97 +59,97 @@ describe SubscriberResponse do
     it "identifies channel with primary tparty_keyword and keyword when tparty_keyword is outside the message" do
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
         "#{@keyword.swapcase}    #{@message}",@tparty_primary.swapcase  )
-      expect(target).to eq(Channel.find(@ch_pri_key))
+      expect(target).to eq(Channel.find(@ch_pri_key.id))
       expect(tparty_keyword).to match(/^#{@tparty_primary}$/i)
       expect(keyword).to match(/^#{@keyword}$/i)
       expect(message).to eq(@message)
-    end    
+    end
     it "identifies channel with custom tparty_keyword and keyword" do
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
         "#{@tparty_custom.swapcase} #{@keyword.swapcase} #{@message}")
-      expect(target).to eq(Channel.find(@ch_custom_key))
+      expect(target).to eq(Channel.find(@ch_custom_key.id))
       expect(tparty_keyword).to match(/^#{@tparty_custom}$/i)
       expect(keyword).to match(/^#{@keyword}$/i)
       expect(message).to eq(@message)
-    end  
+    end
 
     it "identifies channel with custom tparty_keyword and keyword when tparty_keyword is passed in outside message" do
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
         "#{@keyword.swapcase} #{@message}",@tparty_custom.swapcase)
-      expect(target).to eq(Channel.find(@ch_custom_key))
+      expect(target).to eq(Channel.find(@ch_custom_key.id))
       expect(tparty_keyword).to match(/^#{@tparty_custom}$/i)
       expect(keyword).to match(/^#{@keyword}$/i)
       expect(message).to eq(@message)
-    end  
+    end
 
 
     it "identifies channel with only tparty_keyword if there is a single match" do
       @ch_pri_key.destroy
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
         "#{@tparty_primary.swapcase} #{@message}")
-      expect(target).to eq(Channel.find(@ch_pri))
+      expect(target).to eq(Channel.find(@ch_pri.id))
       expect(tparty_keyword).to match(/^#{@tparty_primary}$/i)
       expect(keyword).to be_nil
       expect(message).to eq(@message)
       @ch_custom_key.destroy
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
         "#{@tparty_custom.swapcase} #{@message}")
-      expect(target).to eq(Channel.find(@ch_custom))
+      expect(target).to eq(Channel.find(@ch_custom.id))
       expect(tparty_keyword).to match(/^#{@tparty_custom}$/i)
       expect(keyword).to be_nil
-      expect(message).to eq(@message)        
-    end 
+      expect(message).to eq(@message)
+    end
 
     it "identifies channel with only tparty_keyword if there is a single match when message does not contain it" do
       @ch_pri_key.destroy
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
         "#{@message}",@tparty_primary.swapcase)
-      expect(target).to eq(Channel.find(@ch_pri))
+      expect(target).to eq(Channel.find(@ch_pri.id))
       expect(tparty_keyword).to match(/^#{@tparty_primary}$/i)
       expect(keyword).to be_nil
       expect(message).to eq(@message)
       @ch_custom_key.destroy
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
         "#{@message}",@tparty_custom.swapcase )
-      expect(target).to eq(Channel.find(@ch_custom))
+      expect(target).to eq(Channel.find(@ch_custom.id))
       expect(tparty_keyword).to match(/^#{@tparty_custom}$/i)
       expect(keyword).to be_nil
-      expect(message).to eq(@message)        
-    end      
+      expect(message).to eq(@message)
+    end
 
     it "identifies channel with only tparty_keyword and no message if there is a single match" do
       @ch_pri_key.destroy
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
         "#{@tparty_primary.swapcase}")
-      expect(target).to eq(Channel.find(@ch_pri))
+      expect(target).to eq(Channel.find(@ch_pri.id))
       expect(tparty_keyword).to match(/^#{@tparty_primary}$/i)
       expect(keyword).to be_nil
       expect(message).to eq('')
       @ch_custom_key.destroy
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
         "#{@tparty_custom.swapcase}")
-      expect(target).to eq(Channel.find(@ch_custom))
+      expect(target).to eq(Channel.find(@ch_custom.id))
       expect(tparty_keyword).to match(/^#{@tparty_custom}$/i)
       expect(keyword).to be_nil
-      expect(message).to eq('')       
-    end  
+      expect(message).to eq('')
+    end
 
     it "identifies channel with only tparty_keyword and no message if there is a single match when identifier is not part of message" do
       @ch_pri_key.destroy
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
         "",@tparty_primary.swapcase)
-      expect(target).to eq(Channel.find(@ch_pri))
+      expect(target).to eq(Channel.find(@ch_pri.id))
       expect(tparty_keyword).to match(/^#{@tparty_primary}$/i)
       expect(keyword).to be_nil
       expect(message).to eq('')
       @ch_custom_key.destroy
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
         "",@tparty_custom.swapcase)
-      expect(target).to eq(Channel.find(@ch_custom))
+      expect(target).to eq(Channel.find(@ch_custom.id ))
       expect(tparty_keyword).to match(/^#{@tparty_custom}$/i)
       expect(keyword).to be_nil
-      expect(message).to eq('')       
-    end  
+      expect(message).to eq('')
+    end
 
     it "does not identify channel if there are multiple matches" do
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
@@ -175,15 +175,15 @@ describe SubscriberResponse do
       @ch_grp_custom_key = create(:channel_group,tparty_keyword:@tparty_custom,
         keyword:@keyword)
     end
-    
+
     it "returns nil when message is empty" do
       expect(SubscriberResponse.parse_message('')).to eq([nil,nil,nil,''])
-    end  
-    
+    end
+
     it "identifies channel group with primary tparty_keyword and keyword" do
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
         "#{@tparty_primary.swapcase}  #{@keyword.swapcase}    #{@message}")
-      expect(target).to eq(ChannelGroup.find(@ch_grp_pri_key))
+      expect(target).to eq(ChannelGroup.find(@ch_grp_pri_key.id))
       expect(tparty_keyword).to match(/^#{@tparty_primary}$/i)
       expect(keyword).to match(/^#{@keyword}$/i)
       expect(message).to eq(@message)
@@ -191,45 +191,45 @@ describe SubscriberResponse do
     it "identifies channel group with custom tparty_keyword and keyword" do
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
         "#{@tparty_custom.swapcase} #{@keyword.swapcase} #{@message}")
-      expect(target).to eq(ChannelGroup.find(@ch_grp_custom_key))
+      expect(target).to eq(ChannelGroup.find(@ch_grp_custom_key.id))
       expect(tparty_keyword).to match(/^#{@tparty_custom}$/i)
       expect(keyword).to match(/^#{@keyword}$/i)
       expect(message).to eq(@message)
-    end  
+    end
 
     it "identifies channel group with only tparty_keyword if there is a single match" do
       @ch_grp_pri_key.destroy
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
         "#{@tparty_primary.swapcase} #{@message}")
-      expect(target).to eq(ChannelGroup.find(@ch_grp_pri))
+      expect(target).to eq(ChannelGroup.find(@ch_grp_pri.id))
       expect(tparty_keyword).to match(/^#{@tparty_primary}$/i)
       expect(keyword).to be_nil
       expect(message).to eq(@message)
       @ch_grp_custom_key.destroy
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
         "#{@tparty_custom.swapcase} #{@message}")
-      expect(target).to eq(ChannelGroup.find(@ch_grp_custom))
+      expect(target).to eq(ChannelGroup.find(@ch_grp_custom.id))
       expect(tparty_keyword).to match(/^#{@tparty_custom}$/i)
       expect(keyword).to be_nil
-      expect(message).to eq(@message)        
+      expect(message).to eq(@message)
     end
 
     it "identifies channel group with only tparty_keyword and no message if there is a single match" do
       @ch_grp_pri_key.destroy
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
         "#{@tparty_primary.swapcase}")
-      expect(target).to eq(ChannelGroup.find(@ch_grp_pri))
+      expect(target).to eq(ChannelGroup.find(@ch_grp_pri.id))
       expect(tparty_keyword).to match(/^#{@tparty_primary}$/i)
       expect(keyword).to be_nil
       expect(message).to eq('')
       @ch_grp_custom_key.destroy
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
         "#{@tparty_custom.swapcase}")
-      expect(target).to eq(ChannelGroup.find(@ch_grp_custom))
+      expect(target).to eq(ChannelGroup.find(@ch_grp_custom.id))
       expect(tparty_keyword).to match(/^#{@tparty_custom}$/i)
       expect(keyword).to be_nil
-      expect(message).to eq('')       
-    end      
+      expect(message).to eq('')
+    end
 
     it "does not identify channel group if there are multiple matches" do
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
@@ -244,10 +244,10 @@ describe SubscriberResponse do
       ch = create(:channel,tparty_keyword:@tparty_primary,keyword:@keyword)
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
        "#{@tparty_primary.swapcase}  #{@keyword.swapcase}    #{@message}")
-      expect(target).to eq(ChannelGroup.find(@ch_grp_pri_key))
+      expect(target).to eq(ChannelGroup.find(@ch_grp_pri_key.id))
       expect(tparty_keyword).to match(/^#{@tparty_primary}$/i)
       expect(keyword).to match(/^#{@keyword}$/i)
-      expect(message).to eq(@message)       
+      expect(message).to eq(@message)
     end
 
     it "returns channel group when both channel and channel group of a given custom tparty keyword are present" do
@@ -255,22 +255,22 @@ describe SubscriberResponse do
       ch = create(:channel,tparty_keyword:@tparty_custom)
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
        "#{@tparty_custom.swapcase}  #{@message}")
-      expect(target).to eq(ChannelGroup.find(@ch_grp_custom))
+      expect(target).to eq(ChannelGroup.find(@ch_grp_custom.id))
       expect(tparty_keyword).to match(/^#{@tparty_custom}$/i)
       expect(keyword).to be_nil
-      expect(message).to eq(@message)       
-    end 
+      expect(message).to eq(@message)
+    end
 
     it "returns channel group when both channel and channel group of a given custom tparty keyword and keyword are present" do
       ch = create(:channel,tparty_keyword:@tparty_custom,keyword:@keyword)
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
        "#{@tparty_custom.swapcase} #{@keyword.swapcase} #{@message}")
-      expect(target).to eq(ChannelGroup.find(@ch_grp_custom_key))
+      expect(target).to eq(ChannelGroup.find(@ch_grp_custom_key.id))
       expect(tparty_keyword).to match(/^#{@tparty_custom}$/i)
       expect(keyword).to match(/^#{@keyword}$/i)
-      expect(message).to eq(@message)       
-    end            
-  end    
+      expect(message).to eq(@message)
+    end
+  end
 
   describe "#" do
     let(:tparty_keyword){Faker::Lorem.word}
@@ -293,18 +293,18 @@ describe SubscriberResponse do
     it "populates subscriber and channel upon creation" do
       sr = create(:subscriber_response,caption:"#{tparty_keyword.swapcase} #{true_message}",
         origin:phone_number)
-      expect(sr.reload.channel).to eq(Channel.find(channel))
-      expect(sr.subscriber).to eq(Subscriber.find(subscriber))
+      expect(sr.reload.channel).to eq(Channel.find(channel.id))
+      expect(sr.subscriber).to eq(Subscriber.find(subscriber.id))
     end
 
     it "populates channel if subscriber is new or invalid" do
       sr = create(:subscriber_response,caption:"#{tparty_keyword.swapcase} #{true_message}",
         origin:Faker::PhoneNumber.us_phone_number)
-      expect(sr.reload.channel).to eq(Channel.find(channel))
+      expect(sr.reload.channel).to eq(Channel.find(channel.id))
     end
 
     it "returns channel/channelgroup as target" do
-      expect(subject.reload.target).to eq(Channel.find(@channel))
+      expect(subject.reload.target).to eq(Channel.find(@channel.id))
     end
 
     it "identifies the tparty_keyword" do

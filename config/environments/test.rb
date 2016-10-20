@@ -8,8 +8,10 @@ Liveinspired::Application.configure do
   config.cache_classes = true
 
   # Configure static asset server for tests with Cache-Control for performance
-  config.serve_static_assets = true
+  config.serve_static_files = true
+  config.active_record.raise_in_transactional_callbacks = true
   config.static_cache_control = "public, max-age=3600"
+  # used to reaise errors on deprecations, so we can find and fix
 
   config.eager_load = false
 

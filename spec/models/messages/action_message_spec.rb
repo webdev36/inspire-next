@@ -72,7 +72,7 @@ describe ActionMessage do
     end
     it "send_to_subscribers calls execute on associated action" do
       expect(action_message.action).to receive(:execute){|opts|
-        expect(opts[:subscribers]).to match_array([Subscriber.find(subscriber)])
+        expect(opts[:subscribers]).to match_array([Subscriber.find(subscriber.id)])
         expect(opts[:channel]).to eq(from_channel)
         expect(opts[:message]).to eq(subject)
       }

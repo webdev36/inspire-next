@@ -84,7 +84,7 @@ describe SubscriberActivity do
     dn2 = create(:delivery_notice,message:message2)
     dn3 = create(:delivery_notice,message:message3)
     expect(SubscriberActivity.for_channels([channel1,channel2])).to match_array([dn1,dn2])
-  end 
+  end
 
   it "for_channel_group gives only those about the channel_group" do
     channel_group = create(:channel_group)
@@ -103,7 +103,7 @@ describe SubscriberActivity do
     sr2 = create(:subscriber_response,channel_group:channel_group3)
     sr3 = create(:subscriber_response,channel_group:channel_group2)
     expect(SubscriberActivity.for_channel_groups([channel_group1,channel_group2])).to match_array([sr1,sr3])
-  end    
+  end
 
   it "unprocessed gives only those that are unprocessed" do
     sr1 = create(:subscriber_response)
@@ -127,7 +127,7 @@ describe SubscriberActivity do
     end
     subject {create(:delivery_notice,message:message,subscriber:subscriber)}
     it "populates the channel field using the message" do
-      expect(subject.channel).to eq(Channel.find(channel))
+      expect(subject.channel).to eq(Channel.find(channel.id))
     end
     describe "parent_type" do
       it "returns right value for message responses" do
@@ -146,6 +146,6 @@ describe SubscriberActivity do
         expect(sr.parent_type).to eq(:channel_group)
       end
     end
-  end  
+  end
 
 end

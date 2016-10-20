@@ -19,9 +19,10 @@ Spork.prefork do
   require 'capybara/rspec'
   require 'capybara/poltergeist'
   require 'sidekiq/testing'
-  require 'rspec/autorun'
+  # require 'rspec/autorun'
   Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
   RSpec.configure do |config|
+    # show line numbers for deprecations
     # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
     config.fixture_path = "#{::Rails.root}/spec/fixtures"
 
@@ -42,7 +43,7 @@ Spork.prefork do
     config.order = "random"
 
     config.include FactoryGirl::Syntax::Methods
-    config.include Devise::TestHelpers, type: :controller
+    config.include Devise::Test::ControllerHelpers, type: 'controller'
 
     config.before(:suite) do
       DatabaseCleaner.clean_with(:truncation)

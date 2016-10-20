@@ -12,7 +12,7 @@ describe SendMessageAction do
 
   it 'stores the action in as_text' do
     sc = create(:send_message_action,message_to_send:"40")
-    expect(SendMessageAction.find(sc).as_text).to eq("Send message 40")
+    expect(SendMessageAction.find(sc.id).as_text).to eq("Send message 40")
   end
 
   describe "#" do

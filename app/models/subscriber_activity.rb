@@ -94,7 +94,8 @@ class SubscriberActivity < ActiveRecord::Base
   end
 
   def self.for_channel_groups(channel_groups)
-    where("channel_group_id in (?)", channel_groups)
+    channel_group_ids = channel_groups.map(&:id)
+    where("channel_group_id in (?)", channel_group_ids)
   end
 
   def self.unprocessed
@@ -128,6 +129,6 @@ private
   end
 
   def update_derived_attributes_before_save
-    self.channel = Channel.find(message.channel) if !channel && message
+    self.channel = Channel.find(message.channel.id) if !channel && message
   end
 end

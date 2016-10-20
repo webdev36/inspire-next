@@ -130,7 +130,7 @@ describe IndividuallyScheduledMessagesChannel do
         ma << message
       }
       subject.send_scheduled_messages
-      expect(ma).to match_array([Message.find(m1),Message.find(m2)])
+      expect(ma).to match_array([Message.find(m1.id),Message.find(m2.id)])
     end
 
     it "tmap runs on a relative weekly schedule" do
@@ -180,7 +180,7 @@ describe IndividuallyScheduledMessagesChannel do
       expect {
         TpartyScheduledMessageSender.new.perform
         }.to change{
-          DeliveryNotice.where(subscriber_id:subscriber).count
+          DeliveryNotice.where(subscriber_id:subscriber.id).count
         }.by 1
 
       # but the messages are sccheduled after this, so no message goes
@@ -188,7 +188,7 @@ describe IndividuallyScheduledMessagesChannel do
       expect {
         TpartyScheduledMessageSender.new.perform
         }.to_not change{
-          DeliveryNotice.where(subscriber_id:subscriber).count
+          DeliveryNotice.where(subscriber_id:subscriber.id).count
         }
 
       # message 1, the first week, on Thursday at 7pm
@@ -196,35 +196,35 @@ describe IndividuallyScheduledMessagesChannel do
       expect {
         TpartyScheduledMessageSender.new.perform
         }.to change{
-          DeliveryNotice.where(subscriber_id:subscriber).count
+          DeliveryNotice.where(subscriber_id:subscriber.id).count
         }.by 1
 
       Timecop.travel(Time.new(2014,1,2,19,01,30))
       expect {
         TpartyScheduledMessageSender.new.perform
         }.to change{
-          DeliveryNotice.where(subscriber_id:subscriber).count
+          DeliveryNotice.where(subscriber_id:subscriber.id).count
         }.by 1
 
       Timecop.travel(Time.new(2014,1,2,19,30,30))
       expect {
         TpartyScheduledMessageSender.new.perform
         }.to change{
-          DeliveryNotice.where(subscriber_id:subscriber).count
+          DeliveryNotice.where(subscriber_id:subscriber.id).count
         }.by 1
 
       Timecop.travel(Time.new(2014,1,3,19,00,01))
       expect {
         TpartyScheduledMessageSender.new.perform
         }.to change{
-          DeliveryNotice.where(subscriber_id:subscriber).count
+          DeliveryNotice.where(subscriber_id:subscriber.id).count
         }.by 1
 
       Timecop.travel(Time.new(2014,1,3,19,01,30))
       expect {
         TpartyScheduledMessageSender.new.perform
         }.to change{
-          DeliveryNotice.where(subscriber_id:subscriber).count
+          DeliveryNotice.where(subscriber_id:subscriber.id).count
         }.by 1
       #Breaks MVC, but this test case is a bit over-ambitious for a model anyway
       params={}
@@ -235,14 +235,14 @@ describe IndividuallyScheduledMessagesChannel do
       expect {
           TpartyScheduledMessageSender.new.perform
           }.to_not change{
-            DeliveryNotice.where(subscriber_id:subscriber).count
+            DeliveryNotice.where(subscriber_id:subscriber.id).count
           }
 
       Timecop.travel(Time.new(2014,1,3,21,00,01))
       expect {
         TpartyScheduledMessageSender.new.perform
         }.to change{
-          DeliveryNotice.where(subscriber_id:subscriber).count
+          DeliveryNotice.where(subscriber_id:subscriber.id).count
         }.by 1
 
       params={}
@@ -254,13 +254,13 @@ describe IndividuallyScheduledMessagesChannel do
       expect {
         TpartyScheduledMessageSender.new.perform
         }.to_not change{
-          DeliveryNotice.where(subscriber_id:subscriber).count
+          DeliveryNotice.where(subscriber_id:subscriber.id).count
         }
       Timecop.travel(Time.new(2014,1,3,21,30,30))
       expect {
           TpartyScheduledMessageSender.new.perform
           }.to_not change{
-            DeliveryNotice.where(subscriber_id:subscriber).count
+            DeliveryNotice.where(subscriber_id:subscriber.id).count
           }
     end
 

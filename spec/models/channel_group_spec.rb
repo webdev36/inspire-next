@@ -98,13 +98,13 @@ describe ChannelGroup do
     ch2.channel_group = channel_group
     ch1.save
     ch2.save
-    ch1 = Channel.find(ch1)
-    ch2 = Channel.find(ch2)
-    channel_group = ChannelGroup.find(channel_group)
+    ch1 = Channel.find(ch1.id)
+    ch2 = Channel.find(ch2.id)
+    channel_group = ChannelGroup.find(channel_group.id)
     expect(channel_group.channels.to_a).to match_array([ch1,ch2])
     channel_group.default_channel = ch2
     channel_group.save
-    channel_group = ChannelGroup.find(channel_group)
+    channel_group = ChannelGroup.find(channel_group.id)
     expect(channel_group.channels.to_a).to match_array([ch1,ch2])
     expect(channel_group.default_channel).to eq(ch2)
   end
@@ -223,8 +223,8 @@ describe ChannelGroup do
         expect {subject.process_start_command(sr)}.to change{
           subject.user.subscribers.count
         }.by(1)
-        ch1 = Channel.find(@ch1)
-        ch2 = Channel.find(@ch2)
+        ch1 = Channel.find(@ch1.id)
+        ch2 = Channel.find(@ch2.id)
         expect(ch1.subscribers.size).to eq(0)
         expect(ch2.subscribers.size).to eq(1)
         expect(ch2.subscribers[0].phone_number).to eq(Subscriber.format_phone_number(@phone_number))
@@ -236,8 +236,8 @@ describe ChannelGroup do
           origin:@phone_number)
         expect {subject.process_start_command(sr)}.to_not change{
           subject.user.subscribers.count}
-        ch1 = Channel.find(@ch1)
-        ch2 = Channel.find(@ch2)
+        ch1 = Channel.find(@ch1.id)
+        ch2 = Channel.find(@ch2.id)
         expect(ch1.subscribers.size).to eq(0)
         expect(ch2.subscribers.size).to eq(1)
         expect(ch2.subscribers[0].phone_number).to eq(Subscriber.format_phone_number(@phone_number))
@@ -249,8 +249,8 @@ describe ChannelGroup do
         sr = create(:subscriber_response,message_content:Faker::Lorem.sentence,
           origin:@phone_number)
         subject.process_start_command(sr)
-        ch1 = Channel.find(@ch1)
-        ch2 = Channel.find(@ch2)
+        ch1 = Channel.find(@ch1.id)
+        ch2 = Channel.find(@ch2.id)
         expect(ch1.subscribers.size).to eq(1)
         expect(ch2.subscribers.size).to eq(0)
       end
@@ -284,7 +284,7 @@ describe ChannelGroup do
           origin:@phone_number)
         expect(@ch1.subscribers.count).to eq(1)
         expect(subject.process_stop_command(sr)).to eq(true)
-        ch1 = Channel.find(@ch1)
+        ch1 = Channel.find(@ch1.id)
         expect(ch1.subscribers.count).to eq(0)
       end
       it "returns false if subscriber is not in any channel" do
@@ -331,8 +331,8 @@ describe ChannelGroup do
           subject.associate_subscriber_response_with_channel(sr)}.to change{
             ch2.subscriber_responses.count
           }.by(1)
-        sr = SubscriberResponse.find(sr)
-        expect(sr.channel).to eq(Channel.find(ch2))
+        sr = SubscriberResponse.find(sr.id)
+        expect(sr.channel).to eq(Channel.find(ch2.id))
       end
     end
     describe "ask_channel_to_process_subscriber_response" do
@@ -371,7 +371,7 @@ describe ChannelGroup do
         sr = create(:subscriber_response,message_content:one_word,tparty_keyword:tparty_keyword,
           origin:phone_number)
         allow_any_instance_of(Channel).to receive(:process_subscriber_response) {|channel, psr|
-          expect(psr).to eq(SubscriberResponse.find(sr))
+          expect(psr).to eq(SubscriberResponse.find(sr.id))
           true
         }
         expect(ch2).not_to receive(:process_subscriber_response)
@@ -385,7 +385,7 @@ describe ChannelGroup do
       end
 
       it "returns false if there were no matches among on-demand channels" do
-        cg.channels.delete(ch1)
+        cg.channels.delete(ch1.id)
         ch3 = create(:on_demand_messages_channel,tparty_keyword:tparty_keyword,
                 one_word:"#{one_word}asd",user:user)
         cg.channels << ch3
@@ -396,7 +396,7 @@ describe ChannelGroup do
       end
 
       it "returns false if there are no on-demand channels" do
-        cg.channels.delete(ch1)
+        cg.channels.delete(ch1.id)
         sr = create(:subscriber_response,tparty_keyword:tparty_keyword,message_content:one_word,
           origin:phone_number)
         expect_any_instance_of(Channel).not_to receive(:process_subscriber_response)

@@ -61,7 +61,7 @@ describe Message do
   it "sets the model_name of any subclass as Message to enable STI use single controller" do
     expect(SimpleMessage.model_name).to eq(Message.model_name)
     expect(ActionMessage.model_name).to eq(Message.model_name)
-  end  
+  end
 
   it "pending_send returns messages whose next_send_time is in the past" do
       message1 = create(:simple_message,next_send_time:1.day.ago)
@@ -76,7 +76,7 @@ describe Message do
     message2 = create(:message)
     message1.primary = false
     message1.save
-    expect(Message.primary.to_a).to eq([Message.find(message2)])
+    expect(Message.primary.to_a).to eq([Message.find(message2.id)])
   end
 
   it "secondary scope returns non-primary messages(e.g. not reminder etc)" do
@@ -84,9 +84,9 @@ describe Message do
     message2 = create(:message)
     message2.primary = false
     message2.save
-    expect(Message.secondary.to_a).to eq([Message.find(message2)])
-  end  
-  
+    expect(Message.secondary.to_a).to eq([Message.find(message2.id)])
+  end
+
   describe "#" do
     let(:user) {create(:user)}
     let(:channel) {create(:channel,user:user)}
@@ -94,7 +94,7 @@ describe Message do
     let(:subscriber) {create(:subscriber,user:user)}
     let(:subscriber2) {create(:subscriber,user:user)}
     subject {message}
-    before do 
+    before do
       channel.subscribers << subscriber
       channel.subscribers << subscriber2
     end
@@ -107,13 +107,13 @@ describe Message do
       expect(msg.options[:channel_id]).to eq(10)
       expect(msg.options[:subscriber_id]).to eq(20)
     end
-    
+
     it "delivery_notices lists the delivery notices" do
       dn1 = create(:delivery_notice,message:message,subscriber:subscriber)
       dn2 = create(:delivery_notice,message:message,subscriber:subscriber)
       expect(subject.delivery_notices.to_a).to match_array([dn1,dn2])
     end
-    
+
     it "subscriber_responses lists the subscriber responses" do
       sr1 = create(:subscriber_response, message:message, subscriber:subscriber)
       sr2 = create(:subscriber_response, message:message, subscriber:subscriber)
@@ -126,7 +126,7 @@ describe Message do
       it "swaps the seq_no of this and earlier message" do
         prev_seq1 = message1.seq_no
         prev_seq2 = message2.seq_no
-        message2.move_up 
+        message2.move_up
         expect(message1.reload.seq_no).to eq(prev_seq2)
         expect(message2.reload.seq_no).to eq(prev_seq1)
       end
@@ -143,7 +143,7 @@ describe Message do
       it "swaps the seq_no of this and later message" do
         prev_seq1 = message1.seq_no
         prev_seq2 = message2.seq_no
-        message1.move_down 
+        message1.move_down
         expect(message1.reload.seq_no).to eq(prev_seq2)
         expect(message2.reload.seq_no).to eq(prev_seq1)
       end
@@ -172,7 +172,7 @@ describe Message do
     describe "perform_post_send_ops" do
       it "creates a system secondary messages channel if one does not exist" do
         expect{subject.perform_post_send_ops(nil)}.to change{
-          SecondaryMessagesChannel.count}.by(1) 
+          SecondaryMessagesChannel.count}.by(1)
       end
       it "does not create system secondary messages channel if one exists" do
         SecondaryMessagesChannel.create!(name:"_system_smc",tparty_keyword:"_system_smc")
@@ -184,7 +184,7 @@ describe Message do
           expect(subs).to match_array([subscriber,subscriber2])
         }
         subject.perform_post_send_ops([subscriber,subscriber2])
-      end  
+      end
       it "creates a message in the system secondary channel if reminder message required" do
         message.reminder_message_text = Faker::Lorem.sentence
         message.reminder_delay = 10
@@ -199,7 +199,7 @@ describe Message do
         expect(smc.messages.last.next_send_time).to be > 8.minutes.from_now
         expect(smc.messages.last.next_send_time).to be < 12.minutes.from_now
       end
-      
+
       it "creates messages in the system secondary channel for repeat reminders" do
         message.repeat_reminder_message_text = Faker::Lorem.sentence
         message.repeat_reminder_delay = 20
@@ -210,8 +210,8 @@ describe Message do
           smc.messages.count
         }.by(2)
         expect(smc.messages.last.next_send_time).to be > 38.minutes.from_now
-        expect(smc.messages.last.next_send_time).to be < 42.minutes.from_now         
-      end      
+        expect(smc.messages.last.next_send_time).to be < 42.minutes.from_now
+      end
     end
   end
   describe "##" do

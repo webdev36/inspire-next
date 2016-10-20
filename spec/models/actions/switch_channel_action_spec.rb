@@ -24,7 +24,7 @@ describe SwitchChannelAction do
 
   it 'stores the action in as_text' do
     sc = create(:switch_channel_action,to_channel:"40")
-    expect(SwitchChannelAction.find(sc).as_text).to eq("Switch channel to 40")
+    expect(SwitchChannelAction.find(sc.id).as_text).to eq("Switch channel to 40")
   end
 
   describe "#" do
@@ -44,7 +44,7 @@ describe SwitchChannelAction do
           subject.to_channel = nil
           expect(subject.to_channel).to eq("40")
         end
-      end            
+      end
     end
     describe "execute" do
       let(:user) {create(:user)}
@@ -81,5 +81,5 @@ describe SwitchChannelAction do
 
     end
   end
- 
+
 end

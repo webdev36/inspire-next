@@ -46,9 +46,9 @@ describe DeliveryNotice do
     dn3 = create(:delivery_notice,subscriber:subs,message:m3)
     dn4 = create(:delivery_notice,subscriber:subs,message:m4)
     expect(DeliveryNotice.of_primary_messages_that_require_response.to_a).to match_array([dn1,dn3])
-  end  
+  end
 
-  
+
 
   describe "#" do
     let(:user){create(:user)}
@@ -60,7 +60,7 @@ describe DeliveryNotice do
     end
     subject {create(:delivery_notice,message:message,subscriber:subscriber)}
     it "populates the channel field using the message" do
-      expect(subject.channel).to eq(Channel.find(channel))
+      expect(subject.channel).to eq(Channel.find(channel.id))
     end
     it "always sets the processed field to true" do
       expect(subject.processed).to eq(true)

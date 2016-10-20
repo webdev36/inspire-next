@@ -9,7 +9,7 @@ describe UsersController do
 
   describe "guest user" do
     it "is redirected to signup form" do
-      get :show,{id:user.to_param}
+      get :show,{id:user.id}
       expect(response).to redirect_to new_user_session_path
     end
   end
@@ -19,7 +19,7 @@ describe UsersController do
       another_user = create(:user)
       sign_in another_user
 
-      get :show, {:id => user.to_param}
+      get :show, {:id => user.id}
       expect(response).to redirect_to root_url
     end
   end
