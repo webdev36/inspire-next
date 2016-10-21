@@ -54,6 +54,10 @@ Spork.prefork do
       $original_time = Time.now
     end
 
+    config.before(:each, js: true) do
+      resize_window_to(1600,1600)
+    end
+
     config.before(:suite) do
       DatabaseCleaner.strategy = :transaction
       DatabaseCleaner.clean_with(:truncation)
@@ -72,6 +76,8 @@ Spork.prefork do
   Rails.logger.level = Logger::DEBUG
   Capybara.javascript_driver = :poltergeist
   include LoginMacros
+  include ResponsiveHelpers
+  include SelectorHelpers
 end
 
 Spork.each_run do

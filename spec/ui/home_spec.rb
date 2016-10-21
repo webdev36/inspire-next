@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-feature 'home page' do
+feature 'UI/home page' do
   scenario 'has welcome text' do
     visit root_path
     expect(page).to have_content('Welcome')

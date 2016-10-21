@@ -1,20 +1,20 @@
 require 'spec_helper'
 
-feature 'Channels' do
+feature 'UI/Channels', js: true do
   background do
     @user = create(:user)
-    sign_in_using_form(@user)  
+    sign_in_using_form(@user)
   end
 
   context 'index' do
-    background do 
+    background do
       @ordered_channel = create(:ordered_messages_channel, user:@user)
       @on_demand_channel = create(:on_demand_messages_channel, user:@user)
       @annoucements_channel = create(:announcements_channel, user:@user)
       @channels = [@ordered_channel,@on_demand_channel,@annoucements_channel]
-      within "div#top-menu" do
+      within navigation_selector do
         click_link 'Channels'
-      end       
+      end
     end
     scenario "should list all the channels" do
       within 'div#channels-section' do
@@ -27,9 +27,9 @@ feature 'Channels' do
 
   context 'in the new page' do
     background do
-      within "div#top-menu" do
+      within navigation_selector do
         click_link 'Channels'
-      end         
+      end
       within "div#channels-section" do
         click_link 'New'
       end
@@ -39,49 +39,50 @@ feature 'Channels' do
       expect(page).to have_css "select#channel_type"
       expect(page).not_to have_css "select#channel_type.readonly"
     end
-    
+
     scenario "displays the keyword and tparty_keyword fields" do
       expect(page).to have_css("input#channel_keyword")
       expect(page).to have_css("input#channel_tparty_keyword")
     end
 
-    scenario "shows/hides scheduling controls based on channel type", :js=>true do
+    scenario "shows/hides scheduling controls based on channel type" do
       select 'Ordered messages channel', from:'channel_type'
       expect(page).to have_css("select#channel_schedule")
       select 'OnDemand messages channel', from:'channel_type'
-      expect(page).not_to have_css("select#channel_schedule")      
+      expect(page).not_to have_css("select#channel_schedule")
     end
   end
 
   context 'in the edit page' do
     background do
       @channel = create(:ordered_messages_channel, user:@user)
-      within "div#top-menu" do
+      within navigation_selector do
         click_link 'Channels'
-      end  
+      end
       within "tr#channel_#{@channel.id}" do
         click_link 'Edit'
       end
     end
     scenario 'it is not possible to change channel type' do
-      within 'div#page' do
-        expect(page).to have_css "select#channel_type.readonly"
+      # make sure it has a readonly attribute
+      within page_selector do
+        expect(find("select#channel_type").readonly?).to be_truthy
       end
     end
   end
 
   context 'in its show/details page' do
     background do
-      @channel = create(:ordered_messages_channel, user:@user)
-      @messages = (0..2).map{create(:message, channel:@channel)}
-      @subscribers = (0..2).map{create(:subscriber,user:@user)}
+      @channel     = create(:ordered_messages_channel, user:@user)
+      @messages    = (0..2).map{ create(:message, channel:@channel) }
+      @subscribers = (0..2).map{ create(:subscriber,user:@user) }
       @subscribers.each do |subs|
         @channel.subscribers << subs
       end
-      within "div#top-menu" do
+      within navigation_selector do
         click_link 'Channels'
-      end         
-      within "div#page" do
+      end
+      within page_selector do
         click_link @channel.name
       end
     end
@@ -90,7 +91,7 @@ feature 'Channels' do
       within "h1" do
         expect(page).to have_content(@channel.name)
       end
-    end   
+    end
 
     scenario "lists its subscribers" do
       @subscribers.each do |subscriber|
@@ -102,16 +103,16 @@ feature 'Channels' do
       @messages.each do |message|
         expect(page).to have_content(message.title)
       end
-    end   
-  end  
+    end
+  end
 
   context 'where broadcast is important' do
     background do
       @annoucements_channel = create(:announcements_channel, user:@user)
       @announcement_messages = (0..2).map{create(:message, channel:@annoucements_channel)}
-      within "div#top-menu" do
+      within navigation_selector do
         click_link 'Channels'
-      end          
+      end
     end
     context 'in its details page' do
       background do
@@ -123,7 +124,7 @@ feature 'Channels' do
         within("div#message-list tr#message_#{@announcement_messages[1].id}") do
           expect(page).to have_link('Broadcast')
         end
-      end  
+      end
     end
   end
 
@@ -131,9 +132,9 @@ feature 'Channels' do
     background do
       @channel = create(:ordered_messages_channel, user:@user)
       @messages = (0..2).map{create(:message, channel:@channel)}
-      within "div#top-menu" do
+      within navigation_selector do
         click_link 'Channels'
-      end    
+      end
     end
     context "in the details page" do
       background do
@@ -156,7 +157,7 @@ feature 'Channels' do
           expect(rows[2]).to have_content(@messages[1].title)
           expect(rows[3]).to have_content(@messages[2].title)
         end
-      end  
+      end
 
       scenario "it is possible to move the messages up and down" do
         within_table 'messages_table' do
@@ -164,7 +165,7 @@ feature 'Channels' do
           expect(rows[1]).to have_content(@messages[0].title)
           expect(rows[2]).to have_content(@messages[1].title)
           expect(rows[3]).to have_content(@messages[2].title)
-          rows[3].click_link('Up')        
+          rows[3].click_link('Up')
         end
         within_table 'messages_table' do
           rows = all('tr')
@@ -189,17 +190,17 @@ feature 'Channels' do
           expect(rows[2]).to have_content(@messages[1].title)
           expect(rows[3]).to have_content(@messages[2].title)
         end
-      end      
+      end
     end
   end
-  
+
   context "where sequence is not important" do
     background do
       @random_channel = create(:random_messages_channel, user:@user)
       @random_messages = (0..2).map{create(:message,channel:@random_channel)}
-      within "div#top-menu" do
+      within navigation_selector do
         click_link 'Channels'
-      end       
+      end
     end
     context "in the details page" do
       background do
@@ -224,17 +225,17 @@ feature 'Channels' do
           expect(rows[2]).to have_content(@random_messages[1].title)
           expect(rows[3]).to have_content(@random_messages[0].title)
         end
-      end  
+      end
     end
-  end  
-  
+  end
+
   context "where scheduling is important" do
     background do
       @ordered_channel = create(:ordered_messages_channel, user:@user)
-      within "div#top-menu" do
+      within navigation_selector do
         click_link 'Channels'
-      end       
-    end    
+      end
+    end
     context "in the edit page" do
       background do
         within "tr#channel_#{@ordered_channel.id}" do
@@ -250,9 +251,9 @@ feature 'Channels' do
   context "where scheduling is not relevant" do
     background do
       @on_demand_channel = create(:on_demand_messages_channel, user:@user)
-      within "div#top-menu" do
+      within navigation_selector do
         click_link 'Channels'
-      end       
+      end
     end
     context "in the edit page" do
       background do
@@ -263,7 +264,7 @@ feature 'Channels' do
       scenario "does not display scheduling controls" do
         expect(page).not_to have_css("select#schedule")
       end
-    end    
-  end     
+    end
+  end
 
 end
