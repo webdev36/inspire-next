@@ -45,6 +45,9 @@ gem 'paranoia', '2.1.5' # 345 compatiblity
 # web server
 gem 'thin'
 
+# Yaml-DB allows us to to db: load nad db:dump
+gem 'yaml_db'
+
 # Rails 4 compabilitiy wtih Rails 3 stuff, should be refactored and
 # removed over time
 gem 'protected_attributes'

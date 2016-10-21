@@ -31,7 +31,7 @@ Liveinspired::Application.routes.draw do
       end
     end
   end
-  post 'channels/:channel_id/add_subscriber/:id', to: 'channels#add_subscriber', :as => 'channel_add_subscriber'
+  post 'channels/:channel_id/add_subscriber/:id',    to: 'channels#add_subscriber',    :as => 'channel_add_subscriber'
   post 'channels/:channel_id/remove_subscriber/:id', to: 'channels#remove_subscriber', :as => 'channel_remove_subscriber'
 
   resources :channel_groups, :except => [:index] do
@@ -50,15 +50,18 @@ Liveinspired::Application.routes.draw do
       post 'reprocess'
     end
   end
+
+  resources :downloads, only: [:index]
+
   match 'subscribe/:channel_group_id' => "home#new_web_subscriber", :via => [:get, :post]
   match 'thank_you' => "home#sign_up_success", via: [:get]
   match 'twilio' =>'twilio#callback', :via => [:post]
 
-  match 'help/user_show', via: [:get]
-  match 'help/edit_channel', via: [:get]
-  match 'help/edit_message', via: [:get]
-  match 'help/index_channels', via: [:get]
+  match 'help/user_show',            via: [:get]
+  match 'help/edit_channel',         via: [:get]
+  match 'help/edit_message',         via: [:get]
+  match 'help/index_channels',       via: [:get]
   match 'help/edit_response_action', via: [:get]
-  match 'help/glossary', via: [:get]
+  match 'help/glossary',             via: [:get]
 
 end
