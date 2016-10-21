@@ -9,6 +9,7 @@ gem 'jquery-rails'
 gem 'simple_form'
 gem 'devise'
 gem 'figaro'
+gem 'slim-rails'
 
 # assets and layouts
 gem 'bootstrap-sass', '3.3.7'
@@ -22,6 +23,10 @@ gem 'twilio-ruby'
 gem 'will_paginate-bootstrap', '0.2.5'
 
 gem 'sidekiq'
+gem 'sidekiq-failures'
+
+gem 'statsd-instrument'
+
 gem 'sinatra'
 gem 'clockwork'
 
@@ -33,6 +38,8 @@ gem 'ice_cube'
 gem 'recurring_select', :git => "https://github.com/omalab/recurring_select.git", :branch => "add_hour_and_minute_to_rules"
 gem 'momentjs-rails', '>= 2.9.0'
 gem 'bootstrap3-datetimepicker-rails', '~> 4.17.42'
+gem 'select2-rails'
+gem 'moment_timezone-rails'
 gem 'paranoia', '2.1.5' # 345 compatiblity
 
 # web server
@@ -57,6 +64,10 @@ group :development, :test do
   gem 'rspec-preloader'
   gem 'meta_request'
   gem 'pry'
+end
+
+group :development do
+  gem 'web-console', '~> 2.0'
 end
 
 group :test do

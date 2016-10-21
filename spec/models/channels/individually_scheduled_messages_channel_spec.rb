@@ -49,7 +49,7 @@ describe IndividuallyScheduledMessagesChannel do
 
     describe '#broadcastable?' do
       subject { super().broadcastable? }
-      it { is_expected.to be_falsey}
+      it { is_expected.to be_falsey }
     end
 
     describe '#type_abbr' do

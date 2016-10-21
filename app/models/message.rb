@@ -38,21 +38,27 @@ class Message < ActiveRecord::Base
     :relative_schedule_day,:relative_schedule_hour,
     :relative_schedule_minute,:active, :message_options_attributes
 
-
-
   serialize :options, Hash
+  serialize :recurring_schedule, Hash
 
   has_many :delivery_notices
   has_many :subscriber_responses
-  has_one :action, as: :actionable
+  has_one  :action, as: :actionable
   has_many :response_actions
 
   has_many :message_options
   accepts_nested_attributes_for :message_options, :reject_if => lambda { |a| a[:key].blank? || a[:value].blank? }, :allow_destroy => true
 
-  has_attached_file :content, :styles => {
-    :thumb=> {:geometry=>'100x100>', :format=>'jpg'}
-  }
+has_attached_file :content,
+                   storage: :s3,
+                   s3_credentials: {
+                      access_key_id: ENV["AWS_ACCESS_KEY_ID"],
+                      secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"],
+                   },
+                   s3_region: ENV["AWS_REGION"],
+                   styles: {
+                      thumb: { geometry: "100x100>", format: "jpg" },
+                   }
 
   belongs_to :channel
   validates :seq_no, uniqueness:{scope: [:channel_id,:deleted_at]}
@@ -102,7 +108,7 @@ class Message < ActiveRecord::Base
   end
 
   def self.pending_send
-    where(active:true).where("next_send_time <= ?",Time.now )
+    where(active:true).where("next_send_time <= (?)",Time.now )
   end
 
   def reset_next_send_time
@@ -252,14 +258,44 @@ class Message < ActiveRecord::Base
     end
   end
 
-  def self.import(channel,file)
-    CSV.foreach(file.path,headers:true) do |row|
-      message = channel.messages.find_by_id(row["id"]) || channel.messages.new
-      message.attributes = row.to_hash.slice(*accessible_attributes)
-      Rails.logger.info message.inspect
-      message.save!
+  def self.import(channel, file)
+    error_message = nil
+    csv_string = File.read(file.path).scrub
+    error_rows = []
+    count_rows = 0
+    CSV.parse(csv_string, headers:true) do |row|
+      count_rows += 1
+      begin
+        message = channel.messages.find_by_id(row["id"]) || channel.messages.new
+        hash_row = row.to_h
+        hash_row['seq_no'] = nil
+        hash_row.keys.each do |key|
+          hash_row[key] = {} if hash_row[key] == '{}'
+          message[key] = hash_row[key] unless ["options"].include?(key)
+        end
+        message.channel_id = channel.id
+        message.created_at = Time.current
+        message.updated_at = Time.current
+        message.form_schedule
+        if message.save
+          next
+        else
+          error_rows << row.to_h
+          binding.pry
+        end
+      rescue => e
+        binding.pry
+        error_rows << row.to_h
+      end
     end
-  end
+    if error_rows.length > 0
+      { completed: true, message: "Import completed with #{error_rows.count} import failures", error_rows: error_rows }
+    else
+      { completed: true, message: nil, error_rows: error_rows }
+    end
+    rescue => e
+      { completed: false, message: e.message, error_rows: error_rows }
+    end
 
 private
 
