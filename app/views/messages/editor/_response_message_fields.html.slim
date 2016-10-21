@@ -1,0 +1,6 @@
+- if @message.new_record?
+  p Configure response actions after creating message.
+- else
+  = link_to "Configure Response Actions",
+            channel_message_response_actions_path(@channel, @message),
+            class: "btn btn-default"

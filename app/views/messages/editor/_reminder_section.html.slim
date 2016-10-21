@@ -1,0 +1,23 @@
+#reminder_section.control-group style=(@message.requires_user_response? ? "display: run-in;" : "display: none;")
+  = f.input :reminder_message_text, label: "Reminder message", input_html: { rows: 3 }
+  = f.input :reminder_delay, label: "Send reminder after(mins)"
+  = f.input :repeat_reminder_message_text, label: "Repeat reminder message", input_html: { rows: 3 }
+  = f.input :repeat_reminder_delay, label: "Send repeat reminder after(mins)"
+  = f.input :number_of_repeat_reminders, label: "Number of repeat reminders to send"
+
+- content_for :head_js
+  javascript:
+    function set_reminder_visibility(value) {
+      if (value === 'PollMessage' || value === 'ResponseMessage') {
+        $('#reminder_section').css('display', 'inline');
+      } else {
+        $('#reminder_section').css('display', 'none');
+      }
+    }
+
+    $(document).ready(function () {
+      set_reminder_visibility($('#message_type').val());
+      $('#message_type').change(function () {
+        set_reminder_visibility($(this).val());
+      });
+    });

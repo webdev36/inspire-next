@@ -1,0 +1,8 @@
+- model_class = ResponseAction
+
+.page-header.clearfix
+  h1.pull-left
+    = t ".title", default: [:"helpers.titles.new", "New %{model}"], model: model_class.model_name.human.titleize
+  = help_tag help_edit_response_action_path
+
+= render partial: "form"

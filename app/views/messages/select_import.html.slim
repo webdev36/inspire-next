@@ -1,0 +1,12 @@
+.page-header.clearfix
+  h1.pull-left Import messages for #{@channel.name}
+  = help_tag help_edit_message_path
+
+= simple_form_for :import, wrapper: :bootstrap_horizontal, url: import_channel_messages_path, html: { class: "form-horizontal", multipart: true } do |f|
+  .row
+    .col-md-6
+      = f.input :import_from, as: :file
+
+  .panel.panel-default style="padding-left: 228px;"
+    .panel-body
+      = f.button :submit, "Import"

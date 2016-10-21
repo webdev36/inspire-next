@@ -1,0 +1,35 @@
+= simple_form_for [@channel, @message], wrapper: :horizontal_form, html: { class: "form-horizontal" } do |f|
+  .row
+    .col-md-7
+      = f.input :type, label: 'Message Type', collection: user_message_types, include_blank: false, readonly: @message.new_record? ? false : true
+      = f.input :caption, label: "Message Text", input_html: { rows: 5 }, hint: "Total message length: #{total_message_length(@message)}"
+      = f.input :content
+
+      - if @channel.individual_messages_have_schedule?
+        - if @channel.relative_schedule
+          = render partial: "shared/relative_schedule", locals: { f: f }
+        - else
+          = render partial: "shared/absolute_schedule", locals: { f: f, message: @message }
+
+      = render partial: "messages/editor/reminder_section", locals: { f: f }
+      = render partial: "messages/editor/message_type_specific_section", locals: { f: f }
+      = f.input :active, wrapper: :horizontal_radio_and_checkboxes, hint: "Making inactive will skip during scheduled send"
+
+  .panel.panel-default style="padding-left: 270px;"
+    .panel-body
+      => f.button :submit, class: "btn-primary"
+      => link_to "Cancel", request.referer, class: "btn btn-default"
+
+- content_for :head_js
+  javascript:
+    function updateTotalLength() {
+      var base_length = #{base_message_length(@message)};
+      $('div.message_caption .help-block').text('Total message length:' + ($('#message_caption').val().length + base_length));
+    }
+
+    $(document).ready(function () {
+      updateTotalLength();
+      $('#message_caption').keyup(function (event) {
+        updateTotalLength();
+      });
+    });

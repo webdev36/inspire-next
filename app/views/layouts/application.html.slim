@@ -15,7 +15,7 @@ html lang="en"
     = javascript_include_tag "application"
     = yield :head_js
 
-  body
+  body class="controller-#{controller.controller_name} action-#{controller.action_name}" data-controller="#{controller.controller_name}" data-action="controller.action_name"
     nav#top-menu.navbar.navbar-default.navbar-fixed-top
       .container
         .navbar-header

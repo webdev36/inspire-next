@@ -1,0 +1,18 @@
+.page-header
+  h2 Subscribers who responded with #{@response[0..50]} for "#{@message.caption[0..50]}"
+
+table#subscriber_response_table.table.table-striped
+  thead: tr
+    th Subscriber
+    th Sent at
+  tbody
+    - @subscriber_responses.find do |sr|
+      tr
+        - subscriber = @grouped_response[:subscribers].find { |subs| subs.phone_number == sr.origin }
+        td= link_to subscriber.name, subscriber_path(subscriber)
+        td= link_to sr.created_at, subscriber_activity_path(sr.id, subscriber_id: subscriber.id)
+
+= will_paginate @subscriber_responses
+
+.form-actions
+  = link_to "Back", request.referer, class: "btn btn-default"

@@ -10,6 +10,7 @@ feature 'UI/Messages' do
       click_link 'Channels'
     end
   end
+
   context 'are listed on the channel\'s page' do
     background do
       @simple_message1 = create(:message,channel:@channel)
@@ -25,9 +26,9 @@ feature 'UI/Messages' do
         expect(page).to have_content(@simple_message2.caption[0..40])
       end
     end
-
   end
-  context 'in the new page' do
+
+  context 'in the #new page' do
     background do
       within "tr#channel_#{@channel.id}" do
         click_link @channel.name
@@ -37,6 +38,7 @@ feature 'UI/Messages' do
       end
     end
     scenario 'allows setting of title, caption, attachment and type' do
+      write_for_inspection(page)
       expect(page).to have_css "select#message_type"
       expect(page).not_to have_css "select#message_type.read_only"
       expect(page).to have_css "textarea#message_caption"

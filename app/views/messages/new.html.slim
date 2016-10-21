@@ -1,0 +1,26 @@
+- model_class = Message
+
+.page-header.clearfix
+  .row
+    .col-md-8
+      .row
+        .col-md-12
+          h4.pull-left
+            | Create New Message
+      .row
+        .col-md-12
+          p
+            = "Channel:  "
+            = link_to channel_path(@channel) do
+              = " #{@channel.name} "
+          - if @channel&.channel_group_id
+            p
+              = "Group:  "
+              = link_to channel_group_path(@channel.channel_group) do
+                span.glyphicon.glyphicon-folder-open
+                = " #{@channel.channel_group.name}"
+
+    .col-md-4
+      = help_tag help_edit_message_path
+
+= render partial: "form"

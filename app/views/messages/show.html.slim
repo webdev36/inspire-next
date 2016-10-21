@@ -1,0 +1,66 @@
+- model_class = Message
+
+.page-header: h1 Message
+
+dl.dl-horizontal
+  dt: strong Type:
+  dd= print_or_dashes @message.type.titlecase
+  - if @message.type == 'ActionMessage'
+    dt Action:
+    dd = @message.action.as_text
+  - else
+    dt: strong Text:
+    dd= print_or_dashes @message.caption
+  dt: strong Active:
+  dd= print_or_dashes @message.active
+
+  - if @channel.individual_messages_have_schedule?
+    - if @channel.relative_schedule
+      dt: strong Schedule:
+      dd= print_or_dashes @message.schedule
+    - else
+      dt: strong Next send time:
+      dd= print_or_dashes @message.next_send_time
+
+  - if @message.requires_user_response?
+    dt: strong Reminder message:
+    dd= print_or_dashes @message.reminder_message_text
+    dt: strong Send reminder after:
+    dd= @message.reminder_delay
+    dt: strong Repeat rem message:
+    dd= print_or_dashes @message.repeat_reminder_message_text
+    dt: strong Send repeat after:
+    dd= @message.repeat_reminder_delay
+    dt: strong No of repeat reminders:
+    dd= @message.number_of_repeat_reminders
+
+
+div
+  - if @message.content.content_type =~ /video/
+    = video_tag @message.content.url, controls: true, autobuffer: true, width: "320px", height: "240px"
+  - elsif @message.content.content_type =~ /image/
+    = image_tag @message.content.url(:thumb)
+
+= render partial: "messages/details/message_type_specific_section"
+
+- if @message.requires_user_response?
+  = render partial: "messages/details/message_response_details"
+
+.panel.panel-default.mt-20.mb-20
+  .panel-body
+    => link_to "Back", channel_path(@channel), class: "btn btn-default"
+    => link_to t(".edit", default: t("helpers.links.edit")),
+              edit_channel_message_path(@channel, @message),
+              class: "btn btn-default"
+    => link_to t(".destroy", default: t("helpers.links.destroy")),
+              channel_message_path(@channel, @message),
+              method: :delete,
+              data: { confirm: t(".confirm", default: t("helpers.links.confirm", default: "Are you sure?")) },
+              class: "btn btn-danger"
+    => link_to "Subscriber Responses",
+              subscriber_activities_path( \
+                message_id: @message.id,
+                channel_id: @channel.id,
+                type: "SubscriberResponse",
+              ),
+              class: "btn btn-default"
