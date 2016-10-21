@@ -16,17 +16,17 @@ feature 'UI/Channel Groups' do
       end
     end
     scenario 'It shows all channel groups created by the user' do
-      within 'div#channel-groups-section' do
+      within :xpath, "//div[@id='channel-groups-section']" do
         @channel_groups.each do |channel_group|
           expect(page).to have_content(channel_group.name)
         end
       end
     end
-    scenario 'New channel group can be created from here' do
-      within 'div#channel-groups-section' do
-        click_link 'New'
+    scenario 'New channel groups can be created from here' do
+      within :xpath, "//div[@id='channel-groups-section']" do
+        find(:xpath, "//a[@id='channel-group-new']").click
       end
-      expect(page).to have_title('New Channel Group')
+      expect(page).to have_content('New Channel Group')
     end
   end
   context 'list is shown on channels index page.' do

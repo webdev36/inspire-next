@@ -1,0 +1,25 @@
+- model_class = User
+
+.page-header
+  .row
+    .col-md-8
+      h4.pull-left#user_email
+        = "Welcome #{@user.email}"
+    .col-md-4
+      = help_tag(help_user_show_path)
+
+.row
+  #channel-and-group-list.col-md-6
+    .row
+      .col-md-12
+        #channels-section
+          = render partial: "channel_list"
+    .row
+      .col-md-12
+        #channel-groups-section
+          = render partial: "channel_group_list"
+  #subscriber-list.col-md-6
+    .row
+      .col-md-12
+        #subscribers-section
+          = render partial: "subscriber_list"
