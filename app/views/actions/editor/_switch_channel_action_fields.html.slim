@@ -1,0 +1,36 @@
+ruby:
+  group_channels = @channel&.channel_group&.channels&.order(:name)
+  other_channels = @to_channel_options[:in_group]
+                    .select { |k, _v| k != @channel.channel_group_id }
+                    .map { |_k, v| v }
+                    .flatten(1) + @to_channel_options[:out_group]
+  action_data = @action&.data
+  to_channel_in_group = action_data.try(:[], "to_channel_in_group")
+  to_channel_out_group = action_data.try(:[], "to_channel_out_group")
+
+  resume_from_last_state = action_data.try(:[], "resume_from_last_state")
+  resume_from_last_state = if resume_from_last_state.nil?
+    false
+  else
+    resume_from_last_state == "1"
+  end
+
+.form-group
+  = f.label :to_channel, class: "col-sm-5 control-label"
+  .col-sm-7.row
+    - if group_channels
+      label.col-sm-12.control-label.text-align-left.font-normal Group channel:
+      .col-sm-12
+        = select_tag :to_channel_in_group,
+                    options_from_collection_for_select(group_channels, :id, :name, to_channel_in_group),
+                    class: "select2",
+                    multiple: true
+
+    label.col-sm-12.control-label.text-align-left.font-normal Other channels:
+    .col-sm-12
+      = select_tag :to_channel_out_group, options_for_select(other_channels, to_channel_out_group), multiple: true, class: "select2"
+  = f.input :resume_from_last_state,
+            as: :boolean,
+            wrapper: :horizontal_radio_and_checkboxes,
+            hint: "",
+            input_html: { checked: resume_from_last_state }

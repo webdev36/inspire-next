@@ -1,0 +1,39 @@
+- subscriber_model_class = Subscriber
+
+#subscribers-section.panel.panel-default
+  .panel-heading
+    .row
+      .col-md-8
+        = "Subscribers (#{@subscribers.count})"
+      .col-md-4.text-right.pull-right
+        = link_to new_subscriber_path, class: "btn btn-primary btn-xs", id: 'subscriber-new'
+          span.glyphicon.glyphicon-plus
+  .panel-body
+    - if @subscribers && @subscribers.count > 0
+      table.table.table-striped#channels_table
+        thead
+          th= subscriber_model_class.human_attribute_name(:name)
+          th= subscriber_model_class.human_attribute_name(:phone_number)
+          th
+        tbody
+          - @subscribers.each do |subscriber|
+            tr id="subscriber_#{subscriber.id}"
+              td= link_to subscriber.name, subscriber_path(subscriber)
+              td= subscriber.phone_number
+              td.text-right
+                = link_to t(".edit", default: t("helpers.links.edit")),
+                          edit_subscriber_path(subscriber),
+                          class: "btn btn-default btn-xs"
+      .row
+        .col-md-12.text-center
+          = will_paginate @subscribers, param_name: "subscribers_page"
+
+    - else
+      .notification-well.text-center
+        .icon
+          span.glyphicon.glyphicon-phone
+        .message
+          h4 No Subscribers
+          p No subscribers have been added
+          .new
+            = link_to "Add new subscriber", new_subscriber_path, class: "btn btn-primary"

@@ -1,0 +1,37 @@
+h1 Do YOU Live Inspired?
+
+.row
+  .col-md-12
+    p
+      | ILiveInspired is a platform built to help you manage distribution of text and multi-media messages to specific groups of subscribers, with the specific aims of
+      strong
+        |  changing people's lives
+      |  for the better.
+    p The basic process is straightforward. With ILI, you create channels. You add subscribers to these channels. You add multiple text and multimedia messages to each channel.
+    p There are a number of different types of channels. These allow you to manage complex distribution strategies for your messages. Among others, you can:
+
+.row
+  .col-md-12
+    ul
+      li Broadcast a specific message to all subscribers
+      li Set a scheduled list of messages to be sent to all subscribers
+      li Create a set of messages from which a random message will be sent to the subscribers of the channel
+      li Create a set of ordered messages(like lessons), which will be sent to subscribers per schedule relative to when they join
+      li Create channels from which messages are sent to individual subscriber as and when they request it
+      li Ability to create complex schedules for the channels
+.row
+  .col-md-12
+    p Live Inspired is a platform that provides you incredible flexibility in your message management tasks.
+    - if user_signed_in?
+      p To get started, click the "Channels" menu item above to manage your channels.
+
+.row
+  .col-md-12 style="padding-top: 50px;"
+  - if user_signed_in?
+      = link_to "Sign out", destroy_user_session_path, class: "btn btn-primary btn-lg", method: :delete, style: 'margin-right: 20px;'
+      = link_to "Edit Profile", edit_user_registration_path, class: "btn btn-primary btn-lg"
+  - else
+    p Give it a spin!
+    = link_to "Sign in", new_user_session_path, class: "btn btn-primary btn-lg", style: "margin-right: 20px;"
+    span style="margin-left: 10px; margin-right: 10px;" &nbsp;
+    = link_to "Sign up", new_user_registration_path, class: "btn btn-primary btn-lg"

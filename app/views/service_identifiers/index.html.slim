@@ -1,0 +1,21 @@
+.page-header.clearfix
+  .row
+    .col-md-8
+      h4
+        | Service Identifiers
+    .col-md-4
+
+.row
+  .col-md-12
+    .bs-callout.bs-callout-primary
+      h4 Service Identifiers
+      | This page provides a quick way to lookup what service identifiers a user has been provided. Reach out to your LI representative to request additional service_identifiers.
+
+.row
+  .col-md-4
+  .col-md-4.text-center
+    ul#service-identifiers-list style="font-size: 18px;"
+    - @service_identifiers.each do |service_identifier|
+      li style="font-size: 20px;"
+        = service_identifier
+  .col-md-4

@@ -1,0 +1,43 @@
+#channel-groups-section.panel.panel-default
+  .panel-heading
+    .row
+      .col-md-8
+        = "Channel Groups (#{@channel_groups.count})"
+      .col-md-4.text-right.pull-right
+        = link_to new_channel_group_path, class: "btn btn-primary btn-xs", id: 'channel-group-new'
+          span.glyphicon.glyphicon-plus
+
+  .panel-body
+    - if @channel_groups && @channel_groups.count > 0
+      table.table.table-striped#channel_groups_table
+        thead
+          th Name
+          th.text-center Channels
+          th
+        tbody
+          - @channel_groups.each do |channel_group|
+            tr id="channel_group_#{channel_group.id}"
+              td
+                .name
+                  = link_to channel_group_path(channel_group)
+                    span.glyphicon.glyphicon-folder-open
+                    = "  #{channel_group.name}"
+                .tparty style="font-size: 70%; color: #ccc;"
+                  | #{channel_group.tparty_keyword}
+              td.text-center
+                = channel_group.channels.count
+              td.text-right.pull-right
+                = link_to "Edit", edit_channel_group_path(channel_group), class: "btn btn-default btn-xs"
+      .row
+        .col-md-12.text-center
+          = will_paginate @channel_groups, param_name: "channel_groups_page"
+
+    - else
+      .notification-well.text-center
+        .icon
+          span.glyphicon.glyphicon-folder-open
+        .message
+          h4 No Channel Groups
+          p No channels groups configured
+          .new
+            = link_to "Create new channel group", new_channel_group_path, class: "btn btn-primary"

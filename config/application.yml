@@ -2,9 +2,13 @@
 AWS_ACCESS_KEY_ID:          AKIAI6I3W35I3RTCOUCQ
 AWS_SECRET_ACCESS_KEY:      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
 AWS_REGION:                 us-east-1
-DATABASE_URL:               postgres://postgres:@<%= Resolv.getaddress('db') %>:5432/liveinspired_test
+DATABASE_URL:               postgres://postgres:@<%= Resolv.getaddress('db') %>:5432/liveinspired_development
+POSTGRES_USERNAME:          postgres
+POSTGRES_HOST:              <%= Resolv.getaddress('db') %>
+POSTGRES_PORT:              '5432'
+POSTGRES_DATABASE:          liveinspired_development
 REDISTOGO_URL:              redis://<%= Resolv.getaddress('redis') %>:6379/2
-DB_POOL:                    "20"
+POSTGRES_POOL:              "10"
 PAPERTRAIL_API_TOKEN:       bagcYqTTeGW7AUd9dS5m
 S3_BUCKET_NAME:             liveinspired-mms
 SENDGRID_PASSWORD:          3mvghb2n1324

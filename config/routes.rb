@@ -8,15 +8,17 @@ Liveinspired::Application.routes.draw do
   devise_for :users
   resources :channels do
     member do
-      get 'list_subscribers'
-      get 'messages_report'
+      get  'list_subscribers'
+      get  'messages_report'
+      post 'delete_all_messages'
+
     end
     resources :messages do
       member do
         post 'broadcast'
         post 'move_up'
         post 'move_down'
-        get 'responses'
+        get  'responses'
       end
       collection do
         get 'select_import'
@@ -51,7 +53,8 @@ Liveinspired::Application.routes.draw do
     end
   end
 
-  resources :downloads, only: [:index]
+  resources :downloads,           only: [:index]
+  resources :service_identifiers, only: [:index]
 
   match 'subscribe/:channel_group_id' => "home#new_web_subscriber", :via => [:get, :post]
   match 'thank_you' => "home#sign_up_success", via: [:get]

@@ -38,11 +38,10 @@ feature 'UI/Messages' do
       end
     end
     scenario 'allows setting of title, caption, attachment and type' do
-      write_for_inspection(page)
-      expect(page).to have_css "select#message_type"
+      expect(page).to     have_css "select#message_type"
       expect(page).not_to have_css "select#message_type.read_only"
-      expect(page).to have_css "textarea#message_caption"
-      expect(page).to have_css "input#message_content"
+      expect(page).to     have_css "textarea#message_caption"
+      expect(page).to     have_css "input#message_content"
     end
 
     scenario 'does not allow setting schedule for channels which do not allow it' do

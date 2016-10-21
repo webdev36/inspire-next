@@ -40,4 +40,12 @@ module SelectorHelpers
     [:xpath, "//h1[@class='#{id_name}']"]
   end
 
+  def select_id_selector(id_name)
+    [:xpath, "//select[@id='#{id_name}']"]
+  end
+
+  def select_class_selector(id_name)
+    [:xpath, "//select[@class='#{id_name}']"]
+  end
+
 end

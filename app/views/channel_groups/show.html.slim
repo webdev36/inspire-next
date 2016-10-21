@@ -1,0 +1,30 @@
+- content_for :title, @channel_group.name.titleize
+
+.page-header
+  .row
+    .col-md-8
+      h4
+        span.glyphicon.glyphicon-folder-open
+        | &nbsp;
+        = "#{@channel_group.name} Channel Group"
+      p
+        = @channel_group.tparty_keyword
+
+.row
+  .col-md-12
+    dl#channel-group-details.dl-horizontal
+      dt: strong Description:
+      dd= print_or_dashes @channel_group.description
+      dt: strong Default Channel:
+      dd= @channel_group.default_channel&.name
+
+.row
+  .col-md-12#channel-list
+    = render partial: "channel_list"
+
+.panel.panel-default
+  .panel-body.text-center
+    => link_to "Back", (session[:root_page] || channels_path), class: "btn btn-default"
+    => link_to "Edit", edit_channel_group_path(@channel_group), class: "btn btn-default"
+    => link_to "Subscriber Activities", subscriber_activities_path(channel_group_id: @channel_group.id), class: "btn btn-default"
+    => link_to "Messages Report", messages_report_channel_group_path(@channel_group, format: :csv), class: "btn btn-default"

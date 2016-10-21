@@ -1,0 +1,25 @@
+- subscriber_model_class = Subscriber
+
+h2.text-center Subscribed Subscribers
+table.table.table-striped#unsubscribed_subscribers_table
+  thead
+    tr
+      th= subscriber_model_class.human_attribute_name(:name)
+      th= subscriber_model_class.human_attribute_name(:phone_number)
+      th= t ".actions", default: t("helpers.actions")
+  tbody
+    - if @subscribed_subscribers && @subscribed_subscribers.count > 0
+      - @subscribed_subscribers.find_each do |subscriber|
+        tr id="unsubscribed_subscriber_#{subscriber.id}"
+          td= subscriber.name
+          td= subscriber.phone_number
+          td=> link_to "Remove",
+                      channel_remove_subscriber_path(@channel, subscriber),
+                      method: :post,
+                      class: "btn btn-default btn-xs"
+
+- if @subscribed_subscribers && @subscribed_subscribers.count > 0
+  .text-center
+    = will_paginate @subscribed_subscribers,
+                    param_name: "subscribed_subscribers_page",
+                    renderer: BootstrapPagination::Rails

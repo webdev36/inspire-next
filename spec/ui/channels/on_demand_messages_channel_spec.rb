@@ -1,25 +1,27 @@
 require 'spec_helper'
 
-feature 'UI/OnDemand Messages Channel' do
+feature 'UI/OnDemand Messages Channel', :js => true do
   background do
     @user = create(:user)
     sign_in_using_form(@user)
   end
-  context "creation", :js=>true do
+  context "creation" do
     background do
       within navigation_selector do
         click_link 'Channels'
       end
-      within "div#channels-section" do
-        click_link 'New'
+      within(*div_id_selector('channels-section')) do
+        find(*a_id_selector('channel-new')).click
       end
-      select 'OnDemand messages channel', from:'channel_type'
+     find(*select_id_selector('channel_type')).first(:option, 'OnDemandMessagesChannel').select_option
     end
     scenario "is possible from the new form"  do
+      write_for_inspection(page)
       name = Faker::Lorem.words(2).join(' ')
       fill_in "Name", with:name
       fill_in "channel_tparty_keyword", with:'+14084084080'
       click_button "Create Channel"
+      write_for_inspection(page)
       expect(page).to have_title(name.titleize)
     end
     scenario "does not allow schedule to be set" do
@@ -34,15 +36,15 @@ feature 'UI/OnDemand Messages Channel' do
       within navigation_selector do
         click_link 'Channels'
       end
-      within "div#channels-section" do
+      within *div_id_selector('channels-section') do
         click_link @channel.name
       end
     end
 
     scenario "does not have button to trigger message broadcast" do
+      binding.pry
       expect(page).to_not have_link('Broadcast')
     end
-
 
     scenario "does not list the up and down button alongside messages" do
       @messages.each do |message|

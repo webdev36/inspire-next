@@ -1,0 +1,8 @@
+dt: strong Action Type:
+dd= print_or_dashes @action.type.underscore.humanize
+
+- case @action.type
+- when "SwitchChannelAction"
+  = render "actions/details/switch_channel_action_fields"
+- when "SendMessageAction"
+  = render "actions/details/send_message_action_fields"

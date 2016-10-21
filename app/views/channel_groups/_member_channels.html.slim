@@ -1,0 +1,20 @@
+h2 Member Channels
+
+table#member_channels_table.table.table-striped
+  thead: tr
+    th Name
+    th Type
+    th Actions
+  tbody
+    - if @member_channels && @member_channels.count > 0
+      - @member_channels.find_each do |channel|
+        tr id="member_channel_#{channel.id}"
+          td= channel.name
+          td= channel.type_abbr
+          td=> link_to "Remove",
+                      channel_group_remove_channel_path(@channel_group, channel),
+                      method: :post,
+                      class: "btn btn-mini"
+
+- if @member_channels && @member_channels.count > 0
+  = will_paginate @member_channels, param_name: "member_channels_page"

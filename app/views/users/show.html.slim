@@ -12,14 +12,11 @@
   #channel-and-group-list.col-md-6
     .row
       .col-md-12
-        #channels-section
-          = render partial: "channel_list"
+        = render partial: "shared/channel_list"
     .row
       .col-md-12
-        #channel-groups-section
-          = render partial: "channel_group_list"
-  #subscriber-list.col-md-6
+        = render partial: "shared/channel_group_list"
+  col-md-6
     .row
       .col-md-12
-        #subscribers-section
-          = render partial: "subscriber_list"
+        = render partial: "shared/subscriber_list"

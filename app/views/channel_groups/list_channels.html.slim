@@ -1,0 +1,14 @@
+- content_for :title, "#{@channel_group.name} channel list"
+
+.page-header: h1 #{@channel_group.name} channel list
+
+.row.pagination-centered
+  .span6#non_member_channels
+    = render partial: "non_member_channels"
+  .span5#member_channels
+    = render partial: "member_channels"
+
+.form-actions
+  => link_to t(".back", default: t("helpers.links.back")),
+            channel_group_path(@channel_group),
+            class: "btn"

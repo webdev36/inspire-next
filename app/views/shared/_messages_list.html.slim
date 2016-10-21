@@ -1,0 +1,53 @@
+- message_model_class = Message
+
+#messages-section.panel.panel-default
+  .panel-heading
+    .row
+      .col-md-8
+        .panel-title Messages
+      .col-md-4.pull-right.text-right
+        = link_to new_channel_message_path(@channel), class: "btn btn-primary btn-xs" do
+          span.glyphicon.glyphicon-plus
+
+  .panel-body
+    - if @messages && @messages.size > 0
+      .row
+        .col-md-12
+          - @message_counts_by_type.each do |type, count|
+            => link_to "#{type.gsub(/Message$/, '')}(#{count})", channel_path(@channel, message_type: type)
+          table.table.table-striped#messages_table
+            thead
+              tr
+                th Text
+                th
+            tbody
+              - messages.each_with_index do |message, index|
+                tr id="message_#{message.id}"
+                  td
+                    = link_to message.title_text, channel_message_path(@channel, message)
+                    .small = message.type.gsub(/Message$/, "")
+                    = message_subtext(@channel, message, index)
+                  td.text-right
+                    - if @channel.broadcastable?
+                        => link_to "Broadcast", broadcast_channel_message_path(@channel, message), method: :post, class: "btn btn-default btn-xs"
+                    - if @channel.sequenced?
+                        => link_to "Up", move_up_channel_message_path(@channel, message), method: :post, class: "btn btn-default btn-xs"
+                        => link_to "Down", move_down_channel_message_path(@channel, message), method: :post, class: "btn btn-default btn-xs"
+                    => link_to "Edit", edit_channel_message_path(@channel, message), class: "btn btn-default btn-xs"
+                    => link_to t(".destroy", default: t("helpers.links.destroy")),
+                              channel_message_path(@channel,message),
+                              method: :delete,
+                              data: { confirm: t(".confirm", default: t("helpers.links.confirm", default: "Are you sure?")) },
+                              class: "btn btn-xs btn-danger"
+      .row
+        .col-md-12.text-center
+          = will_paginate @messages, param_name: "messages_page"
+    - else
+      .notification-well
+        .icon
+          span.glyphicon.glyphicon-envelope
+        .message
+          h4 No Messages
+          p Add some messages to send to subscribers
+          .add
+            = link_to "Add new message", new_channel_message_path(@channel), class: "btn btn-primary"

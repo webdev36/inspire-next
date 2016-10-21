@@ -1,0 +1,49 @@
+.panel.panel-default
+  .panel-heading
+    .row
+      .col-md-8
+        = "Channels (#{@channels.count})"
+      .col-md-4.pull-right.text-right
+        = link_to new_channel_path(channel_group_id: @channel_group.to_param), class: "btn btn-primary btn-xs" do
+          span.glyphicon.glyphicon-plus
+  .panel-body
+    - if @channels && @channels.count > 0
+      .row
+        .col-md-12
+          table#channels_table.table.table-striped
+            thead: tr
+              th Name
+              th.text-center Keyword
+              th.text-center Messages
+              th.text-center Subscribers
+              th
+            tbody
+              - if @channels && @channels.count > 0
+                - @channels.find_each do |channel|
+                  tr id="channel_#{channel.id}"
+                    td
+                      .name
+                        = link_to channel.name, channel_path(channel)
+                      .type
+                        = channel.type_abbr
+                    td.text-center = channel.keyword
+                    td.text-center = channel.messages.count
+                    td.text-center = channel.subscribers.count
+                    td.text-right
+                      => link_to "Edit", channel_path(channel), class: "btn btn-xs btn-default"
+                      => link_to "Remove",
+                                channel_group_remove_channel_path(@channel_group, channel),
+                                method: :post,
+                                data: { confirm: t(".confirm", default: t("helpers.links.confirm", default: "Are you sure?")) },
+                                class: "btn btn-xs btn-danger"
+      .row
+        .col-md-12.text-center
+          = will_paginate @channels, param_name: "channels_page"
+    - else
+      .notification-well
+        .icon
+          span.glpyhicon.glyphicon-list
+        .message
+          h4 No Channels Configured
+          p Click the plus to add channesl to the system.
+

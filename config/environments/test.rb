@@ -13,7 +13,10 @@ Liveinspired::Application.configure do
   config.static_cache_control = "public, max-age=3600"
   # used to reaise errors on deprecations, so we can find and fix
 
-  config.eager_load = false
+  config.eager_load = true
+
+  # shosw full backtrace on server errors in test
+  config.action_dispatch.show_exceptions = true
 
   # Show full error reports and disable caching
   config.consider_all_requests_local       = true

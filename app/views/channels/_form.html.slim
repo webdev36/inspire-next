@@ -1,0 +1,66 @@
+= simple_form_for [@channel], wrapper: :horizontal_form, html: { class: "form-horizontal" } do |f|
+  .row
+    .col-md-12
+      = f.input :name, hint: "Name the channel in a meaningful way to you. Put prefixes on the name if you want to logically group the channels."
+      = f.input :description, input_html: { rows: 5 }, hint: "Add a description you and other team members can see."
+      = f.input :type,
+                collection: user_channel_types,
+                include_blank: false,
+                readonly: @channel.new_record? ? false : true,
+                hint: "The channel type controls how messages are delivered to subscribers. Choose carefully and reach out to support if you have questions."
+      = f.input :suffix, hint: "This is a tag line that will be appended to all messages sent this channel. This adds to the total size of the messages."
+      = f.input :keyword, hint: "Used to identify this channel in user responses, and is important where there is the potential for confusion (multiple channels sending at the same time)."
+
+      - if @channel.channel_group.blank?
+        = f.input :tparty_keyword, label: "Service Identifier", hint: "This is supplied to you by ILiveInspired. It uniquely identifies this project. It's a phone number that the messages will be sent from to your subscribers."
+      - else
+        = f.association :channel_group, collection: @user.channel_groups, readonly: true
+
+      = render partial: "channels/editor/schedule_section", locals: { f: f }
+
+      = f.input :moderator_emails, input_html: { rows: 2 }, hint: "Add emails, one per line. Any reports will be sent to all the emails in this list."
+      = f.input :real_time_update,
+                wrapper: :horizontal_radio_and_checkboxes,
+                label: "Real time update for moderators",
+                hint: "Realtime update will send reports hourly instead of daily."
+      = f.input :active, wrapper: :horizontal_radio_and_checkboxes, hint: "If this is not enabled, messages will not be sent."
+      = f.input :allow_mo_subscription,
+                label: "Allow subscription by texting the keyword?",
+                wrapper: :horizontal_radio_and_checkboxes,
+                hint: "Allow mobile originated subscription. Without this checkbox, subscribers will not be able to manually request a new channel."
+      = f.input :mo_subscription_deadline, as: :datetime_picker, hint: "The last date and time a mobile subscriber can subscribe to this channel manually."
+
+  .panel.panel-default style="padding-left: 228px;"
+    .panel-body
+      => f.button :submit, class: "btn-primary"
+      => link_to "Cancel", session[:root_page] || request.referer, class: "btn btn-default"
+      - unless @channel.new_record?
+        => link_to "Delete", channel_path(@channel), method: :delete,
+                  data: { confirm: t(".confirm", default: t("helpers.links.confirm", default: "Are you sure?")) },
+                  class: "btn btn-danger"
+
+- content_for :head_js
+  javascript:
+    function set_schedule_visibility(value) {
+      if (value === 'ScheduledMessagesChannel'
+          || value === 'OrderedMessagesChannel'
+          || value === 'RandomMessagesChannel') {
+
+        $('#schedule_section').css('display', 'block');
+      } else {
+        $('#schedule_section').css('display', 'none');
+      }
+
+      if (value === 'IndividuallyScheduledMessagesChannel') {
+        $('#relative-schedule').css('display', 'block');
+      } else {
+        $('#relative-schedule').css('display', 'none');
+      }
+    }
+
+    $(document).ready(function () {
+      set_schedule_visibility($('#channel_type').val());
+      $('#channel_type').change(function () {
+        set_schedule_visibility($(this).val());
+      });
+    });

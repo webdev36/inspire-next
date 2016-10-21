@@ -1,0 +1,20 @@
+h1 Signup to the #{@channel_group.try(:name)} channel
+
+= form_tag "/subscribe/#{@channel_group.id}", method: :post
+  label First Name
+  = text_field_tag :first_name, params[:first_name]
+  br
+  label Last Name
+  = text_field_tag :last_name, params[:last_name]
+  br
+  label Mobile Number
+  = text_field_tag :mobile_number, params[:mobile_number]
+  br
+  label Additional Attributes
+  = text_area_tag :additional_attributes, params[:additional_attributes]
+  br
+  label Comments
+  = text_area_tag :comments, params[:comments]
+  br
+  = hidden_field_tag :channel_group_id, @channel_group.id
+  = submit_tag "Subscribe", name: nil, class: "btn btn-default"
