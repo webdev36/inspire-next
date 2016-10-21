@@ -1,0 +1,32 @@
+- model_class = SubscriberActivity
+
+.page-header
+  .row
+    .col-md-8
+      h4 = sa_title(@target, @criteria, @type, @unprocessed)
+    .col-md-4
+
+.row
+  .col-md-12
+    - if @subscriber_activities && @subscriber_activities.count > 0
+      .row
+        .col-md-12
+          table#subscriber-activities.table.table-striped
+            thead: tr
+              th Activity
+              th Processed
+              th Occurred At
+            tbody
+              - @subscriber_activities.each do |sa|
+                tr id="subscriber_activity_#{sa.id}"
+                  td= sa_description(sa)
+                  td= sa.processed? ? "Yes" : "No"
+                  td= link_to sa.created_at, sa_path(sa).merge(action: :show)
+      .row
+        .col-md-12.text-center
+          = will_paginate @subscriber_activities
+
+.row
+  .panel.panel-default
+    .panel-body.text-center
+      = link_to "Back", request.referer, class: "btn btn-primary"

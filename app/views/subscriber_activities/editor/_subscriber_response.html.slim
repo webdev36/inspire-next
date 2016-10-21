@@ -1,0 +1,13 @@
+.page-header
+  h1 Edit subscriber response
+  
+  = simple_form_for [@subscriber_activity], html: { class: "form-horizontal" } do |f|
+    = f.input :title, input_html: { rows: 5 }
+    = f.input :caption, input_html: { rows: 5 }
+    = hidden_field_tag :message_id, @subscriber_activity.message.id if @subscriber_activity.message.present?
+    = hidden_field_tag :subscriber_id, @subscriber_activity.subscriber.id if @subscriber_activity.subscriber.present?
+    = hidden_field_tag :channel_id, @subscriber_activity.channel.id if @subscriber_activity.channel.present?
+    = hidden_field_tag :channel_group_id, @subscriber_activity.channel_group.id if @subscriber_activity.channel_group.present?
+    .form-actions
+      => f.button :submit, "Update subscriber response", class: "btn-primary"
+      => link_to "Cancel", request.referer, class: "btn"

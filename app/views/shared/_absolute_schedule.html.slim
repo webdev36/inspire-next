@@ -1,0 +1,45 @@
+.form-group
+  label.col-sm-5.string.control-label Scheduling Preference
+  .col-sm-7
+    .radio
+      label
+        = radio_button_tag :one_time_or_recurring, "one_time", message.recurring_schedule.blank?
+        | One time
+    .radio
+      label
+        = radio_button_tag :one_time_or_recurring, "recurring", message.recurring_schedule.present?
+        | Recurring
+
+= f.input :next_send_time, as: :datetime_picker
+
+#recurring_schedule.form-group
+  label.string.control-label.col-sm-5 for="message_schedule" Schedule
+  .col-sm-7
+    = f.select_recurring :recurring_schedule, nil, {}, class: "form-control"
+
+- content_for :head_js
+  javascript:
+    $(document).ready(function () {
+      switch ($('input[name=one_time_or_recurring]:checked').val()) {
+        case 'one_time':
+          $('#recurring_schedule').hide();
+          break;
+        case 'recurring':
+          $('.message_next_send_time').hide();
+          break;
+      }
+
+      $('input[name=one_time_or_recurring]').on('click', function() {
+        var one_time_or_recurring = $(this).val();
+        switch (one_time_or_recurring) {
+          case 'one_time':
+            $('.message_next_send_time').show();
+            $('#recurring_schedule').hide();
+            break;
+          case 'recurring':
+            $('#recurring_schedule').show();
+            $('.message_next_send_time').hide();
+            break;  
+        }
+      });
+    });

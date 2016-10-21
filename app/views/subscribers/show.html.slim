@@ -1,0 +1,26 @@
+- model_class = Subscriber
+
+.page-header: h1= @subscriber.name
+
+dl.dl-horizontal
+  dt: strong Name:
+  dd= print_or_dashes @subscriber.name
+  dt: strong Phone number:
+  dd= print_or_dashes @subscriber.phone_number
+  dt: strong Remarks:
+  dd= @subscriber.remarks
+
+.panel.panel-default
+  .panel-body
+    => link_to "Back", request.referer, class: "btn btn-default"
+    => link_to t(".edit", default: t("helpers.links.edit")),
+              edit_subscriber_path(@subscriber),
+              class: "btn btn-default"
+    => link_to t(".destroy", default: t("helpers.links.destroy")),
+              subscriber_path(@subscriber),
+              method: :delete,
+              data: { confirm: t(".confirm", default: t("helpers.links.confirm", default: "Are you sure?")) },
+              class: "btn btn-danger"
+    => link_to "Subscriber Activities",
+              subscriber_activities_path(subscriber_id: @subscriber.id),
+              class: "btn btn-default"
