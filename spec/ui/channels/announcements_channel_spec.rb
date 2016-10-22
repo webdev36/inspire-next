@@ -1,19 +1,19 @@
 require 'spec_helper'
 
-feature 'UI/Announcements Channel' do
+feature 'UI/Announcements Channel', :js => true do
   background do
     @user = create(:user)
     sign_in_using_form(@user)
   end
-  context "creation", :js=>true do
+  context "creation" do
     background do
       within navigation_selector do
         click_link 'Channels'
       end
-      within "div#channels-section" do
-        click_link 'New'
+      within *div_id_selector('channels-section') do
+        find(*a_id_selector('channel-new')).click
       end
-      select 'Announcements channel', from:'channel_type'
+      select 'AnnouncementsChannel', from:'channel_type'
     end
     scenario "is possible from the new form" do
       name = Faker::Lorem.words(2).join(' ')
@@ -34,7 +34,7 @@ feature 'UI/Announcements Channel' do
       within navigation_selector do
         click_link 'Channels'
       end
-      within "div#channels-section" do
+      within *div_id_selector('channels-section') do
         click_link @channel.name
       end
     end
@@ -56,9 +56,9 @@ feature 'UI/Announcements Channel' do
     scenario "the default sort order of messages is reverse chronological" do
       within_table 'messages_table' do
         rows = all('tr')
-        expect(rows[1]).to have_content(@messages[2].title)
-        expect(rows[2]).to have_content(@messages[1].title)
-        expect(rows[3]).to have_content(@messages[0].title)
+        expect( rows[1]['id'].gsub("message_", '').to_i == @messages[2].id ).to be_truthy
+        expect( rows[2]['id'].gsub("message_", '').to_i == @messages[1].id ).to be_truthy
+        expect( rows[3]['id'].gsub("message_", '').to_i == @messages[0].id ).to be_truthy
       end
     end
   end

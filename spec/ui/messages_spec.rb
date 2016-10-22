@@ -21,9 +21,9 @@ feature 'UI/Messages' do
       end
     end
     scenario "title is shown if present(mms) or caption otherwise" do
-      within 'div#message-list' do
-        expect(page).to have_content(@simple_message1.title)
-        expect(page).to have_content(@simple_message2.caption[0..40])
+      within *div_id_selector('message-list') do
+        expect(page).to have_content(@simple_message1.caption[0..10])
+        expect(page).to have_content(@simple_message2.caption[0..10])
       end
     end
   end
@@ -33,8 +33,8 @@ feature 'UI/Messages' do
       within "tr#channel_#{@channel.id}" do
         click_link @channel.name
       end
-      within "div#message-list" do
-        click_link 'New'
+      within *div_id_selector('message-list') do
+        find(*a_id_selector('message-new')).click
       end
     end
     scenario 'allows setting of title, caption, attachment and type' do
@@ -53,8 +53,8 @@ feature 'UI/Messages' do
       within "tr#channel_#{@ind_channel.id}" do
         click_link @ind_channel.name
       end
-      within "div#message-list" do
-        click_link 'New'
+      within *div_id_selector('message-list') do
+        find(*a_id_selector('message-new')).click
       end
     end
     scenario 'allows setting schedule' do

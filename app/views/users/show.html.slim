@@ -8,15 +8,13 @@
     .col-md-4
       = help_tag(help_user_show_path)
 
-.row
-  #channel-and-group-list.col-md-6
+#channel-and-group-list.row
+  .col-md-6
     .row
       .col-md-12
         = render partial: "shared/channel_list"
     .row
       .col-md-12
         = render partial: "shared/channel_group_list"
-  col-md-6
-    .row
-      .col-md-12
-        = render partial: "shared/subscriber_list"
+  .col-md-6
+      = render partial: "shared/subscriber_list"

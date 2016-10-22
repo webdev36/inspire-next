@@ -1,6 +1,6 @@
 - content_for :title, @channel_group.name.titleize
 
-.page-header
+#page-header.clearfix
   .row
     .col-md-8
       h4
@@ -20,11 +20,14 @@
 
 .row
   .col-md-12#channel-list
-    = render partial: "channel_list"
+    = render partial: "shared/channel_list", locals: { channel_group: @channel_group }
 
-.panel.panel-default
-  .panel-body.text-center
-    => link_to "Back", (session[:root_page] || channels_path), class: "btn btn-default"
-    => link_to "Edit", edit_channel_group_path(@channel_group), class: "btn btn-default"
-    => link_to "Subscriber Activities", subscriber_activities_path(channel_group_id: @channel_group.id), class: "btn btn-default"
-    => link_to "Messages Report", messages_report_channel_group_path(@channel_group, format: :csv), class: "btn btn-default"
+#page-actions.row
+  .col-md-12
+    .panel.panel-default
+      .panel-body.text-center
+        => link_to "Back", (session[:root_page] || channels_path), class: "btn btn-default"
+        => link_to "Edit", edit_channel_group_path(@channel_group), class: "btn btn-default"
+        span.spacer
+        => link_to "Subscriber Activities", subscriber_activities_path(channel_group_id: @channel_group.id), class: "btn btn-default"
+        => link_to "Messages Report", messages_report_channel_group_path(@channel_group, format: :csv), class: "btn btn-default"

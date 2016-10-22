@@ -1,6 +1,6 @@
 = f.input :type, collection: action_types,
           include_blank: false,
-          readonly: @message&.action&.new_record? ? false : true,
+          readonly: @response_action&.action&.new_record? ? false : true,
           input_html: { id: "action_type" }
 
 #switch_channel_action_fields

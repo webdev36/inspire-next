@@ -1,0 +1,8 @@
+.behaving-text {
+  word-wrap: break-word;
+}
+
+// try to keep the tables from overunning if there are long keywords
+table.table.tbody.td {
+  @extend .behaving-text;
+}

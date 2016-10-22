@@ -1,5 +1,5 @@
 - if @message.new_record?
-  p Configure response actions after creating message.
+  = render partial: 'shared/alerts/alert_info', locals: { message: 'Reminder: Configure response actions for this message after this message is created by clicking the \'Configure response actions\' button.' }
 - else
   = link_to "Configure Response Actions",
             channel_message_response_actions_path(@channel, @message),

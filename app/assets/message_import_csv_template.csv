@@ -1,0 +1,3 @@
+title,caption,type,channel_id,created_at,updated_at,content_file_name,content_content_type,content_file_size,content_updated_at,seq_no,next_send_time,primary,reminder_message_text,reminder_delay,repeat_reminder_message_text,repeat_reminder_delay,number_of_repeat_reminders,options,deleted_at,schedule,active,requires_response
+,You only have 1 day to live. Make the most of it.,SimpleMessage,159,9/18/15 08:02,9/18/15 08:02,,,,,1,,TRUE,,1,,30,1,{},,Day 1 19:00,TRUE,FALSE
+,"When life gives you lemons, make lemonade.",SimpleMessage,159,9/18/15 08:14,9/18/15 08:14,,,,,2,,TRUE,,1,,30,1,{},,Day 2 18:35,TRUE,FALSE

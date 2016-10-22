@@ -13,8 +13,11 @@ gem 'slim-rails'
 
 # assets and layouts
 gem 'bootstrap-sass', '3.3.7'
+gem 'draper' # , '>= 3.0.0.pre1' # decorators for messages and other items
+gem 'font-awesome-sass', '~> 4.6.2'
 
 gem 'json', '1.8.3'
+gem 'hash_dot'
 
 gem 'paperclip'
 gem 'aws-sdk'
@@ -70,7 +73,7 @@ group :development, :test do
 end
 
 group :development do
-  gem 'web-console', '~> 2.0'
+  gem 'web-console'
 end
 
 group :test do
@@ -93,6 +96,6 @@ end
 
 # make sure you look at this, there is something with docker nad rails 5
 # and this gem in heroku/non-heroku env if I remember correctly
-group :production do
-  gem 'rails_12factor'
-end
+# group :production do
+#   gem 'rails_12factor'
+# end

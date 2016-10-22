@@ -1,0 +1,46 @@
+body {
+  padding-top: 60px;
+}
+
+.page-header {
+  margin: 20px 0 30px;
+}
+
+.navbar-brand {
+  margin-top: -10px;
+}
+
+.notification-well {
+  text-align: center;
+  .icon {
+    font-size: 60px;
+    color: $silver;
+  }
+}
+
+#top-menu {
+  background-color: $primary;
+  color: $white;
+
+  #app-navbar {
+    ul {
+      li {
+        a {
+          color: $white;
+          text-transform: uppercase;
+        }
+        a:hover {
+          color: $gallery;
+        }
+      }
+    }
+  }
+}
+
+.select2-container--bootstrap {
+  display: inline-block !important;
+}
+
+.form-group .select2-container {
+  width: 100% !important;
+}

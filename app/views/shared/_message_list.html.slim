@@ -6,7 +6,7 @@
       .col-md-8
         .panel-title Messages
       .col-md-4.pull-right.text-right
-        = link_to new_channel_message_path(@channel), class: "btn btn-primary btn-xs" do
+        = link_to new_channel_message_path(@channel), class: "btn btn-primary btn-xs", id: 'message-new' do
           span.glyphicon.glyphicon-plus
 
   .panel-body
@@ -21,13 +21,16 @@
                 th Text
                 th
             tbody
-              - messages.each_with_index do |message, index|
+              - @messages.each_with_index do |message, index|
+                - message = message.decorate
                 tr id="message_#{message.id}"
                   td
                     = link_to message.title_text, channel_message_path(@channel, message)
                     .small = message.type.gsub(/Message$/, "")
                     = message_subtext(@channel, message, index)
                   td.text-right
+                    - if message.is_a?(ResponseMessage)
+                      => link_to 'Response Actions', channel_message_response_actions_path(@channel, message), class: 'btn btn-default btn-xs'
                     - if @channel.broadcastable?
                         => link_to "Broadcast", broadcast_channel_message_path(@channel, message), method: :post, class: "btn btn-default btn-xs"
                     - if @channel.sequenced?

@@ -1,13 +1,22 @@
 - channel_model_class = Channel
+// If there is no channel group, define it as nil
+- channel_group = defined?(channel_group) ? channel_group : nil
 
 #channels-section.panel.panel-default
   .panel-heading
     .row
       .col-md-8
-         = "Channels (#{@channels.count})"
+        - if channel_group
+          = "#{channel_group.name} channels (#{@channels.count})"
+        - else
+          = "Channels (#{@channels.count})"
       .col-md-4.pull-right.text-right
-         = link_to new_channel_path, class: "btn btn-primary btn-xs", id: 'channel-new'
-           span.glyphicon.glyphicon-plus
+        - if channel_group
+          = link_to new_channel_path(channel_group_id: channel_group.id), class: "btn btn-primary btn-xs", id: 'channel-new' do
+            span.glyphicon.glyphicon-plus
+        - else
+          = link_to new_channel_path, class: "btn btn-primary btn-xs", id: 'channel-new' do
+            span.glyphicon.glyphicon-plus
 
   .panel-body
     - if @channels && @channels.count > 0
@@ -46,4 +55,9 @@
           h4 No Channels
           p No channels configured
           .new
-            = link_to "Create new channel", new_channel_path, class: "btn btn-primary"
+            - if channel_group
+              = link_to new_channel_path(channel_group_id: channel_group.id), class: 'btn btn-primary btn-xs' do
+                span.glyphicon.glyphicon-plus
+            - else
+              = link_to new_channel_path, class: 'btn btn-primary btn-xs' do
+                span.glyphicon.glyphicon-plus

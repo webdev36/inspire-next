@@ -17,11 +17,13 @@ module Liveinspired
     # -- all .rb files in that directory are automatically loaded.
 
     # Custom directories with classes and modules you want to be autoloadable.
-    config.autoload_paths << File.join(Rails.root,"app","models","channels")
-    config.autoload_paths << File.join(Rails.root,"app","models","messages")
-    config.autoload_paths << File.join(Rails.root,"app","models","actions")
-    config.autoload_paths << File.join(Rails.root,"app","models","subscriber_activities")
-    config.autoload_paths << File.join(Rails.root,"app","utils")
+    config.autoload_paths << File.join(Rails.root, 'app', 'mixins')
+    config.autoload_paths << File.join(Rails.root, 'app', 'models', 'channels')
+    config.autoload_paths << File.join(Rails.root, 'app', 'models', 'messages')
+    config.autoload_paths << File.join(Rails.root, 'app', 'models', 'actions')
+    config.autoload_paths << File.join(Rails.root, 'app', 'models', 'subscriber_activities')
+    config.autoload_paths << File.join(Rails.root, 'app', 'utils')
+    config.autoload_paths << File.join(Rails.root, 'app', 'factories')
 
 
     config.action_mailer.default_url_options = {host:'liveinspired.herokuapp.com'}

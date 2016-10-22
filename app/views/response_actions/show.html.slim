@@ -1,20 +1,32 @@
 - model_class = ResponseAction
 
-.page-header: h1 Response Action
+#page-header.page-header.clearfix
+  .row
+    .col-md-8
+      h4
+        | Reponse Action #{@response_action.id} for Message #{@response_action.message.id}
+      p
+        | #{@response_action.message.type}: #{@response_action.message.decorate.title_text}
+    .col-md-4
+      == help_tag(help_edit_response_action_path)
 
-dl.dl-horizontal
-  dt: strong Response Text:
-  dd= print_or_dashes @response_action.response_text
-  = render "actions/show_fields"
+.row
+  .col-md-12
+    dl.dl-horizontal
+      dt: strong Response Text:
+      dd= print_or_dashes @response_action.response_text
+      = render "actions/show_fields"
 
-.panel.panel-default
-  .panel-body
-    => link_to "Back", channel_message_path(@channel, @message), class: "btn btn-default"
-    => link_to t(".edit", default: t("helpers.links.edit")),
-              edit_channel_message_response_action_path(@channel, @message, @response_action),
-              class: "btn btn-default"
-    => link_to t(".destroy", default: t("helpers.links.destroy")),
-              channel_message_response_action_path(@channel, @message, @response_action),
-              method: "delete",
-              data: { confirm: t(".confirm", default: t("helpers.links.confirm", default: "Are you sure?")) },
-              class: "btn btn-danger"
+#page-actions.row
+  .col-md-12
+    .panel.panel-default
+      .panel-body.text-center
+        => link_to "Back", channel_message_path(@channel, @message), class: "btn btn-default"
+        => link_to t(".edit", default: t("helpers.links.edit")),
+                  edit_channel_message_response_action_path(@channel, @message, @response_action),
+                  class: "btn btn-default"
+        => link_to t(".destroy", default: t("helpers.links.destroy")),
+                  channel_message_response_action_path(@channel, @message, @response_action),
+                  method: "delete",
+                  data: { confirm: t(".confirm", default: t("helpers.links.confirm", default: "Are you sure?")) },
+                  class: "btn btn-danger"

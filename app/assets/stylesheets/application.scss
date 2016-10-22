@@ -1,15 +1,17 @@
-// "bootstrap-sprockets" must be imported before "bootstrap" and "bootstrap/variables"
+@import "before_bootstrap";
 @import "bootstrap-sprockets";
 @import "bootstrap";
-@import "recurring_select";
-@import "bootstrap-datetimepicker";
+@import "bootstrap-datetimepicker.css";
+@import "font-awesome-sprockets";
+@import "font-awesome";
+@import "helpers";
+@import "recurring_select.css";
+@import "select2.css";
+@import "select2-bootstrap.css";
 
-.voffset2      { margin-top: 2px;  }
-.voffset5      { margin-top: 5px;  }
-.voffset10     { margin-top: 10px; }
-.voffset15     { margin-top: 15px; }
-.voffset20     { margin-top: 20px; }
-.voffset30     { margin-top: 30px; }
+@import "components/pagination";
+@import "components/page_header";
+@import "components/page_actions";
+@import "components/text";
 
-.remove_fields { margin-left: 180px; }
-.add_fields    { margin-left: 180px; }
+@import "overrides";

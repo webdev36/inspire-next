@@ -1,6 +1,11 @@
 = simple_form_for [@channel, @message], wrapper: :horizontal_form, html: { class: "form-horizontal" } do |f|
+  - if @message.errors.count > 0
+    .row
+      .col-md-12
+        .alert.alert-danger
+          = @message.errors.full_messages.join(", and ")
   .row
-    .col-md-7
+    .col-md-12
       = f.input :type, label: 'Message Type', collection: user_message_types, include_blank: false, readonly: @message.new_record? ? false : true
       = f.input :caption, label: "Message Text", input_html: { rows: 5 }, hint: "Total message length: #{total_message_length(@message)}"
       = f.input :content
@@ -14,11 +19,12 @@
       = render partial: "messages/editor/reminder_section", locals: { f: f }
       = render partial: "messages/editor/message_type_specific_section", locals: { f: f }
       = f.input :active, wrapper: :horizontal_radio_and_checkboxes, hint: "Making inactive will skip during scheduled send"
-
-  .panel.panel-default style="padding-left: 270px;"
-    .panel-body
-      => f.button :submit, class: "btn-primary"
-      => link_to "Cancel", request.referer, class: "btn btn-default"
+  .row
+    .col-md-12
+      #page-actions.panel.panel-default
+        .panel-body
+          => f.button :submit, class: "btn-primary"
+          => link_to "Cancel", request.referer, class: "btn btn-default"
 
 - content_for :head_js
   javascript:

@@ -16,12 +16,10 @@ feature 'UI/OnDemand Messages Channel', :js => true do
      find(*select_id_selector('channel_type')).first(:option, 'OnDemandMessagesChannel').select_option
     end
     scenario "is possible from the new form"  do
-      write_for_inspection(page)
       name = Faker::Lorem.words(2).join(' ')
       fill_in "Name", with:name
       fill_in "channel_tparty_keyword", with:'+14084084080'
       click_button "Create Channel"
-      write_for_inspection(page)
       expect(page).to have_title(name.titleize)
     end
     scenario "does not allow schedule to be set" do
@@ -42,7 +40,6 @@ feature 'UI/OnDemand Messages Channel', :js => true do
     end
 
     scenario "does not have button to trigger message broadcast" do
-      binding.pry
       expect(page).to_not have_link('Broadcast')
     end
 
@@ -58,9 +55,9 @@ feature 'UI/OnDemand Messages Channel', :js => true do
     scenario "the default sort order of messages is reverse chronological" do
       within_table 'messages_table' do
         rows = all('tr')
-        expect(rows[1]).to have_content(@messages[2].title)
-        expect(rows[2]).to have_content(@messages[1].title)
-        expect(rows[3]).to have_content(@messages[0].title)
+        expect( rows[1]['id'].gsub("message_", '').to_i == @messages[2].id ).to be_truthy
+        expect( rows[2]['id'].gsub("message_", '').to_i == @messages[1].id ).to be_truthy
+        expect( rows[3]['id'].gsub("message_", '').to_i == @messages[0].id ).to be_truthy
       end
     end
   end

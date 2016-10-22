@@ -3,7 +3,7 @@ require 'spec_helper'
 feature 'UI/home page' do
   scenario 'has welcome text' do
     visit root_path
-    expect(page).to have_content('Welcome')
+    expect(page).to have_content('Give it a spin')
   end
 
   scenario 'has signin and signup buttons for non-logged in users' do

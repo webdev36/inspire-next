@@ -29,6 +29,7 @@ feature 'UI/Channel Groups' do
       expect(page).to have_content('New Channel Group')
     end
   end
+
   context 'list is shown on channels index page.' do
     background do
       within navigation_selector do
@@ -36,19 +37,20 @@ feature 'UI/Channel Groups' do
       end
     end
     scenario 'It shows all channel groups created by the user' do
-      within 'div#channel-groups-section' do
+      within :xpath, "//div[@id='channel-groups-section']" do
         @channel_groups.each do |channel_group|
           expect(page).to have_content(channel_group.name)
         end
       end
     end
     scenario 'New channel group can be created from here' do
-      within 'div#channel-groups-section' do
-        click_link 'New'
+      within :xpath, "//div[@id='channel-groups-section']" do
+        find(*a_id_selector('channel-group-new')).click
       end
       expect(page).to have_title('New Channel Group')
     end
   end
+
   context "edit page" do
     background do
       @ch1 = create(:channel,user:@user)
@@ -66,6 +68,7 @@ feature 'UI/Channel Groups' do
       expect(page).to have_select('channel_group_default_channel_id')
     end
   end
+
   context "show page" do
     background do
       @ch1 = create(:channel,user:@user)
@@ -79,12 +82,15 @@ feature 'UI/Channel Groups' do
       within 'div#channel-groups-section' do
         click_link @cg1.name
       end
+      expect(page.title.downcase.include?(@cg1.name.downcase)).to be_truthy
     end
+
     scenario "shows the channels belonging to this group" do
       within "div#channel-list" do
         expect(page).to have_content(@ch1.name)
       end
     end
+
     scenario "shows the default channel of this group" do
       within "dl#channel-group-details" do
         expect(page).to have_content(@ch1.name)
@@ -92,12 +98,12 @@ feature 'UI/Channel Groups' do
     end
 
     scenario "allows addition of a channel to the group" do
-      within "div#channel-list" do
-        click_link 'Add'
+      within :xpath, "//div[@id='channel-list']" do
+        find(*a_id_selector('channel-new')).click
       end
       expect(page).to have_title("New Channel")
-      within "form#new_channel" do
-        expect(page).to have_select('channel_channel_group_id',:selected=>@cg1.name)
+      within(:xpath, '//form[@id=\'new_channel\']') do
+        expect(page).to have_select('channel_channel_group_id', :selected=> @cg1.name)
         @new_channel_name = Faker::Lorem.word
         fill_in 'channel_name', with: @new_channel_name
         click_button 'Create Channel'

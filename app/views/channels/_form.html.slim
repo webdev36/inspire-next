@@ -1,4 +1,9 @@
 = simple_form_for [@channel], wrapper: :horizontal_form, html: { class: "form-horizontal" } do |f|
+  - if @channel.errors.count > 0
+    .row
+      .col-md-12
+        .alert.alert-danger
+          = @channel.errors.full_messages.join(", and ")
   .row
     .col-md-12
       = f.input :name, hint: "Name the channel in a meaningful way to you. Put prefixes on the name if you want to logically group the channels."
@@ -21,8 +26,8 @@
       = f.input :moderator_emails, input_html: { rows: 2 }, hint: "Add emails, one per line. Any reports will be sent to all the emails in this list."
       = f.input :real_time_update,
                 wrapper: :horizontal_radio_and_checkboxes,
-                label: "Real time update for moderators",
-                hint: "Realtime update will send reports hourly instead of daily."
+                label:   "Real time update for moderators",
+                hint:    "Realtime update will send reports hourly instead of daily."
       = f.input :active, wrapper: :horizontal_radio_and_checkboxes, hint: "If this is not enabled, messages will not be sent."
       = f.input :allow_mo_subscription,
                 label: "Allow subscription by texting the keyword?",

@@ -17,5 +17,10 @@
 //= require recurring_select
 //= require moment
 //= require bootstrap-datetimepicker
+//= require select2
 //= require cocoon
 //= require_tree .
+//= require alert_notices_disappear
+//= require messages
+
+

@@ -46,8 +46,9 @@ Liveinspired::Application.routes.draw do
 
   resources :users
   resources :subscribers do
+    resources :subscriber_responses, only: %i(index)
   end
-  resources :subscriber_activities,:except=>[:new,:create,:destroy] do
+  resources :subscriber_activities, :except=>[:new,:create,:destroy] do
     member do
       post 'reprocess'
     end

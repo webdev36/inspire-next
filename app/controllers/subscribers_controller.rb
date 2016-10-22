@@ -14,6 +14,7 @@ class SubscribersController < ApplicationController
   end
 
   def show
+    @timeline = Timeline.timeline(@subscriber)
     respond_to do |format|
       format.html # show.html.erb
       format.json { render json: @subscriber }

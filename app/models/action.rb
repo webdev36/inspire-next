@@ -10,13 +10,18 @@
 #  actionable_type :string(255)
 #
 
+require_relative "./../mixins/json_serialized_field"
+
 class Action < ActiveRecord::Base
+  include Rails.application.routes.url_helpers
   include ActionView::Helpers
+  include JSONSerializedField
+
   acts_as_paranoid
+  json_serialize :data
 
-  attr_accessible :type,:as_text,:to_channel,:message_to_send
+  attr_accessible :type,:as_text,:to_channel,:message_to_send, :data
   belongs_to :actionable, polymorphic:true
-
 
   validates :type,:presence=>true,:inclusion=>{:in=>['SwitchChannelAction','SendMessageAction']}
   #validates :as_text,:presence=>true

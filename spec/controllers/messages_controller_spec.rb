@@ -143,9 +143,9 @@ describe MessagesController do
           expect(assigns(:message)).to be_persisted
         end
 
-        it "redirects to the created message" do
+        it "redirects to message list" do
           post :create, {channel_id:channel.id,:message => valid_attributes}
-          expect(response).to redirect_to([channel,Message.last])
+          expect(response).to redirect_to([channel])
         end
       end
 

@@ -57,11 +57,11 @@ class SubscriberActivity < ActiveRecord::Base
   end
 
   def self.of_subscriber(subscriber)
-    where(subscriber_id:subscriber)
+    where(subscriber_id: subscriber.id)
   end
 
   def self.of_subscribers(subscribers)
-    where("subscriber_id in (?)",subscribers)
+    where("subscriber_id in (?)", subscribers)
   end
 
   def self.for_message(message)

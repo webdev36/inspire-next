@@ -1,11 +1,11 @@
 module ApplicationHelper
 
-  BOOTSTRAP_FLASH_MSG = {
+  BOOTSTRAP_FLASH_MSG ||= HashWithIndifferentAccess.new({
     success: 'alert-success',
     error:   'alert-error',
     alert:   'alert-block',
     notice:  'alert-info'
-  }
+  })
 
   def will_paginate(collection_or_options = nil, options={})
     if collection_or_options.is_a? Hash
@@ -22,7 +22,9 @@ module ApplicationHelper
   end
 
   def action_types
-    Action.child_classes.map {|klass| klass.to_s.to_sym}
+    at = Action.child_classes.map {|klass| klass.to_s.to_sym}
+    at = ACTION_TYPES if at.blank?
+    at
   end
 
   def bootstrap_class_for(flash_type)

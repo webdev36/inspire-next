@@ -82,7 +82,7 @@ class MessagingManager
   def remove_keyword(keyword)
   end
 
-  #Whether the external service uses message itself to differentiate target of MO messages
+  # Whether the external service uses message itself to differentiate target of MO messages
   def keyword_based_service?
   end
 

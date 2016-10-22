@@ -6,6 +6,8 @@ class ChannelsController < ApplicationController
   before_action :load_user, only: %i(new create index)
   before_action :load_subscriber, only: %i(add_subscriber remove_subscriber)
 
+  decorates_assigned :messages
+
   def index
     session[:root_page] = channels_path
     @channels = @user.channels
@@ -84,7 +86,7 @@ class ChannelsController < ApplicationController
         format.html { redirect_to [@channel], notice: 'Channel was successfully created.' }
         format.json { render json: @channel, status: :created, location: [@channel] }
       else
-        format.html { render action: "new" }
+        format.html { render action: "new", alert: @channel.errors.full_messages.join(", and ")}
         format.json { render json: @channel.errors, status: :unprocessable_entity }
       end
     end
