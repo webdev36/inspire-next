@@ -58,10 +58,18 @@ FactoryGirl.define do
   end
 
   factory :action_message do
-    title {Faker::Lorem.sentence}
+    title {Faker::Lorem.sentence }
     caption {Faker::Lorem.sentence}
     type "ActionMessage"
     channel
+  end
+
+  factory :switch_channel_action_message, class: 'ActionMessage' do
+    title   { Faker::Lorem.sentence }
+    caption { Faker::Lorem.sentence }
+    type "ActionMessage"
+    channel
+    action
   end
 
   factory :response_message do

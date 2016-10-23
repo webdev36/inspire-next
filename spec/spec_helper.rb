@@ -19,6 +19,22 @@ Spork.prefork do
   require 'capybara/rspec'
   require 'capybara/poltergeist'
   require 'sidekiq/testing'
+  abort("The Rails environment is running in production mode!") if Rails.env.production?
+
+  Capybara.javascript_driver = :poltergeist
+  Capybara.register_driver :poltergeist do |app|
+    Capybara::Poltergeist::Driver.new app,
+      js_errors: false,
+      timeout: 60,
+      phantomjs_logger: StringIO.new,
+      logger: nil,
+      phantomjs_options:
+      [
+        '--load-images=no',
+        '--ignore-ssl-errors=yes'
+      ]
+  end
+
   # require 'rspec/autorun'
   Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
   RSpec.configure do |config|
@@ -35,6 +51,8 @@ Spork.prefork do
     # automatically. This will be the default behavior in future versions of
     # rspec-rails.
     config.infer_base_class_for_anonymous_controllers = false
+
+    config.filter_rails_from_backtrace!
 
     # Run specs in random order to surface order dependencies. If you find an
     # order dependency and want to debug it, you can fix the order by providing
@@ -61,6 +79,7 @@ Spork.prefork do
     config.before(:suite) do
       DatabaseCleaner.strategy = :transaction
       DatabaseCleaner.clean_with(:truncation)
+      ActiveRecord::Base.shared_connection = ActiveRecord::Base.connection
     end
 
     config.after(:each) do

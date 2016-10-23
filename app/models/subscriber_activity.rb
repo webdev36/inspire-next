@@ -21,7 +21,7 @@ class SubscriberActivity < ActiveRecord::Base
   acts_as_paranoid
   attr_accessible :caption, :origin, :title, :type, :tparty_identifier,:options
 
-  serialize :options,Hash
+  serialize :options, Hash
 
   belongs_to :subscriber
   belongs_to :channel

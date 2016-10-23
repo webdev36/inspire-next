@@ -25,9 +25,7 @@ module Liveinspired
     config.autoload_paths << File.join(Rails.root, 'app', 'utils')
     config.autoload_paths << File.join(Rails.root, 'app', 'factories')
 
-
-    config.action_mailer.default_url_options = {host:'liveinspired.herokuapp.com'}
-
+    config.action_mailer.default_url_options = { host: 'liveinspired.herokuapp.com' }
 
     # Only load the plugins named here, in the order given (default is alphabetical).
     # :all can be used as a placeholder for all plugins not explicitly named.
