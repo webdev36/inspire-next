@@ -7,6 +7,9 @@ Liveinspired::Application.configure do
   # and recreated between test runs. Don't rely on the data there!
   config.cache_classes = true
 
+  config.logger = ActiveSupport::TaggedLogging.new(Logger.new(STDOUT))
+  config.log_level = :info
+  config.logger.level = Logger::INFO
   # Configure static asset server for tests with Cache-Control for performance
   config.serve_static_files = true
   config.active_record.raise_in_transactional_callbacks = true
@@ -41,5 +44,6 @@ Liveinspired::Application.configure do
   # Print deprecation notices to the stderr
   config.active_support.deprecation = :stderr
 
-  config.time_zone = 'New Delhi'
+  config.time_zone = "Eastern Time (US & Canada)"
 end
+# knockes out sql logging in test

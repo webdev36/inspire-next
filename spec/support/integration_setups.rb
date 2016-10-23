@@ -10,11 +10,11 @@ def run_worker!
 end
 
 def setup_user_and_system
-  @subscriber = create :subscriber
-  @channel = build :individually_scheduled_messages_channel
+  @user = create :user
+  @subscriber = create :subscriber, user: @user
+  @channel = build :individually_scheduled_messages_channel, user: @user
   @channel.tparty_keyword = '+12025551212'
   @channel.save
-  @user = @channel.user
 end
 
 def create_repeating_response_message(channel = nil)
@@ -27,7 +27,7 @@ def create_repeating_response_message(channel = nil)
     message.reminder_message_text = 'Reminder: How many drinks did you have today?'
     message.reminder_delay = 60
     message.repeat_reminder_message_text = 'Last Reminder: How many drinks did you have today?'
-    message.repeat_reminder_delay = 60
+    message.repeat_reminder_delay = 120
     message.number_of_repeat_reminders = 1
     message.schedule = 'Day 1 12:00'
     message.active = true

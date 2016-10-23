@@ -92,7 +92,9 @@ Spork.prefork do
     end
 
   end
-  Rails.logger.level = Logger::DEBUG
+  # remove the SQL logging
+  ::ActiveRecord::Base.logger = nil
+  Rails.logger.level = Logger::INFO
   Capybara.javascript_driver = :poltergeist
   include LoginMacros
   include ResponsiveHelpers

@@ -39,6 +39,11 @@ class ImportSqlUserData
         @error_rows << { :error => e, :statement => stmt, :row => overall_counter }
       end
     end
+    if @error_rows.length > 0
+      Rails.logger.error "action=import_sql status=error error_count=#{@error_rows.count} file_path='#{@file_path}'"
+    else
+      Rails.logger.info "action=import_sql status=ok error_count=#{@error_rows.count} file_path='#{@file_path}'"
+    end
     {:errors => @error_rows, :unsure => @unsure_rows, :ok_count => count_ok,  :commands_count => overall_counter}
   end
 

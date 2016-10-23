@@ -74,7 +74,7 @@ class MessagesController < ApplicationController
         format.html { redirect_to [@channel,@message], notice: 'Message was successfully updated.' }
         format.json { head :no_content }
       else
-        Rails.logger.info "**#{@message.errors.inspect}"
+        Rails.logger.error "#{@message.errors.inspect}"
         format.html { render action: "edit" }
         format.json { render json: @message.errors, status: :unprocessable_entity }
       end

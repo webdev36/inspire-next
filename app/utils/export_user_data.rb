@@ -18,7 +18,7 @@ class ExportUserData
   def sql_export
     puts "SQL data lines is #{sql_data.length}"
     files_size = Files.raw_write(sql_export_name, sql_data.join("**EOL**"))
-    puts "Exported: #{sql_export_name}, #{files_size} bytes"
+    Rails.logger.info "action=export_sql status=success file_name='#{sql_export_name}' file_sice=#{files_size} sql_lines=#{sql_data.length}"
     sql_export_name
   end
 
