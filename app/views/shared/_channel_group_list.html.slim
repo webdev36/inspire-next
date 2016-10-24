@@ -2,7 +2,7 @@
   .panel-heading
     .row
       .col-md-8
-        = "Channel Groups (#{@channel_groups.count})"
+        = raw "#{icon('folder-open')} Channel Groups (#{@channel_groups.count})"
       .col-md-4.text-right.pull-right
         = link_to new_channel_group_path, class: "btn btn-primary btn-xs", id: 'channel-group-new'
           span.glyphicon.glyphicon-plus
@@ -20,8 +20,7 @@
               td
                 .name
                   = link_to channel_group_path(channel_group)
-                    span.glyphicon.glyphicon-folder-open
-                    = "  #{channel_group.name}"
+                    = "#{channel_group.name}"
                 .tparty style="font-size: 70%; color: #ccc;"
                   | #{channel_group.tparty_keyword}
               td.text-center

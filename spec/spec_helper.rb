@@ -19,7 +19,7 @@ Spork.prefork do
   require 'capybara/rspec'
   require 'capybara/poltergeist'
   require 'sidekiq/testing'
-  abort("The Rails environment is running in production mode!") if Rails.env.production?
+  abort("The Rails environment is not test!") unless Rails.env.test?
 
   Capybara.javascript_driver = :poltergeist
   Capybara.register_driver :poltergeist do |app|

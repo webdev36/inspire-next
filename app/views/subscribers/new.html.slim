@@ -1,6 +1,21 @@
 - model_class = Subscriber
 
-.page-header: h1
-  = t ".title", default: [:"helpers.titles.new", "New %{model}"], model: model_class.model_name.human.titleize
+#page-header.page-header
+  .row
+    .col-md-8
+      h4 New Subscriber
+    .col-md-4.text-right.pull-right
 
-= render partial: "form"
+
+.row
+  .col-md-6
+    = render partial: "form"
+  .col-md-6
+    h4.section-heading
+      | Adding a new subscriber
+    p
+      | Adding a new subscriber is a straightforward process. Add a name (optional), a phone number, and any additional attributes.
+    p
+      | The additional attributes let you add an attribute that can be used in messages and rules-based processing.  To add an attribute, type attribute_name=attribute_value.
+    p
+      | Remarks are private. You can keep notes here.

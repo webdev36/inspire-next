@@ -270,6 +270,7 @@ describe ChannelsController do
         subs = (0..2).map{create(:subscriber,user:user)}
         (0..1).each{|i| ch.subscribers << subs[i]}
         new_sub = subs[2]
+        request.env["HTTP_REFERER"] = "/channels/#{ch.id}"
         expect {
           post :add_subscriber, {channel_id:ch.id, id:new_sub.id}
         }.to change(ch.subscribers,:count).by(1)
@@ -280,8 +281,9 @@ describe ChannelsController do
         subs = (0..2).map{create(:subscriber,user:user)}
         (0..1).each{|i| ch.subscribers << subs[i]}
         new_sub = subs[2]
+        request.env["HTTP_REFERER"] = "/channels/#{ch.id}"
         post :add_subscriber, {channel_id:ch.id, id:new_sub.id}
-        expect(response).to redirect_to(list_subscribers_channel_url(ch))
+        expect(response).to redirect_to("/channels/#{ch.id}")
       end
     end
     describe "POST remove_subscriber" do
@@ -291,18 +293,20 @@ describe ChannelsController do
         subs = (0..1).map{create(:subscriber,user:user)}
         (0..1).each{|i| ch.subscribers << subs[i]}
         sub_to_remove = subs[1]
+        request.env["HTTP_REFERER"] = "/channels/#{ch.id}"
         expect {
           post :remove_subscriber, {channel_id:ch.id, id:sub_to_remove.id}
         }.to change(ch.subscribers,:count).by(-1)
       end
-      it "should redirect to channel subscriber list" do
+      it "should redirect back to the original poster" do
         ch = create(:channel,user:user)
         ch = Channel.find(ch.id)
         subs = (0..1).map{create(:subscriber,user:user)}
         (0..1).each{|i| ch.subscribers << subs[i]}
         sub_to_remove = subs[1]
+        request.env["HTTP_REFERER"] = "/channels/#{ch.id}"
         post :remove_subscriber, {channel_id:ch.id, id:sub_to_remove.id}
-        expect(response).to redirect_to(list_subscribers_channel_url(ch))
+        expect(response).to redirect_to("/channels/#{ch.id}")
       end
     end
   end

@@ -6,10 +6,11 @@
   .panel-heading
     .row
       .col-md-8
+        span.icon
         - if channel_group
-          = "#{channel_group.name} channels (#{@channels.count})"
+          = raw "#{icon('list-ol')} #{channel_group.name} channels (#{@channels.count})"
         - else
-          = "Channels (#{@channels.count})"
+          = raw "#{icon('list-ol')} Channels (#{@channels.count})"
       .col-md-4.pull-right.text-right
         - if channel_group
           = link_to new_channel_path(channel_group_id: channel_group.id), class: "btn btn-primary btn-xs", id: 'channel-new' do
@@ -25,8 +26,10 @@
           tr
             th = channel_model_class.human_attribute_name(:name)
             th.text-center Keyword
-            th.text-center Subscribers
-            th.text-center Messages
+            th.text-center title="How many subscribers does this channel have?"
+              =icon('user')
+            th.text-center title="How many messages does this channel have?"
+              =icon('envelope')
             th
         tbody
           - @channels.each do |channel|

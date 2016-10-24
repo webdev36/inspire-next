@@ -13,13 +13,15 @@
       table.table.table-striped#channels_table
         thead
           th= subscriber_model_class.human_attribute_name(:name)
-          th= subscriber_model_class.human_attribute_name(:phone_number)
+          th.text-center =icon('phone')
+          th.text-center =icon('list-ol')
           th
         tbody
           - @subscribers.each do |subscriber|
             tr id="subscriber_#{subscriber.id}"
-              td= link_to subscriber.name, subscriber_path(subscriber)
-              td= subscriber.phone_number
+              td = link_to subscriber.name, subscriber_path(subscriber)
+              td.text-center = subscriber.phone_number
+              td.text-center = subscriber.subscriptions.count
               td.text-right
                 = link_to t(".edit", default: t("helpers.links.edit")),
                           edit_subscriber_path(subscriber),

@@ -6,7 +6,7 @@
       h4 #{@subscriber.name}
       p = "#{@subscriber.phone_number}"
     .col-md-4
-      - if @subscriber.remarks
+      - if !@subscriber.remarks.blank?
         p Remarks
         p = @subscriber.remarks
 
@@ -34,21 +34,37 @@ hr
   .col-md-12
     .row
       .col-md-4
-        h4.section-header Subscribed Channels
-        - if @subscriber.subscriptions.length > 0
-          ul.user-subscriptions-list
-          - @subscriber.subscriptions.each do |subscription|
-            li = link_to "#{subscription.channel.id}-#{subscription.channel.name}", channel_path(subscription.channel.id)
-        - else
-          .notification-well
-            .icon
-              = icon('question')
-            .title
-              | No subscriptions for Subscriber
+        h4.section-header
+          | Channels
+        table.table.table-striped#subscribers-subscriptions-table
+          tbody
+            - @subscriber.subscriptions.each do |subscription|
+              - if subscription.channel
+                tr id="subscription_#{subscription.id}" data-subscription-id="#{subscription.id}" data-subscribed-channel-id="#{subscription.channel_id}"
+                  td
+                    span.label.label-success
+                      | Sub
+                  td = link_to "#{subscription.channel.id}-#{subscription.channel.name}", channel_path(subscription.channel.id)
+                  td = link_to "Rem", channel_remove_subscriber_path(subscription.channel.id, @subscriber.id), method: :post, class: 'btn btn-danger btn-xs'
+            - @user.channel_groups.each do |channel_group|
+              - channel_group.channels.each do |channel|
+                - next if @subscriber.subscriptions.map(&:channel_id).include?(channel.id)
+                tr id="potential_channel_#{channel.id}"
+                  td
+                    span
+                  td = link_to "#{channel.id}-#{channel.name}", channel_path(channel.id)
+                  td = link_to 'Add', channel_add_subscriber_path(channel.id, @subscriber.id), method: :post, class: 'btn btn-default btn-xs'
+            - @user.channels.each do |channel|
+              - next if @subscriber.subscriptions.map(&:channel_id).include?(channel.id)
+              tr id="potential_channel_#{channel.id}"
+                td
+                  span
+                td = link_to "#{channel.id}-#{channel.name}", channel_path(channel.id)
+                td = link_to 'Add', channel_add_subscriber_path(channel.id, @subscriber.id),method: :post, class: "btn btn-default btn-xs"
 
       .col-md-4
         h4.section-header Sending Activity
-        img src="http://graphite.omamatic.com/render/?width=400&height=250&_salt=1477337615.212&target=summarize(stats.counters.inspire.production.subscriber.#{@subscriber_id}.message.*.delivery_notice.count%2C%223min%22)&title=Messages%20Sent&drawNullAsZero=true&lineMode=staircase&areaMode=stacked"
+        img src="http://graphite.omamatic.com/render/?width=400&height=250&_salt=1477352987.646&lineMode=staircase&drawNullAsZero=true&areaMode=stacked&title=Messages%20Queued&target=integral(stats.counters.inspire.production.subscriber.#{@subscriber.id}.message.*.queued.count)"
       .col-md-4
         h4.section-header Response Activity
 

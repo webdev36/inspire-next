@@ -150,7 +150,7 @@ class ChannelsController < ApplicationController
     end
 
     respond_to do |format|
-      format.html { redirect_to list_subscribers_channel_path(id: @channel), notice: notice }
+      format.html { redirect_to :back, notice: notice }
       format.json { render json: @channel.subscribers, location: [@channel] }
     end
   end
@@ -165,7 +165,7 @@ class ChannelsController < ApplicationController
     end
 
     respond_to do |format|
-      format.html { redirect_to list_subscribers_channel_path(id: @channel), notice: notice }
+      format.html { redirect_to :back, notice: notice }
       format.json { render json: @channel.subscribers, location: [@channel] }
     end
   end

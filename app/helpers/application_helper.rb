@@ -3,7 +3,7 @@ module ApplicationHelper
   BOOTSTRAP_FLASH_MSG ||= HashWithIndifferentAccess.new({
     success: 'alert-success',
     error:   'alert-error',
-    alert:   'alert-block',
+    alert:   'alert-danger',
     notice:  'alert-info'
   })
 
