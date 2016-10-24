@@ -14,5 +14,5 @@ Sidekiq.configure_server do |config|
     ENV['DATABASE_URL'] = "#{database_url}?pool=4"
     ActiveRecord::Base.establish_connection
   end
-  config.redis = { size: 9, url: ENV['REDIS_URL']}
+  config.redis = { size: 9, url: ENV['REDIS_URL'] }
 end
