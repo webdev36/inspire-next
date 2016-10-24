@@ -5,9 +5,9 @@ tr id="delivery_notice_#{entry.id}" data-type='delivery_notice' data-id="#{entry
       | Delivery
     .description
       - if entry.options[:message_id] && entry.options[:repeat_reminder_message]
-        = raw "Sent the message: #{entry.original_message.repeat_reminder_message_text}"
+        = raw "Sent the message: #{entry.original_message&.repeat_reminder_message_text}"
       - elsif entry.options[:message_id] && entry.options[:reminder_message]
-        = raw "Sent the message: #{entry.original_message.reminder_message_text}"
+        = raw "Sent the message: #{entry.original_message&.reminder_message_text}"
       - else
         = raw "Sent the message: '#{entry.caption}'"
     .details

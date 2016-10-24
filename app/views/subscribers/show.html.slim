@@ -6,10 +6,13 @@
       h4 #{@subscriber.name}
       p = "#{@subscriber.phone_number}"
     .col-md-4
-      p Remarks
-      p = @subscriber.remarks
+      - if @subscriber.remarks
+        p Remarks
+        p = @subscriber.remarks
 
 .row
+  h4.section-header
+    | Last 24 Hours
   .col-md-3
     .well.text-center.background-color-gallery
       .title Sent
@@ -32,9 +35,16 @@ hr
     .row
       .col-md-4
         h4.section-header Subscribed Channels
-        ul.user-subscriptions-list
-        - @subscriber.subscriptions.each do |subscription|
-          li = link_to "#{subscription.channel.id}-#{subscription.channel.name}", channel_path(subscription.channel.id)
+        - if @subscriber.subscriptions.length > 0
+          ul.user-subscriptions-list
+          - @subscriber.subscriptions.each do |subscription|
+            li = link_to "#{subscription.channel.id}-#{subscription.channel.name}", channel_path(subscription.channel.id)
+        - else
+          .notification-well
+            .icon
+              = icon('question')
+            .title
+              | No subscriptions for Subscriber
 
       .col-md-4
         h4.section-header Sending Activity

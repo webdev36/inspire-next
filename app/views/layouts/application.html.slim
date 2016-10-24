@@ -48,11 +48,11 @@ html lang="en"
           = flash_messages
           = content_for?(:content) ? yield(:content) : yield
 
-      footer.voffset20
-        p.color-silver
+      footer.voffset80
+        p.color-silver style="margin-top 20px;"
           .row
-            .col-md-6.text-left
-              | &copy; ILiveInspired v#{::APP_VERSION}, 2013-2016. Portions &copy; 2013-2016 OMAlab, Inc. All rights reserved.
+            .col-md-6.text-left style="font-size: 80%;padding-top: 30px;"
+              | &copy; #{link_to('ILiveInspired', 'http://www.iliveinspired.com/', "target" => '_blank')} v#{::APP_VERSION}, 2013-2016. Developed by #{link_to 'Audienti', 'https://audienti.com', target: '_blank'}. All rights reserved.
             .col-md-6.text-right
               strong
                 span.icon
