@@ -24,7 +24,7 @@
 #
 
 class OrderedMessagesChannel < Channel
-  
+
   def self.system_channel?
     false
   end
@@ -48,7 +48,7 @@ class OrderedMessagesChannel < Channel
 
   def individual_messages_have_schedule?
     false
-  end    
+  end
 
 
   def group_subscribers_by_message
@@ -56,7 +56,7 @@ class OrderedMessagesChannel < Channel
     seq_nos = get_all_seq_nos
     subscribers.each do |subscriber|
       next_no = Channel.get_next_seq_no(subscriber.last_msg_seq_no,seq_nos)
-      if h[next_no] 
+      if h[next_no]
         h[next_no] << subscriber
       else
         h[next_no] = [subscriber]
@@ -68,8 +68,8 @@ class OrderedMessagesChannel < Channel
       if message
         msh[message.id] = subs
       end
-    end  
-    msh  
+    end
+    msh
   end
 
   def perform_post_send_ops(msg_no_subs_hash)

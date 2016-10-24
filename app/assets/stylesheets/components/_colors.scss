@@ -1,0 +1,69 @@
+
+
+// Set colors according to the names at: http://chir.ag/projects/name-that-color/
+$silver:       #cccccc;
+$astral:       #337AB7; // navbar menu color
+$white:        #ffffff;
+$boston-blue:  #428bca;
+$fern:         #5cb85c;
+$viking:       #5bc0de;
+$roman:        #d9534f;
+$sandy-brown:  #f0ad4e;
+$gallery:      #eeeeee;
+$pomegrante:   #F44336;
+$seance:       #9C27B0;
+$purple-heart: #673AB7;
+$orange:       #FF5722;
+$roman-coffee: #795548;
+
+
+// Bootstrap colors named to their state
+$primary: $boston-blue;
+$success: $fern;
+$info:    $viking;
+$danger:  $roman;
+$default: $white;
+$warning: $sandy-brown;
+
+.color-silver       { color: $silver;       }
+.color-astral       { color: $astral;       }
+.color-white        { color: $white;        }
+.color-boston-blue  { color: $boston-blue;  }
+.color-fern         { color: $fern;         }
+.color-viking       { color: $viking;       }
+.color-roman        { color: $roman;        }
+.color-sandy-brown  { color: $sandy-brown;  }
+.color-gallery      { color: $gallery;      }
+.color-pomegrante   { color: $pomegrante;   }
+.color-seance       { color: $seance;       }
+.color-purple-heart { color: $purple-heart; }
+.color-orange       { color: $orange        }
+.color-roman-coffee { color: $roman-coffee; }
+.color-primary      { color: $primary;      }
+.color-success      { color: $success;      }
+.color-info         { color: $info;         }
+.color-danger       { color: $danger;       }
+.color-default      { color: $default;      }
+.color-warning      { color: $warning;      }
+
+.background-color-silver       { background-color: $silver;       }
+.background-color-astral       { background-color: $astral;       }
+.background-color-white        { background-color: $white;        }
+.background-color-boston-blue  { background-color: $boston-blue;  }
+.background-color-fern         { background-color: $fern;         }
+.background-color-viking       { background-color: $viking;       }
+.background-color-roman        { background-color: $roman;        }
+.background-color-sandy-brown  { background-color: $sandy-brown;  }
+.background-color-gallery      { background-color: $gallery;      }
+.background-color-pomegrante   { background-color: $pomegrante;   }
+.background-color-seance       { background-color: $seance;       }
+.background-color-purple-heart { background-color: $purple-heart; }
+.background-color-orange       { background-color: $orange        }
+.background-color-roman-coffee { background-color: $roman-coffee; }
+.background-color-primary      { background-color: $primary;      }
+.background-color-success      { background-color: $success;      }
+.background-color-info         { background-color: $info;         }
+.background-color-danger       { background-color: $danger;       }
+.background-color-default      { background-color: $default;      }
+.background-color-warning      { background-color: $warning;      }
+

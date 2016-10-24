@@ -21,7 +21,7 @@ class SubscriberActivity < ActiveRecord::Base
   acts_as_paranoid
   attr_accessible :caption, :origin, :title, :type, :tparty_identifier,:options
 
-  serialize :options,Hash
+  serialize :options, Hash
 
   belongs_to :subscriber
   belongs_to :channel
@@ -57,11 +57,11 @@ class SubscriberActivity < ActiveRecord::Base
   end
 
   def self.of_subscriber(subscriber)
-    where(subscriber_id:subscriber)
+    where(subscriber_id: subscriber.id)
   end
 
   def self.of_subscribers(subscribers)
-    where("subscriber_id in (?)",subscribers)
+    where("subscriber_id in (?)", subscribers)
   end
 
   def self.for_message(message)
@@ -78,19 +78,25 @@ class SubscriberActivity < ActiveRecord::Base
 
   def self.for_channels(channels)
     where("channel_id in (?)", channels)
-  end 
+  end
 
   def self.for_channel_group(channel_group)
-    where(channel_group_id:channel_group)
+    where(channel_group_id: channel_group.id)
   end
 
   def self.for_channel_group_and_its_channels(channel_group)
-    where("channel_group_id = ? or channel_id in (?)",channel_group,channel_group.channels)
+    channel_ids_for_group = channel_group.channels.pluck(:id)
+    if channel_ids_for_group
+      where("channel_group_id = (?) or channel_id in (?)",channel_group.id, channel_ids_for_group)
+    else
+      where('channel_group_id = (?)', channel_group.id)
+    end
   end
 
   def self.for_channel_groups(channel_groups)
-    where("channel_group_id in (?)", channel_groups)
-  end    
+    channel_group_ids = channel_groups.map(&:id)
+    where("channel_group_id in (?)", channel_group_ids)
+  end
 
   def self.unprocessed
     where("processed=false")
@@ -123,6 +129,6 @@ private
   end
 
   def update_derived_attributes_before_save
-    self.channel = Channel.find(message.channel) if !channel && message
+    self.channel = Channel.find(message.channel.id) if !channel && message
   end
 end

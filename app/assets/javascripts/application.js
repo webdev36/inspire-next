@@ -10,10 +10,17 @@
 // WARNING: THE FIRST BLANK LINE MARKS THE END OF WHAT'S TO BE PROCESSED, ANY BLANK LINE SHOULD
 // GO AFTER THE REQUIRES BELOW.
 //
+//= require_self
 //= require jquery
 //= require jquery_ujs
-//= require twitter/bootstrap
+//= require bootstrap-sprockets
 //= require recurring_select
+//= require moment
 //= require bootstrap-datetimepicker
+//= require select2
 //= require cocoon
 //= require_tree .
+//= require alert_notices_disappear
+//= require messages
+
+

@@ -1,0 +1,51 @@
+- model_class = Channel
+- content_for :title, @channel.name.titleize
+
+#page-header.clearfix
+  .row
+    .col-md-8
+      h4 = "Channel #{@channel.name}"
+      p
+        - if @channel.channel_group_id
+          | Group: #{@channel.channel_group.name}
+        - if @channel.tparty_keyword
+          = " TpartyKeyword: #{@channel.tparty_keyword}"
+    .col-md-4.pull-right
+      // Add channel help here
+
+.row
+  .col-md-12
+    dl#channel-details.dl-horizontal
+      dt Description:
+      dd= print_or_dashes(@channel.description)
+      dt Channel type:
+      dd= print_or_dashes(@channel.type.titlecase)
+      dt Suffix:
+      dd= print_or_dashes(@channel.suffix)
+      dt Keyword:
+      dd= print_or_dashes(@channel.keyword)
+      dt Allows mobile originated subscription?
+      dd= @channel.allow_mo_subscription
+
+.row
+  #message-list.col-md-6
+    = render partial: "shared/message_list"
+  #subscriber-list.col-md-6
+    = render partial: "shared/subscriber_list"
+
+#page-actions.row
+  .col-md-12
+    .panel.panel-default
+      .panel-body
+        .row
+          .col-md-12.text-center
+            => link_to "Back", session[:root_page] || channels_path, class: "btn btn-default"
+            => link_to "Edit", edit_channel_path(@channel), class: "btn btn-default"
+            span.spacer
+            => link_to "Subscriber Activities", subscriber_activities_path(channel_id: @channel.id), class: "btn btn-default"
+            => link_to "Messages Report", messages_report_channel_path(@channel.id, format: :csv), class: "btn btn-default"
+            span.spacer
+            => link_to "Export messages", channel_messages_path(@channel, format: :csv), class: "btn btn-default"
+            => link_to "Import messages", select_import_channel_messages_path(@channel), class: "btn btn-default"
+            span.spacer
+            = link_to "Delete all messages", delete_all_messages_channel_path(@channel.id), class: 'btn btn-danger', method: :post, 'data-confirm': "This will delete all the mesasges in this channel. The data is NOT recoverable. Are you SURE?", 'data-method': "delete"

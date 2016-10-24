@@ -26,17 +26,36 @@
 require 'spec_helper'
 
 describe RandomMessagesChannel do
-  its "factory works" do
+  describe '#factory works' do
+    subject { super().factory works }
+    it do
     expect(build(:random_messages_channel)).to be_valid
+  end
   end
   describe "#" do
     let(:user) {create(:user)}
     let(:channel) {create(:random_messages_channel,user:user)}
     subject { channel }
-    its(:has_schedule?) {should be_true}
-    its(:sequenced?) { should be_false}
-    its(:broadcastable?) { should be_false}
-    its(:type_abbr){should == 'Random'}
+
+    describe '#has_schedule?' do
+      subject { super().has_schedule? }
+      it {is_expected.to be_truthy}
+    end
+
+    describe '#sequenced?' do
+      subject { super().sequenced? }
+      it { is_expected.to be_falsey}
+    end
+
+    describe '#broadcastable?' do
+      subject { super().broadcastable? }
+      it { is_expected.to be_falsey}
+    end
+
+    describe '#type_abbr' do
+      subject { super().type_abbr }
+      it {is_expected.to eq('Random')}
+    end
 
     it "group_subscribers_by_message groups all subscribers into message bins" do
       subscribers = (0..4).map{
@@ -53,9 +72,9 @@ describe RandomMessagesChannel do
         v.each do |sub|
           subs << sub.id
         end
-        v.length.should_not == 5 #Chances of all of them getting same message during random is small
+        expect(v.length).not_to eq(5) #Chances of all of them getting same message during random is small
       }
-      subs.uniq.length.should == 5 #All subscribers should be involved
+      expect(subs.uniq.length).to eq(5) #All subscribers should be involved
     end
 
     it "send_scheduled_messages sends messages to all subscribers randomly" do
@@ -70,9 +89,9 @@ describe RandomMessagesChannel do
       (0..3).each do
         subject.send_scheduled_messages
       end
-      DeliveryNotice.of_subscribers(subscribers).count.should == 12
-      DeliveryNotice.for_messages(messages).count.should == 12
-      DeliveryNotice.of_subscriber(subscribers[0]).uniq.count.should == 4
+      expect(DeliveryNotice.of_subscribers(subscribers).count).to eq(12)
+      expect(DeliveryNotice.for_messages(messages).count).to eq(12)
+      expect(DeliveryNotice.of_subscriber(subscribers[0]).uniq.count).to eq(4)
     end
   end
 end

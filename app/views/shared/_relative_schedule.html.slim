@@ -1,0 +1,51 @@
+= f.input :relative_schedule_type,
+          collection: %w(Minute Hour Day Week),
+          include_blank: false,
+          label: "Send at",
+          input_html: { id: "relative-schedule-type" }
+
+#relative-schedule-number
+  = f.input :relative_schedule_number, label: "Number"
+
+#relative-schedule-day
+  = f.input :relative_schedule_day,
+            collection: %w(Sunday Monday Tuesday Wednesday Thursday Friday Saturday),
+            include_blank: false,
+            label: "Day"
+
+#relative-schedule-hour
+  = f.input :relative_schedule_hour, label: "At Hr"
+
+#relative-schedule-minute
+  = f.input :relative_schedule_minute, label: "At Min"
+
+- content_for :head_js
+  javascript:
+    function set_relative_schedule_controls(value) {
+      $('#relative-schedule-number').css('display', 'inline');
+      $('#relative-schedule-day').css('display', 'none');
+      $('#relative-schedule-hour').css('display', 'none');
+      $('#relative-schedule-minute').css('display', 'none');
+
+      if (value === 'Minute') {
+        // Not implemented yet.
+      } else if (value === 'Hour') {
+        $('#relative-schedule-minute').css('display', 'inline');
+      } else if (value === 'Day') {
+        $('#relative-schedule-hour').css('display', 'inline');
+        $('#relative-schedule-minute').css('display', 'inline');
+      } else if (value === 'Week') {
+        $('#relative-schedule-day').css('display', 'inline');
+        $('#relative-schedule-hour').css('display', 'inline');
+        $('#relative-schedule-minute').css('display', 'inline');
+      }
+    }
+
+    $(document).ready(function () {
+      var $relativeScheduleType = $('#relative-schedule-type');
+      
+      set_relative_schedule_controls($relativeScheduleType.val());
+      $relativeScheduleType.change(function () {
+        set_relative_schedule_controls($(this).val());
+      });
+    });

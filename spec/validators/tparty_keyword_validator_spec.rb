@@ -8,27 +8,27 @@ describe TpartyKeywordValidator do
     let(:value){Faker::Lorem.word}
     it 'calls messaging_manager to validate' do
       mm=double
-      MessagingManager.stub(:new_instance){mm}
-      mm.should_receive(:validate_tparty_keyword){ |value|
-        value.should == value
+      allow(MessagingManager).to receive(:new_instance){mm}
+      expect(mm).to receive(:validate_tparty_keyword){ |value|
+        expect(value).to eq(value)
       }
       subject.validate_each(record,attribute,value)
     end
     it 'returns error if messaging_manager returns error' do
       mm=double
       error = Faker::Lorem.sentence
-      MessagingManager.stub(:new_instance){mm}
-      mm.stub(:validate_tparty_keyword){ error } 
+      allow(MessagingManager).to receive(:new_instance){mm}
+      allow(mm).to receive(:validate_tparty_keyword){ error } 
       subject.validate_each(record,attribute,value)
-      record.errors[attribute].length.should > 0
-      record.errors[attribute][0].should == error
+      expect(record.errors[attribute].length).to be > 0
+      expect(record.errors[attribute][0]).to eq(error)
     end
     it 'does not populate error if messaging_manager returns nil' do
       mm = double
-      MessagingManager.stub(:new_instance){mm}
-      mm.stub(:validate_tparty_keyword){nil}
+      allow(MessagingManager).to receive(:new_instance){mm}
+      allow(mm).to receive(:validate_tparty_keyword){nil}
       subject.validate_each(record,attribute,value)
-      record.errors[attribute].should == []
+      expect(record.errors[attribute]).to eq([])
     end
   end
 end

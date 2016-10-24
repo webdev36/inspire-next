@@ -72,12 +72,13 @@ class SubscriberResponse < SubscriberActivity
     response
   end
 
+  # this is where the logic for matching up to a channel and a subscriber are
   def assign_channel_and_subscriber
-    t_target,t_tparty_keyword,t_keyword,t_message = SubscriberResponse.parse_message(caption,tparty_identifier)
-    if t_target
-      t_target.subscriber_responses << self
-      if t_target.user
-        registered_subscribers = t_target.user.subscribers
+    target_channel, t_tparty_keyword, t_keyword, t_message = SubscriberResponse.parse_message(caption,tparty_identifier)
+    if target_channel
+      target_channel.subscriber_responses << self
+      if target_channel.user
+        registered_subscribers = target_channel.user.subscribers
         if registered_subscribers
           t_subs = registered_subscribers.find_by_phone_number(origin)
           t_subs.subscriber_responses << self if t_subs

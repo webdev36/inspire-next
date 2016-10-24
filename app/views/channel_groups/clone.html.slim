@@ -1,0 +1,13 @@
+- content_for :title, "#{@channel_group.name} clone channel"
+
+.page-header
+  h1 = "Clone existing channel into #{@channel_group.name} Channel Group"
+
+.row
+  .col-md-6
+    = simple_form_for :request, url: copy_channel_group_path(@channel_group) do |f|
+      = f.input :name, as: :string, hint: "Enter the new channel name", placeholder: "Awesome Channel 2"
+      = f.input :keyword, as: :string, hint: "Enter a new keyword to select this cahnnel", placeholder: "SHORTSIMPLENAME"
+      = f.input :choice, collection: @clonable_channels, hint: "Select a channel to clone. All of its settings and messages will be copied to this channel."
+      = f.submit
+

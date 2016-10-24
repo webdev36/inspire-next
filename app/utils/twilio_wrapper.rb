@@ -21,7 +21,7 @@ class TwilioWrapper
       log "TWILIOMOCK send_message(#{phone_number},#{title},#{caption},#{content_url},#{from_num})"
       return true
     end
-    Rails.logger.info "Called:TwilioWrapper#send_message(#{phone_number},#{title},#{caption},#{content_url},#{from_num})"
+    Rails.logger.info "action=send_message from=twiliow_wrapper status=ok phone_number='#{phone_number}' title='#{title}' caption='#{caption}' content_url='#{content_url}' from_num='#{from_num}'"
     h = {from:from_num, body:caption}
     h[:media_url] = content_url if content_url.present?
     h[:to]=phone_number
@@ -45,10 +45,13 @@ class TwilioWrapper
   private
 
   def positive?(response,method_name)
-    Rails.logger.info "Twilio Response:#{method_name} #{response}"
-    return true if response && response.code.to_i == 1
-    Rails.logger.error "TwilioWrapper##{method_name} #{response}"
-    nil
+    if response && response.code.to_i == 1
+      Rails.logger.info "action=twilio_response_check status=ok from=twilio_wrapper method_name='#{method_name}' response='#{response}'"
+      true
+    else
+      Rails.logger.error "action=twilio_response_check status=error from=twilio_wrapper method_name='#{method_name}' response='#{response}'"
+      nil
+    end
   end
 
   def log(message)

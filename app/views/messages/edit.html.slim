@@ -1,0 +1,8 @@
+- model_class = Message
+
+.page-header.clearfix
+  h1.pull-left
+    = t ".title", default: [:"helpers.titles.edit", "Edit %{model}"], model: model_class.model_name.human.titleize
+  = help_tag help_edit_message_path
+
+= render partial: "form"

@@ -7,8 +7,8 @@ require 'timecop'
 Spork.prefork do
   ENV["RAILS_ENV"] ||= 'test'
   unless ENV['DRB']
-    require 'simplecov'
-    SimpleCov.start
+    #require 'simplecov'
+    # SimpleCov.start
   end
 
   require 'rails/application'
@@ -19,9 +19,26 @@ Spork.prefork do
   require 'capybara/rspec'
   require 'capybara/poltergeist'
   require 'sidekiq/testing'
-  require 'rspec/autorun'
+  abort("The Rails environment is running in production mode!") if Rails.env.production?
+
+  Capybara.javascript_driver = :poltergeist
+  Capybara.register_driver :poltergeist do |app|
+    Capybara::Poltergeist::Driver.new app,
+      js_errors: false,
+      timeout: 60,
+      phantomjs_logger: StringIO.new,
+      logger: nil,
+      phantomjs_options:
+      [
+        '--load-images=no',
+        '--ignore-ssl-errors=yes'
+      ]
+  end
+
+  # require 'rspec/autorun'
   Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
   RSpec.configure do |config|
+    # show line numbers for deprecations
     # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
     config.fixture_path = "#{::Rails.root}/spec/fixtures"
 
@@ -35,6 +52,8 @@ Spork.prefork do
     # rspec-rails.
     config.infer_base_class_for_anonymous_controllers = false
 
+    config.filter_rails_from_backtrace!
+
     # Run specs in random order to surface order dependencies. If you find an
     # order dependency and want to debug it, you can fix the order by providing
     # the seed, which is printed after each run.
@@ -42,7 +61,7 @@ Spork.prefork do
     config.order = "random"
 
     config.include FactoryGirl::Syntax::Methods
-    config.include Devise::TestHelpers, type: :controller
+    config.include Devise::Test::ControllerHelpers, type: 'controller'
 
     config.before(:suite) do
       DatabaseCleaner.clean_with(:truncation)
@@ -53,9 +72,14 @@ Spork.prefork do
       $original_time = Time.now
     end
 
+    config.before(:each, js: true) do
+      resize_window_to(1600,1600)
+    end
+
     config.before(:suite) do
       DatabaseCleaner.strategy = :transaction
       DatabaseCleaner.clean_with(:truncation)
+      ActiveRecord::Base.shared_connection = ActiveRecord::Base.connection
     end
 
     config.after(:each) do
@@ -68,15 +92,19 @@ Spork.prefork do
     end
 
   end
-  Rails.logger.level = Logger::DEBUG
+  # remove the SQL logging
+  ::ActiveRecord::Base.logger = nil
+  Rails.logger.level = Logger::INFO
   Capybara.javascript_driver = :poltergeist
   include LoginMacros
+  include ResponsiveHelpers
+  include SelectorHelpers
 end
 
 Spork.each_run do
   if ENV['DRB']
-    require 'simplecov'
-    SimpleCov.start 'rails'
+    # require 'simplecov'
+    # SimpleCov.start 'rails'
   end
   FactoryGirl.reload
   ActiveRecord::Base.shared_connection = ActiveRecord::Base.connection

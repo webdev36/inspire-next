@@ -37,13 +37,13 @@ describe Message do
   it "creates a default sequence number equal to the size of current messages" do
     channel = create(:channel)
     message = create(:message,channel:channel)
-    message.seq_no.should == 1
+    expect(message.seq_no).to eq(1)
     message = create(:message,channel:channel)
-    message.seq_no.should == 2
+    expect(message.seq_no).to eq(2)
     message = create(:message,channel:channel)
-    message.seq_no.should == 3
+    expect(message.seq_no).to eq(3)
     message = create(:message)
-    message.seq_no.should == 1
+    expect(message.seq_no).to eq(1)
   end
 
   it "does not allow sequence numbers to be the same in a channel" do
@@ -59,16 +59,16 @@ describe Message do
   end
 
   it "sets the model_name of any subclass as Message to enable STI use single controller" do
-    SimpleMessage.model_name.should == Message.model_name
-    ActionMessage.model_name.should == Message.model_name
-  end  
+    expect(SimpleMessage.model_name).to eq(Message.model_name)
+    expect(ActionMessage.model_name).to eq(Message.model_name)
+  end
 
   it "pending_send returns messages whose next_send_time is in the past" do
       message1 = create(:simple_message,next_send_time:1.day.ago)
       message2 = create(:simple_message,next_send_time:1.minute.ago)
       message3 = create(:simple_message,next_send_time:1.hour.from_now)
       message4 = create(:simple_message,next_send_time:1.day.from_now)
-      Message.pending_send.should =~ [message1,message2]
+      expect(Message.pending_send).to match_array([message1,message2])
   end
 
   it "primary scope returns primary messages(e.g. not reminder etc)" do
@@ -76,7 +76,7 @@ describe Message do
     message2 = create(:message)
     message1.primary = false
     message1.save
-    Message.primary.to_a.should == [Message.find(message2)]
+    expect(Message.primary.to_a).to eq([Message.find(message2.id)])
   end
 
   it "secondary scope returns non-primary messages(e.g. not reminder etc)" do
@@ -84,9 +84,9 @@ describe Message do
     message2 = create(:message)
     message2.primary = false
     message2.save
-    Message.secondary.to_a.should == [Message.find(message2)]
-  end  
-  
+    expect(Message.secondary.to_a).to eq([Message.find(message2.id)])
+  end
+
   describe "#" do
     let(:user) {create(:user)}
     let(:channel) {create(:channel,user:user)}
@@ -94,7 +94,7 @@ describe Message do
     let(:subscriber) {create(:subscriber,user:user)}
     let(:subscriber2) {create(:subscriber,user:user)}
     subject {message}
-    before do 
+    before do
       channel.subscribers << subscriber
       channel.subscribers << subscriber2
     end
@@ -104,20 +104,20 @@ describe Message do
       message.options[:subscriber_id]=20
       retval = message.save
       msg = Message.find(message.id)
-      msg.options[:channel_id].should == 10
-      msg.options[:subscriber_id].should == 20
+      expect(msg.options[:channel_id]).to eq(10)
+      expect(msg.options[:subscriber_id]).to eq(20)
     end
-    
+
     it "delivery_notices lists the delivery notices" do
       dn1 = create(:delivery_notice,message:message,subscriber:subscriber)
       dn2 = create(:delivery_notice,message:message,subscriber:subscriber)
-      subject.delivery_notices.to_a.should =~ [dn1,dn2]
+      expect(subject.delivery_notices.to_a).to match_array([dn1,dn2])
     end
-    
+
     it "subscriber_responses lists the subscriber responses" do
       sr1 = create(:subscriber_response, message:message, subscriber:subscriber)
       sr2 = create(:subscriber_response, message:message, subscriber:subscriber)
-      subject.subscriber_responses.to_a.should =~ [sr1,sr2]
+      expect(subject.subscriber_responses.to_a).to match_array([sr1,sr2])
     end
 
     describe "move_up" do
@@ -126,15 +126,15 @@ describe Message do
       it "swaps the seq_no of this and earlier message" do
         prev_seq1 = message1.seq_no
         prev_seq2 = message2.seq_no
-        message2.move_up 
-        message1.reload.seq_no.should == prev_seq2
-        message2.reload.seq_no.should == prev_seq1
+        message2.move_up
+        expect(message1.reload.seq_no).to eq(prev_seq2)
+        expect(message2.reload.seq_no).to eq(prev_seq1)
       end
       it "does nothing when the message is the first message for this channel" do
         message = create(:message)
         seq_no = message.seq_no
         message.move_up
-        message.seq_no.should == seq_no
+        expect(message.seq_no).to eq(seq_no)
       end
     end
     describe "move_down" do
@@ -143,15 +143,15 @@ describe Message do
       it "swaps the seq_no of this and later message" do
         prev_seq1 = message1.seq_no
         prev_seq2 = message2.seq_no
-        message1.move_down 
-        message1.reload.seq_no.should == prev_seq2
-        message2.reload.seq_no.should == prev_seq1
+        message1.move_down
+        expect(message1.reload.seq_no).to eq(prev_seq2)
+        expect(message2.reload.seq_no).to eq(prev_seq1)
       end
       it "does nothing when the message is the last message for this channel" do
         message = create(:message)
         seq_no = message.seq_no
         message.move_down
-        message.seq_no.should == seq_no
+        expect(message.seq_no).to eq(seq_no)
       end
     end
     describe "broadcast" do
@@ -161,9 +161,9 @@ describe Message do
       end
       subject {@message}
       it "uses a background worker to broadcast" do
-        MessagingManagerWorker.should_receive(:perform_async){|action,opts|
-          action.should == 'broadcast_message'
-          opts['message_id'].should == @message.id
+        expect(MessagingManagerWorker).to receive(:perform_async){|action,opts|
+          expect(action).to eq('broadcast_message')
+          expect(opts['message_id']).to eq(@message.id)
         }
         @message.broadcast
       end
@@ -172,7 +172,7 @@ describe Message do
     describe "perform_post_send_ops" do
       it "creates a system secondary messages channel if one does not exist" do
         expect{subject.perform_post_send_ops(nil)}.to change{
-          SecondaryMessagesChannel.count}.by(1) 
+          SecondaryMessagesChannel.count}.by(1)
       end
       it "does not create system secondary messages channel if one exists" do
         SecondaryMessagesChannel.create!(name:"_system_smc",tparty_keyword:"_system_smc")
@@ -180,11 +180,11 @@ describe Message do
           SecondaryMessagesChannel.count}
       end
       it "calls specialized_post_send_ops for subclass specialization" do
-        subject.should_receive(:specialized_post_send_ops){|subs|
-          subs.should =~ [subscriber,subscriber2]
+        expect(subject).to receive(:specialized_post_send_ops){|subs|
+          expect(subs).to match_array([subscriber,subscriber2])
         }
         subject.perform_post_send_ops([subscriber,subscriber2])
-      end  
+      end
       it "creates a message in the system secondary channel if reminder message required" do
         message.reminder_message_text = Faker::Lorem.sentence
         message.reminder_delay = 10
@@ -193,13 +193,13 @@ describe Message do
         expect{subject.perform_post_send_ops([subscriber,subscriber2])}.to change{
           smc.messages.count
         }.by(1)
-        smc.messages.last.options[:subscriber_ids].should =~ [subscriber,subscriber2].map(&:id)
-        smc.messages.last.options[:message_id].should == message.id
-        smc.messages.last.options[:channel_id].should == channel.id
-        smc.messages.last.next_send_time.should > 8.minutes.from_now
-        smc.messages.last.next_send_time.should < 12.minutes.from_now
+        expect(smc.messages.last.options[:subscriber_ids]).to match([subscriber,subscriber2].map(&:id))
+        expect(smc.messages.last.options[:message_id]).to eq(message.id)
+        expect(smc.messages.last.options[:channel_id]).to eq(channel.id)
+        expect(smc.messages.last.next_send_time).to be > 8.minutes.from_now
+        expect(smc.messages.last.next_send_time).to be < 12.minutes.from_now
       end
-      
+
       it "creates messages in the system secondary channel for repeat reminders" do
         message.repeat_reminder_message_text = Faker::Lorem.sentence
         message.repeat_reminder_delay = 20
@@ -209,9 +209,9 @@ describe Message do
         expect{subject.perform_post_send_ops([subscriber,subscriber2])}.to change{
           smc.messages.count
         }.by(2)
-        smc.messages.last.next_send_time.should > 38.minutes.from_now
-        smc.messages.last.next_send_time.should < 42.minutes.from_now         
-      end      
+        expect(smc.messages.last.next_send_time).to be > 38.minutes.from_now
+        expect(smc.messages.last.next_send_time).to be < 42.minutes.from_now
+      end
     end
   end
   describe "##" do
@@ -229,8 +229,8 @@ describe Message do
       message.relative_schedule_day = 'Sunday'
       message.relative_schedule_hour = '18'
       message.relative_schedule_minute = '45'
-      message.should be_valid
-      message.schedule.should == 'Week 1 Sunday 18:45'
+      expect(message).to be_valid
+      expect(message.schedule).to eq('Week 1 Sunday 18:45')
     end
     it "schedule is validated when present" do
       message.relative_schedule_type = 'Week'
@@ -238,12 +238,12 @@ describe Message do
       message.relative_schedule_day = 'Sunday'
       message.relative_schedule_hour = '18'
       message.relative_schedule_minute = '70'
-      message.should_not be_valid
-      message.errors[:relative_schedule_minute].should_not be_nil
+      expect(message).not_to be_valid
+      expect(message.errors[:relative_schedule_minute]).not_to be_nil
     end
     it "nil schedule is valid" do
       message.schedule=nil
-      message.should be_valid
+      expect(message).to be_valid
     end
 
   end

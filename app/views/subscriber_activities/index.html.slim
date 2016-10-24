@@ -1,0 +1,43 @@
+- model_class = SubscriberActivity
+
+#page-header.page-header.clearfix
+  .row
+    .col-md-8
+      h4
+        | #{sa_title(@target, @criteria, @type, @unprocessed)}
+    .col-md-4
+
+#subscriber-activities-section.row
+  .col-md-12
+    - if @subscriber_activities && @subscriber_activities.count > 0
+      .panel.panel-default
+        .panel-heading
+          | Subscriber responses
+        .panel-body
+          .row
+            .col-md-12
+              table#subscriber-activities-list.table.table-striped
+                thead: tr
+                  th.text-center Processed
+                  th Activity
+                  th.text-right When
+                tbody
+                  - @subscriber_activities.each do |sa|
+                    tr id="subscriber_activity_#{sa.id}"
+                      td.text-center
+                        - if sa.processed?
+                          = icon('thumbs-up', class: 'color-success')
+                        - else
+                          = icon('thumbs-down', class: 'color-danger')
+                      td = sa_description(sa)
+                      td.text-right
+                        = link_to sa_path(sa).merge(action: :show) do
+                          | #{time_ago_in_words(sa.created_at)} ago
+      .row
+        .col-md-12.text-center
+          = will_paginate @subscriber_activities
+
+.row#page-actions
+  .panel.panel-default
+    .panel-body.text-center
+      = link_to "Back", request.referer, class: "btn btn-primary"

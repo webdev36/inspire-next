@@ -26,17 +26,36 @@
 require 'spec_helper'
 
 describe IndividuallyScheduledMessagesChannel do
-  its "factory works" do
+  describe '#factory works' do
+    subject { super().factory works }
+    it do
     expect(build(:individually_scheduled_messages_channel)).to be_valid
+  end
   end
   describe "#" do
     let(:user) {create(:user)}
     let(:channel) {create(:individually_scheduled_messages_channel,user:user)}
     subject {channel}
-    its(:has_schedule?) {should be_false}
-    its(:sequenced?) { should be_false}
-    its(:broadcastable?) { should be_false}
-    its(:type_abbr){should == 'Ind. Scheduled'}
+
+    describe '#has_schedule?' do
+      subject { super().has_schedule? }
+      it {is_expected.to be_falsey}
+    end
+
+    describe '#sequenced?' do
+      subject { super().sequenced? }
+      it { is_expected.to be_falsey}
+    end
+
+    describe '#broadcastable?' do
+      subject { super().broadcastable? }
+      it { is_expected.to be_falsey }
+    end
+
+    describe '#type_abbr' do
+      subject { super().type_abbr }
+      it {is_expected.to eq('Ind. Scheduled')}
+    end
 
     it "group_subscribers_by_message groups messages with pending_send" do
       m1 = create(:message,channel:channel,next_send_time:1.day.ago)
@@ -48,9 +67,9 @@ describe IndividuallyScheduledMessagesChannel do
       channel.subscribers << s1
       channel.subscribers << s2
       msh = subject.group_subscribers_by_message
-      msh.length.should == 2
-      msh[m1.id].to_a.should =~ [s1,s2]
-      msh[m2.id].to_a.should =~ [s1,s2]
+      expect(msh.length).to eq(2)
+      expect(msh[m1.id].to_a).to match_array([s1,s2])
+      expect(msh[m2.id].to_a).to match_array([s1,s2])
     end
 
     it "for messages with relative_schedule, the group_subscribers_by_message groups correctly" do
@@ -75,9 +94,9 @@ describe IndividuallyScheduledMessagesChannel do
       create(:delivery_notice,subscriber:s1,message:m1)
       create(:delivery_notice,subscriber:s3,message:m2)
       msh = subject.group_subscribers_by_message
-      msh.length.should == 2
-      msh[m1.id].to_a.should =~ [s2,s3]
-      msh[m2.id].to_a.should =~ [s1,s2]
+      expect(msh.length).to eq(2)
+      expect(msh[m1.id].to_a).to match_array([s2,s3])
+      expect(msh[m2.id].to_a).to match_array([s1,s2])
       Timecop.return
     end
 
@@ -86,14 +105,14 @@ describe IndividuallyScheduledMessagesChannel do
       m2 = create(:message,channel:channel,next_send_time:2.days.ago)
       m3 = create(:message,channel:channel,next_send_time:2.days.ago)
       subject.perform_post_send_ops({m1.id=>[],m2.id=>[]})
-      m1.reload.active.should == false
-      m2.reload.active.should == false
-      m3.reload.active.should == true
+      expect(m1.reload.active).to eq(false)
+      expect(m2.reload.active).to eq(false)
+      expect(m3.reload.active).to eq(true)
     end
 
     it "reset_next_send_time should make this channel due for send again" do
       subject.reset_next_send_time
-      subject.next_send_time.should < Time.now
+      expect(subject.next_send_time).to be < Time.now
     end
 
     it "send_scheduled_messages sends messages whose next_send_time is in past" do
@@ -104,14 +123,14 @@ describe IndividuallyScheduledMessagesChannel do
       channel.subscribers << s1
       channel.subscribers << s2
       d1 = double.as_null_object
-      MessagingManager.stub(:new_instance){d1}
+      allow(MessagingManager).to receive(:new_instance){d1}
       ma = []
-      d1.stub(:broadcast_message){ |message,subscribers|
-        subscribers.to_a.should =~ [s1,s2]
+      allow(d1).to receive(:broadcast_message){ |message,subscribers|
+        expect(subscribers.to_a).to match_array([s1,s2])
         ma << message
       }
       subject.send_scheduled_messages
-      ma.should =~ [Message.find(m1),Message.find(m2)]
+      expect(ma).to match_array([Message.find(m1.id),Message.find(m2.id)])
     end
 
     it "tmap runs on a relative weekly schedule" do
@@ -161,7 +180,7 @@ describe IndividuallyScheduledMessagesChannel do
       expect {
         TpartyScheduledMessageSender.new.perform
         }.to change{
-          DeliveryNotice.where(subscriber_id:subscriber).count
+          DeliveryNotice.where(subscriber_id:subscriber.id).count
         }.by 1
 
       # but the messages are sccheduled after this, so no message goes
@@ -169,7 +188,7 @@ describe IndividuallyScheduledMessagesChannel do
       expect {
         TpartyScheduledMessageSender.new.perform
         }.to_not change{
-          DeliveryNotice.where(subscriber_id:subscriber).count
+          DeliveryNotice.where(subscriber_id:subscriber.id).count
         }
 
       # message 1, the first week, on Thursday at 7pm
@@ -177,35 +196,35 @@ describe IndividuallyScheduledMessagesChannel do
       expect {
         TpartyScheduledMessageSender.new.perform
         }.to change{
-          DeliveryNotice.where(subscriber_id:subscriber).count
+          DeliveryNotice.where(subscriber_id:subscriber.id).count
         }.by 1
 
       Timecop.travel(Time.new(2014,1,2,19,01,30))
       expect {
         TpartyScheduledMessageSender.new.perform
         }.to change{
-          DeliveryNotice.where(subscriber_id:subscriber).count
+          DeliveryNotice.where(subscriber_id:subscriber.id).count
         }.by 1
 
       Timecop.travel(Time.new(2014,1,2,19,30,30))
       expect {
         TpartyScheduledMessageSender.new.perform
         }.to change{
-          DeliveryNotice.where(subscriber_id:subscriber).count
+          DeliveryNotice.where(subscriber_id:subscriber.id).count
         }.by 1
 
       Timecop.travel(Time.new(2014,1,3,19,00,01))
       expect {
         TpartyScheduledMessageSender.new.perform
         }.to change{
-          DeliveryNotice.where(subscriber_id:subscriber).count
+          DeliveryNotice.where(subscriber_id:subscriber.id).count
         }.by 1
 
       Timecop.travel(Time.new(2014,1,3,19,01,30))
       expect {
         TpartyScheduledMessageSender.new.perform
         }.to change{
-          DeliveryNotice.where(subscriber_id:subscriber).count
+          DeliveryNotice.where(subscriber_id:subscriber.id).count
         }.by 1
       #Breaks MVC, but this test case is a bit over-ambitious for a model anyway
       params={}
@@ -216,14 +235,14 @@ describe IndividuallyScheduledMessagesChannel do
       expect {
           TpartyScheduledMessageSender.new.perform
           }.to_not change{
-            DeliveryNotice.where(subscriber_id:subscriber).count
+            DeliveryNotice.where(subscriber_id:subscriber.id).count
           }
 
       Timecop.travel(Time.new(2014,1,3,21,00,01))
       expect {
         TpartyScheduledMessageSender.new.perform
         }.to change{
-          DeliveryNotice.where(subscriber_id:subscriber).count
+          DeliveryNotice.where(subscriber_id:subscriber.id).count
         }.by 1
 
       params={}
@@ -235,93 +254,93 @@ describe IndividuallyScheduledMessagesChannel do
       expect {
         TpartyScheduledMessageSender.new.perform
         }.to_not change{
-          DeliveryNotice.where(subscriber_id:subscriber).count
+          DeliveryNotice.where(subscriber_id:subscriber.id).count
         }
       Timecop.travel(Time.new(2014,1,3,21,30,30))
       expect {
           TpartyScheduledMessageSender.new.perform
           }.to_not change{
-            DeliveryNotice.where(subscriber_id:subscriber).count
+            DeliveryNotice.where(subscriber_id:subscriber.id).count
           }
     end
 
     it "is always pending_send" do
       channel.reload
-      Channel.pending_send.should be_include subject
+      expect(Channel.pending_send).to be_include subject
     end
 
     describe "find_target_time" do
       let(:from_time) {Time.new(2014)} #Wednesday
       it "returns right target time when type is minute" do
-        subject.find_target_time('Minute 20',from_time).should == Time.new(2014,1,1,0,20)
+        expect(subject.find_target_time('Minute 20',from_time)).to eq(Time.new(2014,1,1,0,20))
       end
       it "returns right target time when type is hour" do
-        subject.find_target_time('Hour 2 15',from_time).should == Time.new(2014,1,1,1,15)
+        expect(subject.find_target_time('Hour 2 15',from_time)).to eq(Time.new(2014,1,1,1,15))
       end
       it "returns right target time when type is day" do
-        subject.find_target_time('Day 2 18:15',from_time).should == Time.new(2014,1,2,18,15)
+        expect(subject.find_target_time('Day 2 18:15',from_time)).to eq(Time.new(2014,1,2,18,15))
       end
       it "returns right target time when type is day and hour has passed" do
         from_time = Time.new(2014,1,1,10,0)
-        subject.find_target_time('Day 1 08:15',from_time).should == Time.new(2014,1,2,8,15)
+        expect(subject.find_target_time('Day 1 08:15',from_time)).to eq(Time.new(2014,1,2,8,15))
       end
       it "returns right target time when type is day and hour has not passed" do
         from_time = Time.new(2014,1,1,10,0)
-        subject.find_target_time('Day 1 18:15',from_time).should == Time.new(2014,1,1,18,15)
+        expect(subject.find_target_time('Day 1 18:15',from_time)).to eq(Time.new(2014,1,1,18,15))
       end
       it "returns right target time when type is week" do
-        subject.find_target_time('Week 2 Tuesday 18:15',from_time).should == Time.new(2014,1,14,18,15)
+        expect(subject.find_target_time('Week 2 Tuesday 18:15',from_time)).to eq(Time.new(2014,1,14,18,15))
       end
       it "returns right target time when type is week and same week" do
-        subject.find_target_time('Week 1 Thursday 18:15',from_time).should == Time.new(2014,1,2,18,15)
+        expect(subject.find_target_time('Week 1 Thursday 18:15',from_time)).to eq(Time.new(2014,1,2,18,15))
       end
       it "returns right target time when type is 1 week and day has passed" do
-        subject.find_target_time('Week 1 Tuesday 18:15',from_time).should == Time.new(2014,1,7,18,15)
+        expect(subject.find_target_time('Week 1 Tuesday 18:15',from_time)).to eq(Time.new(2014,1,7,18,15))
       end
       it "returns right target time when type is week and we are scheduling on the same day and time is past" do
         from_time = Time.new(2014,1,1,12,30)
-        subject.find_target_time("Week 1 Wednesday 10:00",from_time).should == Time.new(2014,1,8,10,0)
+        expect(subject.find_target_time("Week 1 Wednesday 10:00",from_time)).to eq(Time.new(2014,1,8,10,0))
       end
       it "returns right target time when type is week and we are scheduling on the same day and time is in future" do
         from_time = Time.new(2014,1,1,12,30)
-        subject.find_target_time("Week 1 Wednesday 16:00",from_time).should == Time.new(2014,1,1,16,0)
+        expect(subject.find_target_time("Week 1 Wednesday 16:00",from_time)).to eq(Time.new(2014,1,1,16,0))
       end
     end
 
     describe "reverse_engineer_subscription_time" do
       it "works fine when there are no previous sends" do
         prev_sends = [];
-        subject.reverse_engineer_subscription_time(prev_sends).should be_nil
+        expect(subject.reverse_engineer_subscription_time(prev_sends)).to be_nil
       end
       it "works when there is only one weekly message sent before" do
         Timecop.freeze(Time.new(2014,1,6,10,5,0)) #Monday
         prev_sends = ['Week 1 Monday 10:00'];
-        subject.reverse_engineer_subscription_time(prev_sends).should == Time.new(2014,1,6,7,5,0)
+        expect(subject.reverse_engineer_subscription_time(prev_sends)).to eq(Time.new(2014,1,6,7,5,0))
         Timecop.return
       end
       it "works when there is one weekly and day 1 message sent before" do
         Timecop.freeze(Time.new(2014,1,6,10,5,0)) #Monday
         prev_sends = ['Day 1 20:00','Week 1 Monday 10:00'];
-        subject.reverse_engineer_subscription_time(prev_sends).should == Time.new(2014,1,5,19,05,0)
+        expect(subject.reverse_engineer_subscription_time(prev_sends)).to eq(Time.new(2014,1,5,19,05,0))
         Timecop.return
       end
       it "works when there is one weekly and 2 days(second day today) message sent before" do
         Timecop.freeze(Time.new(2014,1,6,10,5,0)) #Monday
         prev_sends = ['Day 1 20:00','Day 2 08:00','Week 1 Monday 10:00'];
-        subject.reverse_engineer_subscription_time(prev_sends).should == Time.new(2014,1,5,19,5,0)
+        expect(subject.reverse_engineer_subscription_time(prev_sends)).to eq(Time.new(2014,1,5,19,5,0))
         Timecop.return
       end
       it "works when there is one weekly and 2 days(second day yesterday) message sent before" do
         Timecop.freeze(Time.new(2014,1,6,10,5,0)) #Monday
         prev_sends = ['Day 1 20:00','Day 2 18:00','Week 1 Monday 10:00'];
-        subject.reverse_engineer_subscription_time(prev_sends).should == Time.new(2014,1,4,22,5,0)
+        expect(subject.reverse_engineer_subscription_time(prev_sends)).to eq(Time.new(2014,1,4,22,5,0))
         Timecop.return
       end
       it "works when there is one weekly and full week daily message sent before" do
         Timecop.freeze(Time.new(2014,1,6,10,5,0)) #Monday
         prev_sends = ['Day 1 20:00','Day 2 18:00','Day 3 10:00', 'Day 4 12:00',
           'Day 5 21:00','Day 6 19:00','Day 7 12:00','Week 1 Monday 10:00'];
-        subject.reverse_engineer_subscription_time(prev_sends).should == Time.new(2013,12,30,22,5,0)
+        expect(subject.reverse_engineer_subscription_time(prev_sends)).to eq(Time.new(2013,12,30,22,5,0))
         Timecop.return
       end
     end
@@ -340,7 +359,7 @@ describe IndividuallyScheduledMessagesChannel do
         Timecop.freeze(Time.new(2014,1,6,10,5,0)) #Monday
           channel.subscribers << @subs
           subscription = Subscription.where(subscriber_id:@subs.id,channel_id:channel.id).first
-          subscription.created_at.should == Time.new(2014,1,5,19,5,0)
+          expect(subscription.created_at).to eq(Time.new(2014,1,5,19,5,0))
         Timecop.return
       end
       it "does not alter the subscription time if the subscriber is added for first time" do
@@ -348,7 +367,7 @@ describe IndividuallyScheduledMessagesChannel do
           new_sub = create(:subscriber,user:user)
           channel.subscribers << new_sub
           subscription = Subscription.where(subscriber_id:new_sub.id,channel_id:channel.id).first
-          subscription.created_at.should == Time.new(2014,1,6,10,5,0)
+          expect(subscription.created_at).to eq(Time.new(2014,1,6,10,5,0))
         Timecop.return
       end
     end

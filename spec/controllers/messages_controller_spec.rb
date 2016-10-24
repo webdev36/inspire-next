@@ -6,42 +6,42 @@ describe MessagesController do
   before do
     @request.env["devise.mapping"] = Devise.mappings[:user]
   end
-  
+
   describe "guest user" do
     it "is redirected to signup form always and not allowed to alter db" do
       message = channel.messages.create! valid_attributes
 
-      get :index, {channel_id:channel}
+      get :index, { channel_id: channel.id }
       expect(response).to redirect_to new_user_session_path
 
-      get :select_import, {channel_id:channel}
+      get :select_import, { channel_id: channel.id }
       expect(response).to redirect_to new_user_session_path
 
-      get :import, {channel_id:channel}
-      expect(response).to redirect_to new_user_session_path            
-
-      get :show, {channel_id:channel,:id => message.to_param}
+      get :import, { channel_id: channel.id }
       expect(response).to redirect_to new_user_session_path
 
-      get :responses, {channel_id:channel,:id => message.to_param}
+      get :show, { channel_id: channel.id, :id => message.id }
       expect(response).to redirect_to new_user_session_path
 
-      get :new, {channel_id:channel}
+      get :responses, { channel_id: channel.id, :id => message.id }
       expect(response).to redirect_to new_user_session_path
 
-      get :edit, {channel_id:channel,:id => message.to_param}
+      get :new, { channel_id: channel.id }
+      expect(response).to redirect_to new_user_session_path
+
+      get :edit, { channel_id: channel.id, :id => message.id }
       expect(response).to redirect_to new_user_session_path
 
       expect {
-            post :create, {channel_id:channel,:message => valid_attributes}
-          }.to_not change(Message, :count).by(1)
-      
-      Message.any_instance.should_not_receive(:update_attributes)
-      put :update, {channel_id:channel,:id => message.to_param, :message => { "title" => "MyText" }}
+            post :create, { channel_id: channel.id, :message => valid_attributes }
+          }.to_not change(Message, :count)
+
+      expect_any_instance_of(Message).not_to receive(:update_attributes)
+      put :update, {channel_id:channel.id, :id => message.id, :message => { "title" => "MyText" }}
 
       expect {
-          delete :destroy, {channel_id:channel,:id => message.to_param}
-        }.to_not change(Message, :count).by(-1)
+          delete :destroy, {channel_id:channel.id, :id => message.id}
+        }.to_not change(Message, :count)
     end
   end
 
@@ -51,37 +51,37 @@ describe MessagesController do
       another_user = create(:user)
       sign_in another_user
 
-      get :select_import, {channel_id:channel}
+      get :select_import, { channel_id: channel.id }
       expect(response).to redirect_to root_url
 
-      post :import, {channel_id:channel}
+      post :import, { channel_id:channel.id  }
       expect(response).to redirect_to root_url
 
-      get :index, {channel_id:channel}
-      expect(response).to redirect_to root_url      
-
-      get :show, {channel_id:channel,:id => message.to_param}
+      get :index, { channel_id:channel.id }
       expect(response).to redirect_to root_url
 
-      get :responses, {channel_id:channel,:id => message.to_param}
+      get :show, { channel_id:channel.id,:id => message.id }
       expect(response).to redirect_to root_url
 
-      get :new, {channel_id:channel}
+      get :responses, {channel_id:channel.id,:id => message.id}
       expect(response).to redirect_to root_url
 
-      get :edit, {channel_id:channel,:id => message.to_param}
+      get :new, {channel_id:channel.id}
+      expect(response).to redirect_to root_url
+
+      get :edit, {channel_id:channel.id,:id => message.id}
       expect(response).to redirect_to root_url
 
       expect {
-            post :create, {channel_id:channel,:message => valid_attributes}
-          }.to_not change(Message, :count).by(1)
-      
-      Message.any_instance.should_not_receive(:update_attributes)
-      put :update, {channel_id:channel,:id => message.to_param, :message => { "title" => "MyText" }}
+            post :create, {channel_id:channel.id,:message => valid_attributes}
+          }.to_not change(Message, :count)
+
+      expect_any_instance_of(Message).not_to receive(:update_attributes)
+      put :update, {channel_id:channel.id,:id => message.id, :message => { "title" => "MyText" }}
 
       expect {
-          delete :destroy, {channel_id:channel,:id => message.to_param}
-        }.to_not change(Message, :count).by(-1)
+          delete :destroy, {channel_id:channel.id,:id => message.id}
+        }.to_not change(Message, :count)
 
     end
   end
@@ -93,39 +93,39 @@ describe MessagesController do
     describe "GET index" do
       it "assigns all messages as @messages" do
         message = channel.messages.create! valid_attributes
-        get :index, {user_id:user,channel_id:channel}
-        assigns(:messages).should eq([Message.find(message)])
+        get :index, {user_id:user.id,channel_id:channel.id}
+        expect(assigns(:messages)).to eq([Message.find(message.id)])
       end
     end
 
     describe "GET show" do
       it "assigns the requested message as @message" do
         message = channel.messages.create! valid_attributes
-        get :show, {channel_id:channel,:id => message.to_param}
-        assigns(:message).should eq(Message.find(message))
+        get :show, {channel_id:channel.id,:id => message.id}
+        expect(assigns(:message)).to eq(Message.find(message.id))
       end
     end
 
     describe "GET responses" do
       it "assigns the requested message as @message" do
         message = channel.messages.create! valid_attributes
-        get :show, {channel_id:channel,:id => message.to_param}
-        assigns(:message).should eq(Message.find(message))
+        get :show, {channel_id:channel.id,:id => message.id}
+        expect(assigns(:message)).to eq(Message.find(message.id))
       end
-    end    
+    end
 
     describe "GET new" do
       it "assigns a new message as @message" do
         get :new, {channel_id:channel}
-        assigns(:message).should be_a_new(Message)
+        expect(assigns(:message)).to be_a_new(Message)
       end
     end
 
     describe "GET edit" do
       it "assigns the requested message as @message" do
         message = channel.messages.create! valid_attributes
-        get :edit, {channel_id:channel,:id => message.to_param}
-        assigns(:message).should eq(Message.find(message))
+        get :edit, {channel_id:channel.id,:id => message.id}
+        expect(assigns(:message)).to eq(Message.find(message.id))
       end
     end
 
@@ -133,35 +133,35 @@ describe MessagesController do
       describe "with valid params" do
         it "creates a new Message" do
           expect {
-            post :create, {channel_id:channel,:message => valid_attributes}
+            post :create, {channel_id:channel.id,:message => valid_attributes}
           }.to change(Message, :count).by(1)
         end
 
         it "assigns a newly created message as @message" do
-          post :create, {channel_id:channel,:message => valid_attributes}
-          assigns(:message).should be_a(Message)
-          assigns(:message).should be_persisted
+          post :create, {channel_id:channel.id,:message => valid_attributes}
+          expect(assigns(:message)).to be_a(Message)
+          expect(assigns(:message)).to be_persisted
         end
 
-        it "redirects to the created message" do
-          post :create, {channel_id:channel,:message => valid_attributes}
-          response.should redirect_to([channel,Message.last])
+        it "redirects to message list" do
+          post :create, {channel_id:channel.id,:message => valid_attributes}
+          expect(response).to redirect_to([channel])
         end
       end
 
       describe "with invalid params" do
         it "assigns a newly created but unsaved message as @message" do
           # Trigger the behavior that occurs when invalid params are submitted
-          Message.any_instance.stub(:save).and_return(false)
-          post :create, {channel_id:channel,:message => { "title" => "invalid value" }}
-          assigns(:message).should be_a_new(Message)
+          allow_any_instance_of(Message).to receive(:save).and_return(false)
+          post :create, {channel_id:channel.id,:message => { "title" => "invalid value" }}
+          expect(assigns(:message)).to be_a_new(Message)
         end
 
         it "re-renders the 'new' template" do
           # Trigger the behavior that occurs when invalid params are submitted
-          Message.any_instance.stub(:save).and_return(false)
-          post :create, {channel_id:channel,:message => { "title" => "invalid value" }}
-          response.should render_template("new")
+          allow_any_instance_of(Message).to receive(:save).and_return(false)
+          post :create, {channel_id:channel.id,:message => { "title" => "invalid value" }}
+          expect(response).to render_template("new")
         end
       end
     end
@@ -174,20 +174,20 @@ describe MessagesController do
           # specifies that the Message created on the previous line
           # receives the :update_attributes message with whatever params are
           # submitted in the request.
-          Message.any_instance.should_receive(:update_attributes).with({ "title" => "MyText" })
-          put :update, {channel_id:channel,:id => message.to_param, :message => { "title" => "MyText" }}
+          expect_any_instance_of(Message).to receive(:update_attributes).with({ "title" => "MyText" })
+          put :update, {channel_id:channel.id,:id => message.id, :message => { "title" => "MyText" }}
         end
 
         it "assigns the requested message as @message" do
           message = channel.messages.create! valid_attributes
-          put :update, {channel_id:channel,:id => message.to_param, :message => valid_attributes}
-          assigns(:message).should eq(Message.find(message))
+          put :update, {channel_id:channel.id,:id => message.id, :message => valid_attributes}
+          expect(assigns(:message)).to eq(Message.find(message.id))
         end
 
         it "redirects to the message" do
           message = channel.messages.create! valid_attributes
-          put :update, {channel_id:channel,:id => message.to_param, :message => valid_attributes}
-          response.should redirect_to([channel,message])
+          put :update, {channel_id:channel.id,:id => message.id, :message => valid_attributes}
+          expect(response).to redirect_to([channel,message])
         end
       end
 
@@ -195,17 +195,17 @@ describe MessagesController do
         it "assigns the message as @message" do
           message = channel.messages.create! valid_attributes
           # Trigger the behavior that occurs when invalid params are submitted
-          Message.any_instance.stub(:save).and_return(false)
-          put :update, {channel_id:channel,:id => message.to_param, :message => { "title" => "invalid value" }}
-          assigns(:message).should eq(Message.find(message))
+          allow_any_instance_of(Message).to receive(:save).and_return(false)
+          put :update, {channel_id:channel.id,:id => message.id, :message => { "title" => "invalid value" }}
+          expect(assigns(:message)).to eq(Message.find(message.id))
         end
 
         it "re-renders the 'edit' template" do
           message = channel.messages.create! valid_attributes
           # Trigger the behavior that occurs when invalid params are submitted
-          Message.any_instance.stub(:save).and_return(false)
-          put :update, {channel_id:channel,:id => message.to_param, :message => { "title" => "invalid value" }}
-          response.should render_template("edit")
+          allow_any_instance_of(Message).to receive(:save).and_return(false)
+          put :update, {channel_id:channel.id,:id => message.id, :message => { "title" => "invalid value" }}
+          expect(response).to render_template("edit")
         end
       end
     end
@@ -214,16 +214,16 @@ describe MessagesController do
       it "destroys the requested message" do
         message = channel.messages.create! valid_attributes
         expect {
-          delete :destroy, {channel_id:channel,id: message.to_param}
+          delete :destroy, {channel_id:channel.id,id: message.id}
         }.to change(Message, :count).by(-1)
       end
 
       it "redirects to the channel show" do
         message = channel.messages.create! valid_attributes
-        delete :destroy, {channel_id:channel,id: message.to_param}
-        response.should redirect_to(channel_url(channel))
+        delete :destroy, {channel_id:channel.id,id: message.id}
+        expect(response).to redirect_to(channel_url(channel))
       end
-    end    
+    end
 
     describe "POST broadcast" do
       it "calls broadcast for message for all subscribers" do
@@ -233,17 +233,17 @@ describe MessagesController do
           channel.subscribers << subs
         end
         sub_nos = subscribers.map {|s| s.phone_number}
-        Message.any_instance.should_receive(:broadcast) do |phone_nos|
+        expect_any_instance_of(Message).to receive(:broadcast) do |phone_nos|
           phone_nos =~ sub_nos
         end
-        post :broadcast, {channel_id:channel, id:message.to_param}
+        post :broadcast, {channel_id:channel.id, id:message.id}
       end
     end
 
     describe "GET select_import" do
       it "assigns @channel with the channel" do
-        get :select_import, {user_id:user,channel_id:channel}
-        assigns(:channel).should == Channel.find(channel)        
+        get :select_import, {user_id:user.id, channel_id:channel.id}
+        expect(assigns(:channel)).to eq(Channel.find(channel.id))
       end
     end
 

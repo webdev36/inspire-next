@@ -11,7 +11,6 @@
 #
 
 class SwitchChannelAction < Action
-  include Rails.application.routes.url_helpers
   include ActionView::Helpers
 
   before_validation :construct_action
@@ -26,8 +25,10 @@ class SwitchChannelAction < Action
   end
 
   def check_action_text
-    if !(as_text=~/^Switch channel to \d+$/)
-      errors.add :as_text, "action format is invalid"
+    if to_channel.blank?
+      errors.add :as_text, 'missing channel id to switch'
+    elsif !(as_text=~/^Switch channel to \d+$/)
+      errors.add :as_text, "action is misformatted"
     end
   end
 

@@ -9,7 +9,7 @@ describe UsersController do
 
   describe "guest user" do
     it "is redirected to signup form" do
-      get :show,{id:user.to_param}
+      get :show,{id:user.id}
       expect(response).to redirect_to new_user_session_path
     end
   end
@@ -19,7 +19,7 @@ describe UsersController do
       another_user = create(:user)
       sign_in another_user
 
-      get :show, {:id => user.to_param}
+      get :show, {:id => user.id}
       expect(response).to redirect_to root_url
     end
   end
@@ -37,17 +37,17 @@ describe UsersController do
       end
       it "assigns the channels, channel groups and subscribers" do
         get :show, {id:user.id}
-        assigns(:channels).should  =~ @channels
-        assigns(:subscribers).should =~ @subscribers
-        assigns(:channel_groups).should =~ [@channel_group]
+        expect(assigns(:channels).map(&:id).sort).to  match(@channels.map(&:id).sort)
+        expect(assigns(:subscribers).map(&:id).sort).to match(@subscribers.map(&:id).sort)
+        expect(assigns(:channel_groups).map(&:id).sort).to match([@channel_group.id])
       end
       it "does not list channels that are part of group in @channels" do
         @channel_group.channels << @channels[1]
         get :show, {id:user.id}
-        assigns(:channels).should  =~ [@channels[0],@channels[2]]
-        assigns(:subscribers).should =~ @subscribers
-      end      
+        expect(assigns(:channels).map(&:id).sort).to  match([@channels[0].id,@channels[2].id].sort)
+        expect(assigns(:subscribers).map(&:id).sort).to match(@subscribers.map(&:id).sort)
+      end
 
-    end    
+    end
   end
 end

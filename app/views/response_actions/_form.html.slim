@@ -1,0 +1,17 @@
+= simple_form_for [@channel, @message, @response_action], wrapper: :horizontal_form, html: { class: "form-horizontal" } do |f|
+  - if @response_action.errors.count > 0
+    .row
+      .col-md-12
+        .alert.alert-danger
+          = @response_action.errors.full_messages.join(", and ")
+  .row
+    .col-md-12
+      = f.input :response_text, hint: "Use regular expression format"
+      = f.simple_fields_for :action do |af|
+        = render partial: "actions/fields", locals: { f: af }
+  #page-actions.row
+    .col-md-12
+      .panel.panel-default
+        .panel-body
+          => f.button :submit, class: "btn-primary"
+          => link_to "Cancel", request.referer, class: "btn btn-default"

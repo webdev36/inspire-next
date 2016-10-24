@@ -1,0 +1,8 @@
+#schedule_section.form-group.channel_schedule style=(channel_schedulable?(@channel.type) ? "display: block;" : "display: none;")
+  - if @channel.new_record? || channel_schedulable?(@channel.type)
+    label.string.control-label.col-sm-5 for="channel_schedule" Schedule
+    .col-sm-7
+      = f.select_recurring :schedule, nil, {}, class: "form-control"
+
+#relative-schedule
+  = f.input :relative_schedule, wrapper: :horizontal_radio_and_checkboxes

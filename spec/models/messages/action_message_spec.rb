@@ -45,16 +45,36 @@ describe ActionMessage do
       action_message.save
       from_channel.subscribers << subscriber
     end
-    its(:type_abbr) {should == 'Action'}
-    its(:primary) {should be_true}
-    its(:requires_user_response?) {should be_false}
-    its(:requires_response){should be_false}
-    its(:internal?) {should be_true}
+
+    describe '#type_abbr' do
+      subject { super().type_abbr }
+      it {is_expected.to eq('Action')}
+    end
+
+    describe '#primary' do
+      subject { super().primary }
+      it {is_expected.to be_truthy}
+    end
+
+    describe '#requires_user_response?' do
+      subject { super().requires_user_response? }
+      it {is_expected.to be_falsey}
+    end
+
+    describe '#requires_response' do
+      subject { super().requires_response }
+      it {is_expected.to be_falsey}
+    end
+
+    describe '#internal?' do
+      subject { super().internal? }
+      it {is_expected.to be_truthy}
+    end
     it "send_to_subscribers calls execute on associated action" do
-      action_message.action.should_receive(:execute){|opts|
-        opts[:subscribers].should =~ [Subscriber.find(subscriber)]
-        opts[:channel].should == from_channel
-        opts[:message].should == subject
+      expect(action_message.action).to receive(:execute){|opts|
+        expect(opts[:subscribers]).to match_array([Subscriber.find(subscriber.id)])
+        expect(opts[:channel]).to eq(from_channel)
+        expect(opts[:message]).to eq(subject)
       }
       subject.send_to_subscribers([subscriber])
     end

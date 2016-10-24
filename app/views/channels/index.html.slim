@@ -1,0 +1,13 @@
+.page-header.clearfix
+  .row
+    .col-md-8
+      h4 Channels and Channel Groups
+    .col-md-4
+      = help_tag(help_index_channels_path)
+
+.row
+  .col-md-12
+    = render partial: 'shared/channel_list'
+.row
+  .col-md-12
+    = render partial: 'shared/channel_group_list'

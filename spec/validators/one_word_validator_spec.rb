@@ -9,19 +9,19 @@ describe OneWordValidator do
     end    
     it 'single words' do
       subject.validate_each(@record,@attribute,'oneword')
-      @record.errors[:some_one_word_field].should == []      
+      expect(@record.errors[:some_one_word_field]).to eq([])      
       subject.validate_each(@record,@attribute,'one_word_still')
-      @record.errors[:some_one_word_field].should == []            
+      expect(@record.errors[:some_one_word_field]).to eq([])            
       subject.validate_each(@record,@attribute,'again-one-word')
-      @record.errors[:some_one_word_field].should == []            
+      expect(@record.errors[:some_one_word_field]).to eq([])            
     end
     it 'flags blanks as invalid' do
       subject.validate_each(@record,@attribute,'')
-      @record.errors[:some_one_word_field].length.should > 0
+      expect(@record.errors[:some_one_word_field].length).to be > 0
     end
     it 'flags multiple words as invalid' do
       subject.validate_each(@record,@attribute,'two words')
-      @record.errors[:some_one_word_field].length.should > 0
+      expect(@record.errors[:some_one_word_field].length).to be > 0
     end
   end
 end

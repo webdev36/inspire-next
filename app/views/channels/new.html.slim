@@ -1,0 +1,42 @@
+- model_class = Channel
+- content_for :title, "New Channel"
+
+.page-header.clearfix
+  .row
+    .col-md-8
+      h4.pull-left New Channel
+    .col-md-4
+      = help_tag help_edit_channel_path
+
+.row
+  .col-md-12
+    .alert.alert-primary
+      h4 Creating a new channel
+      p A channel controls how messages are sent. Select the right channel type is very important. If you have any questions, please reach out to support.
+.row
+  .col-md-6
+    = render partial: "form"
+  .col-md-6
+    .row
+      .col-md-12
+        = render partial: "shared/helpful_links"
+    .row
+      .col-md-12
+        h4 About Channels
+    .row
+      .col-md-12
+        p A channel holds messages and has subscribers. Messages can be created in a channel. Also subscribers can be added to a channel. There are several different types of channels. The channel type controls how the messages are scheduled and delivered.
+        p The channel types are:
+        ul
+          li
+            | Announcements Channel: Messages defined in this channel are sent to all subscribers at the same time. The user can choose a particular message and broadcast to all the subscribers of the channel at will. A subscriber needs to be subscribed to the announcements channel to receive messages.
+          li
+            | On Demand Messages Channel: Messages in this channel are sent when subscriber requests them. Subscriber requests for a message from this channel by sending a text message to our shortcode. You do not have to make a subscriber "subscribed" as long as they are described in any of the channels of a channel group.
+          li
+            | Scheduled Messages Channel: Messages in this channel are sent one after another as per the recurring schedule specified in the channel. The same message is sent to all the subcribers of the channel. The order of messages is important and signifies the order of scheduled broadcast.
+          li
+            | Ordered Messages Channel: Messages in this channel are sent one after another as per the recurring schedule specified in the channel. The message sent to the subscriber will depend on the date of joining. In the first scheduled slot since the subscriber joined, the first message is sent and so on. (Kind of like lessons sent to students. Begins from the first and is sent in right sequence individually to each subscriber.)
+          li
+            | Random Messages Channel: Messages in this channel are sent as per the recurring schedule specified in the channel. Each subscriber receives random, previously unreceived message from the channel.
+          li
+            | Individually Scheduled Messages Channel: Each message in this channel can be specified with a schedule of delivery. The schedule could be absolute(14 Jan at 12:20PM) or relative to the subscriber joining the channel(2nd Week Monday at 12:20PM).

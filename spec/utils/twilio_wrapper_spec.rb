@@ -5,13 +5,13 @@ describe TwilioWrapper do
   
   it "is possible to switch on and off mocking" do
     TwilioWrapper.mock_calls = false
-    TwilioWrapper.new.mock.should == false
+    expect(TwilioWrapper.new.mock).to eq(false)
     TwilioWrapper.mock_calls = true
-    TwilioWrapper.new.mock.should == true
+    expect(TwilioWrapper.new.mock).to eq(true)
   end
 
   it "default during test is mock on" do
-    TwilioWrapper.new.mock.should == true
+    expect(TwilioWrapper.new.mock).to eq(true)
   end
 
   describe "instance" do
@@ -20,8 +20,8 @@ describe TwilioWrapper do
     let(:messages){double}
     before do
       TwilioWrapper.mock_calls = false
-      client.stub(:account).and_return(account)
-      account.stub(:messages).and_return(messages)
+      allow(client).to receive(:account).and_return(account)
+      allow(account).to receive(:messages).and_return(messages)
     end
     after do
       TwilioWrapper.mock_calls = true
@@ -33,31 +33,31 @@ describe TwilioWrapper do
       let(:phone_number){Faker::PhoneNumber.us_phone_number}
       let(:from_num){Faker::PhoneNumber.us_phone_number}
       it "calls @client.account.messages.create to send sms" do
-        messages.should_receive(:create){|opts|
-          opts[:from].should == from_num
-          opts[:body].should == message
-          opts[:media_url].should be_nil
-          opts[:to].should == phone_number
+        expect(messages).to receive(:create){|opts|
+          expect(opts[:from]).to eq(from_num)
+          expect(opts[:body]).to eq(message)
+          expect(opts[:media_url]).to be_nil
+          expect(opts[:to]).to eq(phone_number)
         }
         subject.send_message(phone_number,
             'dummy',message,nil,from_num)
       end
       it "calls @client.account.messages.create to send mms" do
         media_url = Faker::Internet.url
-        messages.should_receive(:create){|opts|
-          opts[:from].should == from_num
-          opts[:body].should == message
-          opts[:media_url].should == media_url
-          opts[:to].should == phone_number
+        expect(messages).to receive(:create){|opts|
+          expect(opts[:from]).to eq(from_num)
+          expect(opts[:body]).to eq(message)
+          expect(opts[:media_url]).to eq(media_url)
+          expect(opts[:to]).to eq(phone_number)
         }
         subject.send_message(phone_number,
           'dummy',message,media_url,from_num)
       end
 
       it "returns false if send_message throws Request Error" do 
-        messages.stub(:create).and_raise("Twilio::REST::RequestError")
-        subject.send_message(phone_number,
-            'dummy',message,nil,from_num).should == false
+        allow(messages).to receive(:create).and_raise("Twilio::REST::RequestError")
+        expect(subject.send_message(phone_number,
+            'dummy',message,nil,from_num)).to eq(false)
       end
 
     end

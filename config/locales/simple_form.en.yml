@@ -10,7 +10,7 @@ en:
       # html: '<abbr title="required">*</abbr>'
     error_notification:
       default_message: "Please review the problems below:"
-    # Labels and hints examples
+    # Examples
     # labels:
     #   defaults:
     #     password: 'Password'
@@ -23,23 +23,9 @@ en:
     #   defaults:
     #     username: 'User name to sign in.'
     #     password: 'No special characters, please.'
-    options:
-      channel:
-        type:
-          AnnouncementsChannel: 'Announcements channel'
-          OnDemandMessagesChannel: 'OnDemand messages channel'
-          OrderedMessagesChannel: 'Ordered messages channel'
-          RandomMessagesChannel: 'Random messages channel'
-          ScheduledMessagesChannel: 'Scheduled messages channel'
-          IndividuallyScheduledMessagesChannel: 'Individually scheduled messages channel'
-      message:
-        type:
-          SimpleMessage: 'Simple message'
-          ActionMessage: 'Action message'
-          PollMessage: 'Poll message'
-          ResponseMessage: 'Response message'
-      action:
-        type:
-          SwitchChannelAction: 'Switch channel action'
-          SendMessageAction: 'Send message action'
-
+    # include_blanks:
+    #   defaults:
+    #     age: 'Rather not say'
+    # prompts:
+    #   defaults:
+    #     age: 'Select your age'

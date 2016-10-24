@@ -19,20 +19,24 @@
 class ChannelGroup < ActiveRecord::Base
   acts_as_paranoid
   attr_accessible :description, :name, :keyword, :tparty_keyword,
-    :default_channel_id, :moderator_emails, :real_time_update, :web_signup
+                  :default_channel_id, :moderator_emails, :real_time_update,
+                  :web_signup
 
   belongs_to :user
-  has_many :channels, :before_add=>:check_channel_group_credentials
-  belongs_to :default_channel, :class_name => 'Channel'
-  has_many :subscriber_responses
+  has_many   :channels, before_add: :check_channel_group_credentials
+  belongs_to :default_channel, class_name: 'Channel'
+  has_many   :subscriber_responses
 
-  validates :name,presence:true,uniqueness:{scope:[:user_id,:deleted_at]}
-  validates :keyword,uniqueness:{:scope=>[:tparty_keyword,:deleted_at],
-    :case_sensitive=>false,:allow_blank=>true}
-  validates :tparty_keyword, presence:true, :tparty_keyword=>true
-  validates :moderator_emails, :allow_blank=>true, :emails=>true
+  validates  :name, presence: true, uniqueness: { scope: [:user_id,:deleted_at] }
+  validates  :keyword, uniqueness: {
+                                      :scope=>[:tparty_keyword,:deleted_at],
+                                      :case_sensitive=>false,
+                                      :allow_blank=>true
+                                   }
+  validates  :tparty_keyword,   presence:true,     tparty_keyword: true
+  validates  :moderator_emails, allow_blank: true, emails: true
 
-  before_create :add_keyword
+  before_create  :add_keyword
   before_destroy :remove_keyword
 
   after_initialize do |channel_group|

@@ -1,8 +1,11 @@
 require 'spec_helper'
 
 describe ResponseAction do
-  its "factory works" do
+  describe '#factory works' do
+    subject { super().factory works }
+    it do
     expect(build(:response_action)).to be_valid
+  end
   end
 
   it "requires response_text" do

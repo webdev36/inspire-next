@@ -1,0 +1,45 @@
+- model_class = Message
+
+#page-header.clearfix
+  .row
+    .col-md-8
+      h4 "#{@channel.name}" channel messages
+    .col-md-4
+
+.row
+  .col-md-12
+    .panel.panel-default
+      .panel-heading
+        .row
+          .col-md-8
+            | Messages
+          .col-md-4.text-right.pull-right
+            = link_to new_channel_path, class: "btn btn-primary btn-xs"
+              span.glyphicon.glyphicon-plus
+      .panel-body
+        table.table.table-striped
+          thead: tr
+            th Text
+            th Created at
+            th= t ".actions", default: t("helpers.actions")
+          tbody
+            - @messages.find_each do |message|
+              tr
+                td = link_to message.caption, channel_message_path(@channel, message)
+                td = message.created_at
+                td
+                  => link_to t(".edit", default: t("helpers.links.edit")),
+                            edit_channel_message_path(@channel, message),
+                            class: "btn btn-default btn-xs"
+                  => link_to t(".destroy", default: t("helpers.links.destroy")),
+                            channel_message_path(@channel, message),
+                            method: :delete,
+                            data: { confirm: t(".confirm", default: t("helpers.links.confirm", default: "Are you sure?")) },
+                            class: "btn btn-xs btn-danger"
+
+        => link_to t(".new", default: t("helpers.links.new")),
+                  new_channel_message_path(@channel),
+                  class: "btn btn-primary"
+
+
+

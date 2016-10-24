@@ -1,0 +1,9 @@
+.panel.panel-default
+  .panel-heading
+    | Helpful Links
+  .panel-body
+    .row
+      .col-md-12
+        ul#helpful_links
+          li= link_to "See your assigned service identifiers for channel setup", service_identifiers_path, target: "_blank"
+          li= link_to "Download a message template for importing bulk messages", downloads_path, target: "_blank"

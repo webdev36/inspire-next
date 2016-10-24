@@ -20,10 +20,10 @@
 FactoryGirl.define do
   factory :subscriber_activity do
     type "SubscriberResponse"
-    origin {Faker::PhoneNumber.us_phone_number}
-    title {Faker::Lorem.sentence}
+    origin  {Faker::PhoneNumber.us_phone_number}
+    title   {Faker::Lorem.sentence}
     caption {Faker::Lorem.sentence}
-    
+
     subscriber nil
     channel nil
     message nil
@@ -43,7 +43,7 @@ FactoryGirl.define do
   end
 
   factory :subscriber_response do
-    ignore do 
+    transient do
       tparty_keyword ""
       message_content ""
     end

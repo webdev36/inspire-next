@@ -35,11 +35,23 @@ describe PollMessage do
   describe "#" do
     let(:poll_message){create(:poll_message)}
     subject {poll_message}
-    its(:type_abbr) {should == 'Poll'}
-    its(:primary) {should be_true}
-    its(:requires_user_response?){should be_true}
+
+    describe '#type_abbr' do
+      subject { super().type_abbr }
+      it {is_expected.to eq('Poll')}
+    end
+
+    describe '#primary' do
+      subject { super().primary }
+      it {is_expected.to be_truthy}
+    end
+
+    describe '#requires_user_response?' do
+      subject { super().requires_user_response? }
+      it {is_expected.to be_truthy}
+    end
     it "should have right value in requires_response in the db" do 
-      Message.find(poll_message.id).requires_response.should be_true
+      expect(Message.find(poll_message.id).requires_response).to be_truthy
     end
   end
 

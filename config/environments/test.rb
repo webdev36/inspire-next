@@ -7,12 +7,21 @@ Liveinspired::Application.configure do
   # and recreated between test runs. Don't rely on the data there!
   config.cache_classes = true
 
+  config.logger = ActiveSupport::TaggedLogging.new(Logger.new(STDOUT))
+  config.log_level = :info
+  config.logger.level = Logger::INFO
   # Configure static asset server for tests with Cache-Control for performance
-  config.serve_static_assets = true
+  config.serve_static_files = true
+  config.active_record.raise_in_transactional_callbacks = true
   config.static_cache_control = "public, max-age=3600"
 
-  # Log error messages when you accidentally call methods on nil
-  config.whiny_nils = true
+  config.lograge.enabled = true
+  # used to reaise errors on deprecations, so we can find and fix
+
+  config.eager_load = true
+
+  # shosw full backtrace on server errors in test
+  config.action_dispatch.show_exceptions = true
 
   # Show full error reports and disable caching
   config.consider_all_requests_local       = true
@@ -37,5 +46,6 @@ Liveinspired::Application.configure do
   # Print deprecation notices to the stderr
   config.active_support.deprecation = :stderr
 
-  config.time_zone = 'New Delhi'
+  config.time_zone = "Eastern Time (US & Canada)"
 end
+# knockes out sql logging in test

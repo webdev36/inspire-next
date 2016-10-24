@@ -1,0 +1,38 @@
+#action_message_fields
+  = render partial: "messages/editor/action_message_fields", locals: { f: f }
+#response_message_fields
+  = render partial: "messages/editor/response_message_fields", locals: { f: f }
+#tag_message_fields
+  = render partial: "messages/editor/message_option_parent_fields", locals: { f: f }
+
+- content_for :head_js
+  javascript:
+    function choose_message_type_specific_section(value) {
+      if (value === 'ActionMessage') {
+        $('#action_message_fields').css('display', 'block');
+      } else {
+        $('#action_message_fields').css('display', 'none');
+      }
+
+      if (value === 'ResponseMessage') {
+        $('#response_message_fields').css('display', 'block');
+      } else {
+        $('#response_message_fields').css('display', 'none');
+      }
+
+      if (value === 'TagMessage') {
+        $('#tag_message_fields').css('display', 'block');
+        $('.message_caption').css('display', 'none');
+        $('.message_content').css('display', 'none');
+      } else {
+        $('#tag_message_fields').css('display', 'none');
+        $('.message_caption').css('display', 'block');
+        $('.message_content').css('display', 'block');
+      }
+    }
+    $(document).ready(function () {
+      choose_message_type_specific_section($('#message_type').val());
+      $('#message_type').change(function () {
+        choose_message_type_specific_section($(this).val());
+      });
+    });

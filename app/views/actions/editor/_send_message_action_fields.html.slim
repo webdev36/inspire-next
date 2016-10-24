@@ -1,0 +1,2 @@
+= f.input :message_to_send, collection: @messages, include_blank: false,
+          label_method: -> (message) { "#{message.id} : #{message.caption.slice(0, 100)}" }

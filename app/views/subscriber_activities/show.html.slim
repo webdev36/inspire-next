@@ -1,0 +1,5 @@
+- case @subscriber_activity.type
+- when "DeliveryNotice"
+  = render partial: "subscriber_activities/details/delivery_notice"
+- when "SubscriberResponse"
+  = render partial: "subscriber_activities/details/subscriber_response"

@@ -1,0 +1,20 @@
+- model_class = ResponseAction
+
+#page-header.page-header.clearfix
+  .row
+    .col-md-8
+      h4
+        | Edit Reponse Action #{@response_action.id} for Message #{@response_action.message.id}
+      p
+        | #{@response_action.message.type}: #{@response_action.message.decorate.title_text}
+    .col-md-4
+      == help_tag(help_edit_response_action_path)
+
+
+.row
+  #response-action-edit.col-md-6
+    = render partial: "form"
+  #response-action-edit-help.col-md-6
+    h4 Help
+    p
+      | this is where your help will go. Do it for regex expressions

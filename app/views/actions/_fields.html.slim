@@ -1,0 +1,32 @@
+= f.input :type, collection: action_types,
+          include_blank: false,
+          readonly: @response_action&.action&.new_record? ? false : true,
+          input_html: { id: "action_type" }
+
+#switch_channel_action_fields
+  = render partial: "actions/editor/switch_channel_action_fields", locals: { f: f }
+#send_message_action_fields
+  = render partial: "actions/editor/send_message_action_fields", locals: { f: f }
+
+- content_for :head_js
+  javascript:
+    function choose_action_specific_fields(value) {
+      if (value === 'SwitchChannelAction') {
+        $('#switch_channel_action_fields').css('display', 'inline');
+      } else {
+        $('#switch_channel_action_fields').css('display', 'none');
+      }
+
+      if (value === 'SendMessageAction') {
+        $('#send_message_action_fields').css('display', 'inline');
+      } else {
+        $('#send_message_action_fields').css('display', 'none');
+      }
+    }
+
+    $(document).ready(function () {
+      choose_action_specific_fields($('#action_type').val());
+      $('#action_type').change(function () {
+        choose_action_specific_fields($(this).val());
+      });
+    });

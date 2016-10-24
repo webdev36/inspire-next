@@ -10,13 +10,18 @@
 #  actionable_type :string(255)
 #
 
-class Action < ActiveRecord::Base
-  include ActionView::Helpers
-  acts_as_paranoid
-  
-  attr_accessible :type,:as_text,:to_channel,:message_to_send
-  belongs_to :actionable, polymorphic:true
+require_relative "./../mixins/json_serialized_field"
 
+class Action < ActiveRecord::Base
+  include Rails.application.routes.url_helpers
+  include ActionView::Helpers
+  include JSONSerializedField
+
+  acts_as_paranoid
+  json_serialize :data
+
+  attr_accessible :type,:as_text,:to_channel,:message_to_send, :data
+  belongs_to :actionable, polymorphic:true
 
   validates :type,:presence=>true,:inclusion=>{:in=>['SwitchChannelAction','SendMessageAction']}
   #validates :as_text,:presence=>true
@@ -35,7 +40,7 @@ class Action < ActiveRecord::Base
 
   def self.child_classes
     @child_classes
-  end  
+  end
 
   def execute(opts={})
     raise NotImplementedError
@@ -43,7 +48,7 @@ class Action < ActiveRecord::Base
 
   def type_abbr
     raise NotImplementedError
-  end  
+  end
 
   def description
     raise NotImplementedError
@@ -58,11 +63,11 @@ class Action < ActiveRecord::Base
   def to_channel
     @to_channel || get_to_channel_from_text
   end
-  
+
   def get_to_channel_from_text
     if as_text
       md = as_text.match(/^Switch channel to (\d+)$/)
-      md[1] if md    
+      md[1] if md
     else
       nil
     end
@@ -96,4 +101,4 @@ class Action < ActiveRecord::Base
     end
     alias_method_chain :new, :cast
   end
-end 
+end

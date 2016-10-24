@@ -1,0 +1,23 @@
+- model_class = ResponseAction
+
+#page-header.page-header.clearfix
+  .row
+    .col-md-8
+      h4
+        | New Response Action for Message #{@message.id}
+      p
+        | #{@message.type}: #{@message.decorate.title_text}
+    .col-md-4
+      = help_tag help_edit_response_action_path
+
+.row
+  .col-md-6
+    = render partial: "form"
+  .col-md-6
+    h4 New Response Action Help
+    p Use this screen to create a new response action or edit one. Response actions contain a response text and an action to be taken on that response. Some of the fields in the form are:
+    dl
+      dt Response text
+      dd The text in this column will be matched with the subscriber sent response to our message.
+      dt Action Type
+      dd The kind of action to be taken. For different action types there will be different fields further in this form.

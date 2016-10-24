@@ -22,7 +22,7 @@ describe Action do
   end
 
   it "sets the model_name of any subclass as Action to enable STI use single controller" do
-    SwitchChannelAction.model_name.should == Action.model_name
+    expect(SwitchChannelAction.model_name).to eq(Action.model_name)
   end    
 
   it "requires type to be one of identified actions" do

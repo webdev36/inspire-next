@@ -22,11 +22,12 @@ class Subscriber < ActiveRecord::Base
   has_many :subscriptions
   has_many :channels, :through => :subscriptions
   has_many :delivery_notices
+  has_many :delivery_error_notices
   has_many :subscriber_responses
 
   validates :phone_number, presence:true, phone_number:true,
     uniqueness:{scope:[:user_id,:deleted_at]}
-  validates :email, format: {with:/^.+@.+$/}, allow_blank:true
+  validates :email, format: {with:/\A.+@.+\z/}, allow_blank:true
 
   before_validation :normalize_phone_number
 

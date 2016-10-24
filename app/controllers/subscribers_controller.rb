@@ -6,7 +6,7 @@ class SubscribersController < ApplicationController
 
   def index
     session[:root_page] = subscribers_path
-    @subscribers = @user.subscribers.all
+    @subscribers = @user.subscribers.load
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @subscribers }
@@ -14,6 +14,7 @@ class SubscribersController < ApplicationController
   end
 
   def show
+    @timeline = Timeline.timeline(@subscriber)
     respond_to do |format|
       format.html # show.html.erb
       format.json { render json: @subscriber }

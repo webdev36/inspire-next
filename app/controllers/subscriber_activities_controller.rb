@@ -1,18 +1,18 @@
 class SubscriberActivitiesController < ApplicationController
   include SubscriberActivitiesHelper
-  before_filter :load_activity
-  skip_before_filter :load_activity, :only => [:index]
-  before_filter :load_activities, :only => [:index]
+  # before_filter      :load_activity
+  before_filter      :load_activity,   except: [:index]
+  before_filter      :load_activities, only: [:index]
 
   def index
-    if params[:unprocessed]=='true' && @subscriber_activities
+    if params[:unprocessed] == 'true' && @subscriber_activities
       @subscriber_activities = @subscriber_activities.unprocessed
       @unprocessed = true
     end
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @subscriber_activities }
-    end    
+    end
   end
 
   def show
@@ -47,10 +47,10 @@ class SubscriberActivitiesController < ApplicationController
         format.html { redirect_to sa_path(@subscriber_activity).merge({action:'show'}), notice: 'Reprocess failed' }
         format.json { render json: @subscriber_activity.errors, status: :unprocessable_entity }
       end
-    end    
+    end
   end
 
-  private 
+  private
 
   def common_authentication_and_fetch
     authenticate_user!
@@ -67,7 +67,7 @@ class SubscriberActivitiesController < ApplicationController
       DeliveryNotice
     else
       SubscriberActivity
-    end    
+    end
   end
 
   def load_activity
@@ -89,7 +89,7 @@ class SubscriberActivitiesController < ApplicationController
       @criteria = 'ChannelGroup'
       @target = @channel_group
       @subscriber_activity = @klass.for_channel_group(@channel_group).find(params[:id])
-    end 
+    end
   rescue
     redirect_to(root_url,alert:'Access Denied')
   end
@@ -113,7 +113,7 @@ class SubscriberActivitiesController < ApplicationController
       @criteria = 'ChannelGroup'
       @target = @channel_group
       @subscriber_activities = @klass.for_channel_group_and_its_channels(@channel_group).order('created_at DESC').page(params[:page]).per_page(10)
-    end    
+    end
   rescue
       redirect_to(root_url,alert:'Access Denied')
   end

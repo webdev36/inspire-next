@@ -1,0 +1,48 @@
+- model_class = Message
+
+#page-header.clearfix
+  .row
+    .col-md-8
+      h4 Create New Message
+      p
+        = "Channel:  "
+        = link_to channel_path(@channel) do
+          = " #{@channel.name} "
+        - if @channel&.channel_group_id
+          = ", Group:  "
+          = link_to channel_group_path(@channel.channel_group) do
+            span.glyphicon.glyphicon-folder-open
+            = " #{@channel.channel_group.name}"
+
+    .col-md-4
+      = help_tag help_edit_message_path
+
+.row
+  .col-md-6
+    = render partial: "form"
+  .col-md-6
+    .h4 New/Edit Message Help
+    = render partial: 'shared/alerts/alert_info', locals: { message:'Use this screen to create a new message or edit one, following the descriptions below. Please note that depending on the message type, some fields may not be visible.'}
+    .row
+      .col-md-12
+        dl
+          dt Message Type
+          dd
+            | A message can be a SMS(Text Message) or an MMS(multi-media message). A message needs to be created within a channel. A message is delivered as per the rules of the channel. There are different types of messages:
+            ul
+              li Simple Message: Message can be both text or multi media. Use this for messages where we do not expect or care about subscriber responses
+              li Poll Message: Use this message type if you are asking the user a poll question and want to tabulate the result.
+              li Response Message: Use this message type if you are asking the user a question and you want to perform certain actions in the system(e.g. switch to another channel) based on user response.
+              li Action Message: This message is not sent to the subscriber. Instead at the scheduled delivery time, the action configured with the message is performed. This message can be mixed with other message types in any channel type and will follow the channel rules to determine the execution time. It can be used to write and execute complex macro programming within the system.
+              li Tag Message: This message only sends a message if a subscriber has a tag matching the message types available.
+          dt Title
+          dd This is relevant only for MMS. It goes into the subject field of the received message. Keep it empty for SMS(text messages).
+          dt Caption
+          dd This is the primary text that goes in a text message. In a MMS, the contents of the field go in as message content.
+          dt Send At
+          dd For certain channel types such as individually scheduled messages channel, each message can have its own schedule. This schedule can be either absolute(specific time to send the message) or relative(relative to when the subscriber joins the channel). The configuration of whether the schedule is absolute or relative is in the channel configuration. When the schedule is relative, use this field to select the relative interval(minute,hour,day or week). When the interval is minute, the value of the number field will be used as the delay in minutes. E.g. if the number is 10, then the message is sent 10 minutes after subscriber has joined the channel. On the other hand if the Send at field is 'weekly' and if the number is 3, day field is Saturday and hour and minute are 10:20, then the message is sent on the third Saturday at 10:20 from the day the user joins.
+          dt Reminder Mesage
+          dd If configured, a reminder message will be sent to the subscriber after a period of time configured in the Send reminder after field.
+          dt Repeat Reminder Message
+          dd If configured, a repeat reminder will be sent to the reminder after a period configured in the send repeat reminder field. You can control the number of such repeat reminders in the number of repeat reminders to send field
+

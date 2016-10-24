@@ -1,0 +1,14 @@
+.page-header
+  h1 #{@channel.name} subscriber list
+
+.row.pagination-centered
+  .col-md-6#unsubscribed_subscribers
+    = render partial: "channels/subscriber_list/unsubscribed_subscribers"
+  .col-md-5#subscribed_subscribers
+    = render partial: "channels/subscriber_list/subscribed_subscribers"
+
+.panel.panel-default
+  .panel-body
+    => link_to t(".back", default: t("helpers.links.back")),
+              channel_path(@channel),
+              class: "btn btn-default"

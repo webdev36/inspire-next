@@ -1,0 +1,6 @@
+- content_for :content do
+  = yield
+  => link_to "Glossary", help_glossary_path, class: "btn btn-default"
+  => link_to "Back", session[:referrer_page] || request.referrer, class: "btn btn-default"
+
+= render template: "layouts/application"

@@ -35,10 +35,26 @@ describe SimpleMessage do
   describe "#" do
     let(:simple_message){create(:simple_message)}
     subject {simple_message}
-    its(:type_abbr) {should == 'Simple'}
-    its(:primary) {should be_true}
-    its(:requires_user_response?){should be_false}
-    its(:requires_response){should be_false}
+
+    describe '#type_abbr' do
+      subject { super().type_abbr }
+      it {is_expected.to eq('Simple')}
+    end
+
+    describe '#primary' do
+      subject { super().primary }
+      it {is_expected.to be_truthy}
+    end
+
+    describe '#requires_user_response?' do
+      subject { super().requires_user_response? }
+      it {is_expected.to be_falsey}
+    end
+
+    describe '#requires_response' do
+      subject { super().requires_response }
+      it {is_expected.to be_falsey}
+    end
   end
 
 end

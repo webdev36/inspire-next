@@ -36,11 +36,31 @@ describe TagMessage do
   describe "#" do
     let(:tag_message){create(:tag_message)}
     subject {tag_message}
-    its(:type_abbr) {should == 'Tag'}
-    its(:primary) {should be_true}
-    its(:requires_user_response?){should be_false}
-    its(:requires_response){should be_false}
-    its(:message_options){should eq([])}
+
+    describe '#type_abbr' do
+      subject { super().type_abbr }
+      it {is_expected.to eq('Tag')}
+    end
+
+    describe '#primary' do
+      subject { super().primary }
+      it {is_expected.to be_truthy}
+    end
+
+    describe '#requires_user_response?' do
+      subject { super().requires_user_response? }
+      it {is_expected.to be_falsey}
+    end
+
+    describe '#requires_response' do
+      subject { super().requires_response }
+      it {is_expected.to be_falsey}
+    end
+
+    describe '#message_options' do
+      subject { super().message_options }
+      it {is_expected.to eq([])}
+    end
   end
 
 end

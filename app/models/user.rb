@@ -23,8 +23,8 @@ class User < ActiveRecord::Base
          :recoverable, :rememberable, :trackable, :validatable
 
   attr_accessible :email, :password, :password_confirmation, :remember_me
-  
-  has_many :channels, dependent: :destroy
+
+  has_many :channels,       dependent: :destroy
   has_many :channel_groups, dependent: :destroy
-  has_many :subscribers, dependent: :destroy
+  has_many :subscribers,    dependent: :destroy
 end

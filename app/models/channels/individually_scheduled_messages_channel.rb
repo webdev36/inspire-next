@@ -31,7 +31,6 @@ class IndividuallyScheduledMessagesChannel < Channel
     false
   end
 
-
   def has_schedule?
     false
   end
@@ -53,42 +52,21 @@ class IndividuallyScheduledMessagesChannel < Channel
     true
   end
 
-  def group_subscribers_by_message
-    #Find those messages which have not been sent and whose next_send_time
-    #is in the past
-    if !relative_schedule
-      subscriber_ids = subscribers.map(&:id)
-      message_ids = messages.active.pending_send.select(:id).map(&:id)
-      if message_ids.length > 0
-        msh = {}
-        message_ids.each do |message_id|
-          subscriber_ids.each do |subscriber_id|
-            next if DeliveryNotice.of_primary_messages.where(message_id:message_id,subscriber_id:subscriber_id).first
-            if msh[message_id]
-              msh[message_id] << Subscriber.find(subscriber_id)
-            else
-              msh[message_id] = [Subscriber.find(subscriber_id)]
-            end
-          end
-        end
-        return msh
-      else
-        return nil
-      end
-    else
-      subscriber_ids = subscribers.map(&:id)
-      #For each message
-      msh={}
-      messages.active.each do |message|
-        message_id = message.id
-        #For all subscribers
+  def has_already_been_sent_message?(subscriber_id, message_id)
+    SubscriberMessageSent.has_already_been_sent_message?(subscriber_id, message_id)
+  end
+
+  def group_subscribers_by_message_non_relative_schedule
+    subscriber_ids = subscribers.pluck(:id)
+    message_ids    = messages.active.pending_send.pluck(:id)
+    if message_ids.length > 0
+      msh = {}
+      message_ids.each do |message_id|
         subscriber_ids.each do |subscriber_id|
-          #check if they have been sent the message
-          next if DeliveryNotice.of_primary_messages.where(message_id:message_id,subscriber_id:subscriber_id).first
-          #If the message schedule since the subscriber addition is in past
-          subscriber_added_time = Subscription.where(subscriber_id:subscriber_id,channel_id:self.to_param).first.created_at
-          if message.target_time(subscriber_added_time) < Time.now
-            #include such message
+          if has_already_been_sent_message?(subscriber_id, message_id)
+            Rails.logger.info "action=group_subscribers_by_message from=individually_scheduled_messages_channel status=warn warn=skip_already_sent message_id=#{message_id} subscriber_id=#{subscriber_id}"
+            next
+          else
             if msh[message_id]
               msh[message_id] << Subscriber.find(subscriber_id)
             else
@@ -98,6 +76,61 @@ class IndividuallyScheduledMessagesChannel < Channel
         end
       end
       return msh
+    else
+      return nil
+    end
+  end
+
+  def group_subscribers_by_message_relative_schedule
+    subscriber_ids = subscribers.map(&:id)
+    #For each message
+    msh = {}
+    messages.active.each do |message|
+      message_id = message.id
+      #For all subscribers
+      subscriber_ids.each do |subscriber_id|
+        if time_to_send?(subscriber_id, message)
+          if has_already_been_sent_message?(subscriber_id, message_id)
+            # maske this less noisy for now.. lots of these
+            # Rails.logger.info "action=group_subscribers_by_message from=individually_scheduled_messages_channel status=warn warn=skip_already_sent message_id=#{message_id} subscriber_id=#{subscriber_id}"
+            next
+          else
+            if msh[message_id]
+              msh[message_id] << Subscriber.find(subscriber_id)
+            else
+              msh[message_id] = [Subscriber.find(subscriber_id)]
+            end
+          end
+        end
+      end
+    end
+    msh
+  end
+
+  def time_to_send?(subscriber_id, message)
+    flag = false
+    if message.respond_to?(:target_time)
+      subscriber_added_time  = subscriber_added_to_channel_at(subscriber_id)
+      subscriber_target_time = message.target_time(subscriber_added_time)
+      if subscriber_target_time && subscriber_target_time < Time.now
+        # Rails.logger.info "info=time_to_send message_id#{message.id} subscriber_id=#{subscriber_id} subscriber_target_time=#{subscriber_target_time}"
+        flag = true
+      end
+    end
+    flag
+  end
+
+  def subscriber_added_to_channel_at(subscriber_id)
+    Subscription.where(subscriber_id: subscriber_id, channel_id: self.to_param).first.created_at
+  end
+
+  # Find the messages which have not been sent and whose next_send_time
+  # is in the past
+  def group_subscribers_by_message
+    if !relative_schedule
+      group_subscribers_by_message_non_relative_schedule
+    else
+      group_subscribers_by_message_relative_schedule
     end
   end
 
@@ -115,18 +148,18 @@ class IndividuallyScheduledMessagesChannel < Channel
     end
   end
 
+  # Since the channel does not have a schedule, but still we need to
+  # be able to send pending messages, set the next send time as now.
+  # Probably it can be optimised to use the nearest of the messages next_send_time
+  # but it needs to be kept updated etc.
   def reset_next_send_time
-    #Since the channel does not have a schedule, but still we need to
-    #be able to send pending messages, set the next send time as now.
-    #Probably it can be optimised to use the nearest of the messages next_send_time
-    #but it needs to be kept updated etc.
     self.next_send_time = Time.now
   end
 
   def after_subscriber_add_callback(subscriber)
     #If the subscriber was subscribed before, we need to restart from the previous message. We use a hack here by modifying the subscription creation date.
     psent_messages_schedules = []
-    DeliveryNotice.of_primary_messages.where(channel_id:id,subscriber_id:subscriber.id).each do |dn|
+    DeliveryNotice.of_primary_messages.where(channel_id:id, subscriber_id:subscriber.id).each do |dn|
       msg = Message.find_by_id(dn.message_id)
       psent_messages_schedules << msg.schedule if msg
     end
