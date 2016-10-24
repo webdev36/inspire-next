@@ -3,8 +3,10 @@ class TwilioController < ApplicationController
     Rails.logger.info "Twilio_Callback: #{params}"
     if !handle_request(params)
       Rails.logger.error "Twilio controller could not handle: #{params}"
+      StatsD.increment("twilio.callback.error")
       render :text=>"Wrong request", :status => 500
     else
+      StatsD.increment("twilio.callback.ok")
       render :text=>'OK', :status =>200
     end
   end

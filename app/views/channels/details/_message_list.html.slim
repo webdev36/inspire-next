@@ -41,7 +41,7 @@
                               class: "btn btn-xs btn-danger"
       .row
         .col-md-12.text-center
-          = will_paginate @messages, param_name: "messages_page"
+          = will_paginate @messages, param_name: "messages_page", renderer: BootstrapPagination::Rails
     - else
       .notification-well
         .icon

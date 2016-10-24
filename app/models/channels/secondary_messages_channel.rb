@@ -116,18 +116,25 @@ class SecondaryMessagesChannel < Channel
     SubscriberMessageSent.delivery_notice_for_message?(subscriber.id, orig_message.id)
   end
 
-  # only deliver reminder messages for messages that are actually in hte deliveyr window (2x the biggest response at time)
+  # only deliver reminder messages for messages that are actually in hte delivery window (2x the biggest response at time)
   def in_the_reminder_send_window?(subscriber, orig_message)
     flag = false
     delivered_at = orig_message.delivery_notices.where(:subscriber_id => subscriber.id).try(:first).try(:created_at)
     if delivered_at
-      minutes_to_add = ([orig_message.reminder_delay, orig_message.repeat_reminder_delay].sort.last.to_i) * 2
-      last_window_to_deliver = delivered_at + minutes_to_add.minutes
+      minutes_to_add = delay_window(orig_message)
+      last_window_to_deliver = delivered_at + minutes_to_add
       if Time.now < last_window_to_deliver
         flag = true
       end
     end
     flag
+  end
+
+  # sets the delay window to greater than 240 minutes..
+  def delay_window(msg)
+    target_number = [msg.reminder_delay.to_i, msg.repeat_reminder_delay.to_i].try(:compact).try(:sort).try(:last)
+    target_number < 120 ? target_number = 120 : target_number
+    (target_number * 2).minutes
   end
 
   def perform_post_send_ops(msg_no_subs_hash)

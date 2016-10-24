@@ -1,17 +1,18 @@
 @import "before_bootstrap";
 @import "bootstrap-sprockets";
 @import "bootstrap";
-@import "bootstrap-datetimepicker.css";
+@import "bootstrap-datetimepicker";
 @import "font-awesome-sprockets";
 @import "font-awesome";
 @import "helpers";
-@import "recurring_select.css";
-@import "select2.css";
-@import "select2-bootstrap.css";
+// @import "recurring_select.scss";
+@import "select2";
+@import "select2-bootstrap";
 
 @import "components/pagination";
 @import "components/page_header";
 @import "components/page_actions";
+@import "components/pagination";
 @import "components/text";
 
 @import "overrides";

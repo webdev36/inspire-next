@@ -49,5 +49,10 @@ html lang="en"
           = content_for?(:content) ? yield(:content) : yield
 
       footer.voffset20
-        p.text-center style="color: #ccc;"
-          | &copy; ILiveInspired v#{::APP_VERSION}, 2013-2016. Portions &copy; 2013-2016 OMAlab, Inc. All rights reserved.
+        p.color-silver
+          .row
+            .col-md-6.text-left
+              | &copy; ILiveInspired v#{::APP_VERSION}, 2013-2016. Portions &copy; 2013-2016 OMAlab, Inc. All rights reserved.
+            .col-md-6.text-right
+              strong
+                | Support Phone Number: +1 (202) 350-0832

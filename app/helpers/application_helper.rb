@@ -12,7 +12,7 @@ module ApplicationHelper
       options,collection_or_options = collection_or_options,nil
     end
     unless options[:renderer]
-      options = options.merge :renderer => BootstrapPagination::Rails
+      options = options.merge renderer: BootstrapPagination::Rails,  bootstrap: 3
     end
     super *[collection_or_options, options].compact
   end

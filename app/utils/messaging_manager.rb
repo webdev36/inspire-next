@@ -38,6 +38,7 @@ class MessagingManager
       message_text = get_final_message_content(message,subscriber)
 
       if DeliveryNotice.where(:subscriber_id => subscriber.id).recently_sent.count > 4
+        StatsD.increment("subscriber.#{subscriber.id}.skip.flood_protection")
         Rails.logger.error "action=send_message status=error error=too_many_recently_sent_messages subscriber_id=#{subscriber.id} message_id=#{message.id} caption='#{message.caption}'"
         DeliveryErrorNotice.create(message: message, title: title_text, caption: message_text,
                                    subscriber: subscriber, options: message.options.merge('error' => 'too many recently sent messages'))
@@ -45,16 +46,19 @@ class MessagingManager
        end
       if send_message(subscriber.phone_number, title_text, message_text, content_url, from_num)
         if message.primary?
+          StatsD.increment("subscriber.#{subscriber.id}.sent_primary.#{message.id}")
           dn = DeliveryNotice.create(message: message,      title: title_text,
                                      caption: message_text, subscriber: subscriber,
                                      options: message.options )
         else
+          StatsD.increment("subscriber.#{subscriber.id}.sent_reminder.#{message.options[:message_id]}")
           dn = DeliveryNotice.create(message: Message.find(message.options[:message_id]),
                                      title: title_text,     caption: message_text,
                                      subscriber:subscriber, options: message.options)
         end
         Rails.logger.info "action=send_message status=ok delivery_notice_id=#{dn.nil? ? 'nil' : dn.id} message_id=#{message.options[:message_id] ? message.options[:message_id] : message.id} primary_message=#{message.primary?} subscriber_id=#{subscriber.id} method=broadcast_message caption='#{message_text}' reminder_message=#{message.options[:reminder_message] ? 'y' : 'n'} repeat_reminder_message=#{message.options[:repeat_reminder_message] ? 'y' : 'n'}"
       else
+        StatsD.increment("subscriber.#{subscriber.id}.send_message_error.#{message.id}")
         Rails.logger.error "action=send_message status=error subscriber_id=#{subscriber.id} message_id=#{message.id} caption='#{message.caption}'"
       end
     end

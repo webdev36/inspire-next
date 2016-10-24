@@ -17,4 +17,4 @@ table#member_channels_table.table.table-striped
                       class: "btn btn-mini"
 
 - if @member_channels && @member_channels.count > 0
-  = will_paginate @member_channels, param_name: "member_channels_page"
+  = will_paginate @member_channels, param_name: "member_channels_page", renderer: BootstrapPagination::Rails

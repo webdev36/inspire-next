@@ -36,6 +36,8 @@
                   = link_to channel.name, channel_path(channel)
                 .details style="font-size: 70%; color: #ccc;"
                   | #{channel.id}: #{ channel.type.to_s.gsub('MessagesChannel', '').titleize }
+                .tparty style="font-size: 70%; color: #ccc;"
+                  | #{channel.tparty_keyword}
               td.text-center = channel.keyword
               td.text-center = channel.subscribers.count
               td.text-center = channel.messages.count
