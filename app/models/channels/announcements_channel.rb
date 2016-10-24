@@ -50,7 +50,7 @@ class AnnouncementsChannel < Channel
 
   def individual_messages_have_schedule?
     false
-  end  
+  end
 
   def reset_next_send_time
     self.next_send_time = 10.years.from_now

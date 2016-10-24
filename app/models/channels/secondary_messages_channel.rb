@@ -79,24 +79,24 @@ class SecondaryMessagesChannel < Channel
                     Rails.logger.info "info=reminder_message_queued subscriber_id=#{subscriber.id} message_id=#{orig_message.id}"
                   else
                     StatsD.increment("subscriber.#{subscriber.id}.message.#{orig_message.id}.skip_responded")
-                    Rails.logger.info "info=reminder_message_skipped subscriber_id=#{subscriber.id} message_id=#{orig_message.id} reason=subscriber_responded"
+                    # Rails.logger.info "info=reminder_message_skipped subscriber_id=#{subscriber.id} message_id=#{orig_message.id} reason=subscriber_responded"
                   end
                 else
                   StatsD.increment("subscriber.#{subscriber.id}.message.#{orig_message.id}.skip_out_of_window")
-                  Rails.logger.info "info=reminder_message_skipped subscriber_id=#{subscriber.id} message_id=#{orig_message.id} reason=out_of_reminder_send_window"
+                  # Rails.logger.info "info=reminder_message_skipped subscriber_id=#{subscriber.id} message_id=#{orig_message.id} reason=out_of_reminder_send_window"
                 end
               else
                 StatsD.increment("subscriber.#{subscriber.id}.message.#{orig_message.id}.skip_not_yet_delivered")
-                Rails.logger.info "info=reminder_message_skipped subscriber_id=#{subscriber.id} message_id=#{orig_message.id} reason=message_has_not_been_delivered"
+                # Rails.logger.info "info=reminder_message_skipped subscriber_id=#{subscriber.id} message_id=#{orig_message.id} reason=message_has_not_been_delivered"
               end
             else
               StatsD.increment("warn_no_orig_message_or_miss_sub")
-              Rails.logger.info "info=no_orig_message_or_missing_sub subscriber_id=#{subs_id} original_message_id=#{message.options[:message_id]}"
+              # Rails.logger.info "info=no_orig_message_or_missing_sub subscriber_id=#{subs_id} original_message_id=#{message.options[:message_id]}"
             end
           end
         else
           StatsD.increment("warn_message_not_found")
-          Rails.logger.info "warn=no_message_found message_id=#{message_id} message='No message was found for id #{message_id}'"
+          # Rails.logger.info "warn=no_message_found message_id=#{message_id} message='No message was found for id #{message_id}'"
         end
       end
       if message_ids.blank?
@@ -109,7 +109,7 @@ class SecondaryMessagesChannel < Channel
           junk = messages.find_by_id(message_id)
           if junk
             StatsD.increment('info_remove_temp_message')
-            Rails.logger.info "info=removing_temp_message junk_message_id=#{junk.id} original_message_id=#{junk.options[:message_id]} channel_id=#{junk.options[:channel_id]} repeat_reminder_message=#{junk.options[:repeat_reminder_message]} caption='#{junk.caption}'"
+            # Rails.logger.info "info=removing_temp_message junk_message_id=#{junk.id} original_message_id=#{junk.options[:message_id]} channel_id=#{junk.options[:channel_id]} repeat_reminder_message=#{junk.options[:repeat_reminder_message]} caption='#{junk.caption}'"
             messages.destroy(junk)
           end
         end
