@@ -81,6 +81,10 @@ group :development do
   gem 'web-console'
 end
 
+group :staging, :production do
+  gem 'rails_serve_static_assets'
+end
+
 group :test do
   gem 'capybara',    '2.10.1'
   gem 'poltergeist', '1.11.0'
