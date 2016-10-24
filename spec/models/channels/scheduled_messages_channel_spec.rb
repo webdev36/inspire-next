@@ -56,7 +56,7 @@ describe ScheduledMessagesChannel do
       subject { super().type_abbr }
       it {is_expected.to eq('Scheduled')}
     end
-    
+
     it "group_subscribers_by_message returns first message for all subscribers" do
       subscribers = (0..3).map{
         subscriber = create(:subscriber,user:user)
@@ -70,8 +70,8 @@ describe ScheduledMessagesChannel do
       expect(msh.length).to eq(1)
       msg_no,subs = msh.first
       expect(msg_no).to eq(messages[0].id)
-      expect(subs).to match(subscribers)
-    end 
+      expect(subs.map(&:id).sort).to match(subscribers.map(&:id).sort)
+    end
 
     it "send_scheduled_messages sends all messages once and stops" do
       subscribers = (0..3).map{
