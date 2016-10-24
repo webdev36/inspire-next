@@ -42,12 +42,13 @@ deploy(){
   echo 'DEPLOY: exec rake assets:sync:all RAILS_ENV=staging'
   bundle exec rake assets:sync:all RAILS_ENV=staging
 
-  sleep 10 # virtual machine sync
+  echo 'DEPLOY: set the Procfile to the production procfile'
+  \cp ./procfile_staging.proc ./Procfile
+
   echo 'DEPLOY: git commit -m "Update manifest.yml" public/assets/manifest.yml'
   git add --all
   git commit -am "Update manifest.yml"
 
-  sleep 10
   echo "DEPLOY: git push origin $CURRENT_BRANCH"
   git push origin $CURRENT_BRANCH
 
@@ -59,6 +60,7 @@ deploy(){
 }
 
 echo ""
+echo "This will push to liveinspired-staging.herokuapp.com"
 read -p "Deploy $CURRENT_BRANCH to STAGING?[n] (y/n) " RESP
 echo ""
 
