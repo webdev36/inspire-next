@@ -1,12 +1,17 @@
-# docker.application_test.yml
+# docker.application_production.yml
 AWS_ACCESS_KEY_ID:          AKIAI6I3W35I3RTCOUCQ
 AWS_SECRET_ACCESS_KEY:      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
 AWS_REGION:                 us-east-1
-DATABASE_URL:               postgres://postgres:@<%= Resolv.getaddress('db') %>:5432/liveinspired_test
-REDISTOGO_URL:              redis://<%= Resolv.getaddress('redis') %>:6379/5
-REDIS_URL:                  redis://<%= Resolv.getaddress('redis') %>:6379/5
-DB_POOL:                    "20"
+DATABASE_URL:               postgres://xtaiqttnznfeyt:ZItG7a0urcuMBjmNuAjGgKIIB3@ec2-54-83-204-78.compute-1.amazonaws.com:5432/d341o8eba2pcfr
+DB_POOL:                    '20'
+POSTGRES_HOST:              ec2-54-83-204-78.compute-1.amazonaws.com
+POSTGRES_PORT:              '5432'
+POSTGRES_USERNAME:          xtaiqttnznfeyt
+POSTGRES_PASSWORD:          ZItG7a0urcuMBjmNuAjGgKIIB3
+POSTGRES_DATABASE:          d341o8eba2pcfr
 PAPERTRAIL_API_TOKEN:       bagcYqTTeGW7AUd9dS5m
+REDISTOGO_URL:              redis://redistogo:8e818e35343f18aa81829a9d8d59a5cf@tarpon.redistogo.com:9960/
+REDIS_URL:                  redis://redistogo:8e818e35343f18aa81829a9d8d59a5cf@tarpon.redistogo.com:9960/
 S3_BUCKET_NAME:             liveinspired-mms
 SENDGRID_PASSWORD:          3mvghb2n1324
 SENDGRID_USERNAME:          app19644662@heroku.com
@@ -15,3 +20,4 @@ TPARTY_PRIMARY_KEYWORD:     INSPIRE
 TWILIO_AUTH_TOKEN:          fdf97c35b84b1aca8c74fafddd8c38c7
 TWILIO_SID:                 AC96abab99e4c7074745084fd920d120f0
 TZ:                         America/New_York
+SECRET_KEY_BASE:            530c8482c136ac42377f1b16f509602ec170a84b0134c955fd0478d34b3660f056ae403561baca3ca8a169b054613c0032b3b947dabba341da6f337759a9d29d
