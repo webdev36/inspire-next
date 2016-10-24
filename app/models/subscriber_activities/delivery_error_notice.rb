@@ -21,9 +21,7 @@ class DeliveryErrorNotice < SubscriberActivity
   end
 
   def send_stats_d_update
-    StatsD.increment("subscriber_id.#{subscriber_id}.message_id.#{message_id || 'none'}.delivery_error_notice")
+    StatsD.increment("subscriber.#{subscriber_id}.message.#{message_id || 'nil'}.delivery_error_notice")
   end
-
-
 
 end

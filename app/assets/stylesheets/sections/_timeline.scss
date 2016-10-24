@@ -1,0 +1,7 @@
+.timeline-entry {
+  i { margin-top: 10px; @extend .fa-2x; }
+  .type { }
+  .description { font-size: 80%; }
+  .time-ago    { font-size: 70%; text-align: right; }
+  .details     { font-size: 70%; }
+}

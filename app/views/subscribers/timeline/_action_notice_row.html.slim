@@ -1,0 +1,8 @@
+tr id="action_notice_#{entry.id}" data-type='action_notice' data-id="#{entry.id}" class='timeline-entry'
+  td.text-center = icon('bolt', title: 'Action taken on subscriber account', class: 'color-info fa-2x')
+  td
+    .type
+      | Action
+    .description
+      = raw "#{entry.caption}"
+  td.time-ago #{time_ago_in_words(entry.created_at)} ago

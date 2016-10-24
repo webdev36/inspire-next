@@ -65,7 +65,7 @@ class RandomMessagesChannel < Channel
         else
           msh[random_message] = [subscriber]
         end
-        StatsD.increment("subscriber_id.#{subscriber.id}.message.#{random_message}.queued")
+        StatsD.increment("subscriber.#{subscriber.id}.message.#{random_message}.queued")
       end
     end
     msh

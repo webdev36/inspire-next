@@ -128,7 +128,7 @@ class SubscriberResponse < SubscriberActivity
   end
 
   def send_stats_d_update
-    StatsD.increment("subscriber_id.#{subscriber_id}.subscriber_response")
+    StatsD.increment("subscriber.#{subscriber_id}.subscriber_response")
   end
 
   private

@@ -75,18 +75,18 @@ class SecondaryMessagesChannel < Channel
                 if in_the_reminder_send_window?(subscriber, orig_message)
                   if subscriber_has_not_responded?(subscriber, orig_message, message.created_at)
                     msh[message_id] << subscriber
-                    StatsD.increment("subscriber_id.#{subscriber.id}.message_id.#{orig_message.id}.queued")
+                    StatsD.increment("subscriber.#{subscriber.id}.message.#{orig_message.id}.queued")
                     Rails.logger.info "info=reminder_message_queued subscriber_id=#{subscriber.id} message_id=#{orig_message.id}"
                   else
-                    StatsD.increment("subscriber_id.#{subscriber.id}.message_id.#{orig_message.id}.skip.responded")
+                    StatsD.increment("subscriber.#{subscriber.id}.message.#{orig_message.id}.skip_responded")
                     Rails.logger.info "info=reminder_message_skipped subscriber_id=#{subscriber.id} message_id=#{orig_message.id} reason=subscriber_responded"
                   end
                 else
-                  StatsD.increment("subscriber_id.#{subscriber.id}.message_id.#{orig_message.id}.skip.out_of_window")
+                  StatsD.increment("subscriber.#{subscriber.id}.message.#{orig_message.id}.skip_out_of_window")
                   Rails.logger.info "info=reminder_message_skipped subscriber_id=#{subscriber.id} message_id=#{orig_message.id} reason=out_of_reminder_send_window"
                 end
               else
-                StatsD.increment("subscriber_id.#{subscriber.id}.message_id.#{orig_message.id}.skip.not_yet_delivered")
+                StatsD.increment("subscriber.#{subscriber.id}.message.#{orig_message.id}.skip_not_yet_delivered")
                 Rails.logger.info "info=reminder_message_skipped subscriber_id=#{subscriber.id} message_id=#{orig_message.id} reason=message_has_not_been_delivered"
               end
             else

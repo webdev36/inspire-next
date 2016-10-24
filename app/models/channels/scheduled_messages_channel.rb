@@ -58,7 +58,7 @@ class ScheduledMessagesChannel < Channel
     message = messages.where("seq_no < ?",SENT_MESSAGE_MARKER).order('seq_no asc').first
     if message
       subscribers.to_a.each do |sub|
-        StatsD.increment("subscriber_id.#{sub.id}.message.#{message.id}.queued")
+        StatsD.increment("subscriber.#{sub.id}.message.#{message.id}.queued")
       end
       { message.id => subscribers.to_a }
     else

@@ -24,6 +24,7 @@ class Subscriber < ActiveRecord::Base
   has_many :delivery_notices
   has_many :delivery_error_notices
   has_many :subscriber_responses
+  has_many :action_notices
 
   validates :phone_number, presence:true, phone_number:true,
     uniqueness:{scope:[:user_id,:deleted_at]}

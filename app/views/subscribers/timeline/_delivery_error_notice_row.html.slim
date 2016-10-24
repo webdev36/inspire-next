@@ -1,0 +1,8 @@
+tr id="delivery_error_notice_#{entry.id}" data-type='delivery_error_notice' data-id="#{entry.id}" class='timeline-entry'
+  td.text-center = icon('exclamation', title: 'There was a problem', class: 'color-danger fa-2x')
+  td
+    .type
+      | DeliveryError
+    .description
+      = raw entry.options['error'].try(:titleize)
+  td.time-ago #{time_ago_in_words(entry.created_at)} ago

@@ -46,7 +46,25 @@ class DeliveryNotice < SubscriberActivity
   end
 
   def send_stats_d_update
-    StatsD.increment("subscriber_id.#{subscriber_id}.message_id.#{message_id || 'nil'}.delivery_notice")
+    StatsD.increment("subscriber.#{subscriber_id}.message.#{message_id || 'nil'}.delivery_notice")
+  end
+
+  def original_message
+    if self.options[:message_id]
+     om = Message.find(self.options[:message_id]) rescue nil
+    else
+     om = self.message
+    end
+    om = self.message if om.nil?
+    om
+  end
+
+  def reminder_message?
+    self.options[:reminder_message]
+  end
+
+  def repeat_reminder_message?
+    self.options[:repeat_reminder_message]
   end
 
 end

@@ -15,6 +15,12 @@ class SubscribersController < ApplicationController
 
   def show
     @timeline = Timeline.timeline(@subscriber)
+
+    @sent_last_24_hours    = @subscriber.delivery_notices.where(created_at: 24.hours.ago..Time.now).count
+    @replies_last_24_hours = @subscriber.subscriber_responses.where(created_at: 24.hours.ago..Time.now).count
+    @errors_last_24_hours  = @subscriber.delivery_error_notices.where(created_at: 24.hours.ago..Time.now).count
+    @actions_last_24_hours = @subscriber.action_notices.where(created_at: 24.hours.ago..Time.now).count
+
     respond_to do |format|
       format.html # show.html.erb
       format.json { render json: @subscriber }

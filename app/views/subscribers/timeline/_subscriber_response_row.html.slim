@@ -1,0 +1,8 @@
+tr.timeline-entry id="subscriber_response_#{entry.id}" data-type='subscriber_response' data-id="#{entry.id}"
+  td.text-center = icon('reply', title: 'The subscriber replied', class: 'color-success fa-2x')
+  td
+    .type
+      | Reply
+    .description
+      = raw "The subscriber replied: '#{entry.caption}'"
+  td.time-ago #{time_ago_in_words(entry.created_at)} ago

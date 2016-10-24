@@ -2,53 +2,63 @@
 
 #page-header.page-header
   .row
-    .col-md-8
-      h4
-        | #{@subscriber.name}
     .col-md-4
+      h4 #{@subscriber.name}
+      p = "#{@subscriber.phone_number}"
+    .col-md-4
+      p Remarks
+      p = @subscriber.remarks
 
 .row
-  .col-md-8
-    h4.section-header Subscriber Details
+  .col-md-3
+    .well.text-center.background-color-gallery
+      .title Sent
+      .value = @sent_last_24_hours
+  .col-md-3
+    .well.text-center.background-color-gallery
+      .title Replies
+      .value = @replies_last_24_hours
+  .col-md-3
+    .well.text-center.background-color-gallery
+      .title Actions
+      .value = @actions_last_24_hours
+  .col-md-3
+    .well.text-center.background-color-gallery
+      .title Errors
+      .value = @errors_last_24_hours
+hr
+.row
+  .col-md-12
+    .row
+      .col-md-4
+        h4.section-header Subscribed Channels
+        ul.user-subscriptions-list
+        - @subscriber.subscriptions.each do |subscription|
+          li = link_to "#{subscription.channel.id}-#{subscription.channel.name}", channel_path(subscription.channel.id)
+
+      .col-md-4
+        h4.section-header Sending Activity
+        img src="http://graphite.omamatic.com/render/?width=400&height=250&_salt=1477337615.212&target=summarize(stats.counters.inspire.production.subscriber.#{@subscriber_id}.message.*.delivery_notice.count%2C%223min%22)&title=Messages%20Sent&drawNullAsZero=true&lineMode=staircase&areaMode=stacked"
+      .col-md-4
+        h4.section-header Response Activity
+
+hr
+.row
+  .col-md-12
+    h4.section-header
+      | Recent Activity
     .row
       .col-md-12
-        dl.dl-horizontal
-          dt: strong Name:
-          dd= print_or_dashes @subscriber.name
-          dt: strong Phone number:
-          dd= print_or_dashes @subscriber.phone_number
-          dt: strong Remarks:
-          dd= @subscriber.remarks
-  .col-md-4
-    h4.section-header Recent Activity
-    .row
-      .col-md-12
-        - if @timeline.length > 0
-           table#subscriber-timeline-list.table.table-striped
-             thead
-               tr
-                 th.text-center Type
-                 th Activity
-                 th.text-right When
-             tbody
-               - @timeline.each do |tl|
-                 tr
-                   td.text-center.color-silver
-                     - if tl.is_a?(DeliveryNotice)
-                       = icon('envelope', title: 'Message sent to subscriber')
-                     - elsif tl.is_a?(ActionNotice)
-                       = icon('gears', title: 'Action taken on subscriber account')
-                     - elsif tl.is_a?(SubscriberResponse)
-                       = icon('reply', title: 'Subscriber replied to message')
-                   td
-                     - if tl.is_a?(DeliveryNotice)
-                       = tl.caption
-                     - elsif tl.is_a?(ActionNotice)
-                       = raw(tl.caption)
-                     - elsif tl.is_a?(SubscriberResponse)
-                       = "Replied \"#{tl.caption}\""
-                   td.text-right
-                     | #{time_ago_in_words(tl.created_at)} ago
+        - if Array(@timeline).length > 0
+          table#subscriber-timeline-list.table.table-striped
+            thead
+              tr
+                th.text-center Type
+                th Activity
+                th.text-right When
+            tbody
+              - @timeline.each do |entry|
+                = render partial: "subscribers/timeline/#{entry.class.name.underscore}_row", locals: { entry: entry }
 
         - else
           .notification-well
@@ -58,7 +68,7 @@
               | No subscriber activity (yet)
 
 
-.row#page-actions
+#page-actions.row
   .col-md-12
     .panel.panel-default
       .panel-body

@@ -68,7 +68,7 @@ class OrderedMessagesChannel < Channel
       if message
         msh[message.id] = subs
         subs.each do |sub|
-          StatsD.increment("subscriber_id.#{sub.id}.message.#{message.id}.queued")
+          StatsD.increment("subscriber.#{sub.id}.message.#{message.id}.queued")
         end
       end
     end
