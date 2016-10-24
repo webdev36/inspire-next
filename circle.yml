@@ -17,7 +17,7 @@ machine:
 checkout:
   post:
     - mkdir -p log
-    - cp config/application.yml.ci config/application_test.yml
+    - cp config/application.yml.ci config/application.yml
 
 database:
   override:
