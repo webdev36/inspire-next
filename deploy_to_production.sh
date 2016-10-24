@@ -38,15 +38,11 @@ deploy(){
   echo 'DEPLOY: exec rake assets:precompile RAILS_ENV=production'
   bundle exec rake assets:precompile RAILS_ENV=production
 
-  echo 'DEPLOY: exec rake assets:sync:all RAILS_ENV=production'
-  bundle exec rake assets:sync:all RAILS_ENV=production
-
   echo 'DEPLOY: set the Procfile to the production procfile'
-  \cp ./procfile_production.proc ./Procfile
+  rm -rf ./Procfile
+  cp -rf ./procfile_production.proc ./Procfile
 
   echo 'DEPLOY: git commit -m "Update manifest.yml" public/assets/manifest.yml'
-
-
   git add --all
   git commit -am "Update manifest.yml"
 
