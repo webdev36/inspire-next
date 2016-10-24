@@ -2,6 +2,7 @@ class MessagingManagerWorker
   include Sidekiq::Worker
 
   def perform(action,opts={})
+    StatsD.increment("messaging_manager_worker.#{action}")
     case action
     when 'add_keyword'
       self.class.add_keyword(opts['keyword'])

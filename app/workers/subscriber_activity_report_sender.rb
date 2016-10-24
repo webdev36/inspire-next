@@ -11,24 +11,26 @@ class SubscriberActivityReportSender
   end
 
   def self.send_hourly_report
+    StatsD.increment("subscriber_activity_report_sender.hourly")
     email_ch_group = group_for_report(:hourly)
     email_ch_group.each do |email,targets|
       SubscriberActivityReportMailer.hourly_subscriber_activity_report(email,targets)
-    end    
+    end
   end
 
   def self.send_daily_report
+    StatsD.increment("subscriber_activity_report_sender.hourly")
     email_ch_group = group_for_report(:daily)
     email_ch_group.each do |email,targets|
-      SubscriberActivityReportMailer.daily_subscriber_activity_report(email,targets)  
-    end    
+      SubscriberActivityReportMailer.daily_subscriber_activity_report(email,targets)
+    end
   end
 
   def self.group_for_report(frequency)
     if frequency==:hourly
       start_time = 1.hour.ago
       realtime = true
-    else 
+    else
       start_time = 1.day.ago
       realtime=[nil,false]
     end
