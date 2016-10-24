@@ -4,7 +4,7 @@ require 'fileutils'
 describe ExportUserData do
   let(:user)      { create :user }
 
-  it 'exports a data element with yaml information correctly' do
+  xit 'exports a data element with yaml information correctly' do
     subscriber = create :subscriber
     channel = build :individually_scheduled_messages_channel, user: user
     channel.tparty_keyword = '+12025551212'
