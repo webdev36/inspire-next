@@ -1,0 +1,37 @@
+#page-heaer.page-header.clearfix
+  .row
+    .col-md-8
+      h4 Application Health
+    .col-md-4
+      = help_tag help_index_channels_path
+
+.row
+  .col-md-12
+    .panel.panel-default
+      .panel-heading
+        h4 Background Job Processing
+      .panel-body
+        .row
+          .col-md-6.text-center
+            img src="http://graphite.omamatic.com/render/?width=450&height=300&_salt=1477324791.728&from=-24hours&target=aliasByNode(summarize(stats.counters.inspire.production.tparty.send_scheduled_messages.count%2C%223min%22)%2C6)&title=Scheduler%20Runs%20(every%203%20minutes)"
+          .col-md-6.text-center
+            img src="http://graphite.omamatic.com/render/?width=450&height=300&_salt=1477325276.641&title=MessagingManagerWorker&target=aliasByNode(summarize(stats.counters.inspire.production.messaging_manager_worker.perform.count%2C%223min%22)%2C5)"
+.row
+  .col-md-12
+    .panel.panel-default
+      .panel-heading
+        h4 Flooding and Rate Suppression
+      .panel-body
+        .row
+          .col-md-6.text-center
+            img src="http://graphite.omamatic.com/render/?width=450&height=300&_salt=1477325072.935&target=aliasByNode(summarize(stats.counters.inspire.production.subscriber.*.skip.flood_protection.count%2C%223min%22)%2C5)&title=Flood%20Suppressions%20by%20Subscriber%20ID"
+
+.row
+  .col-md-12
+    .panel.panel-default
+      .panel-heading
+        h4 Twillio API
+      .panel-body
+        .row
+          .col-md-6.text-center
+            img src="http://graphite.omamatic.com/render/?width=450&height=300&_salt=1477327100.515&title=Twilio%20Inbound%20Messages&from=-24hours&target=aliasByNode(summarize(stats.counters.inspire.production.twilio.callback.*.count%2C%223min%22)%2C6)&lineMode=staircase&drawNullAsZero=true"

@@ -6,12 +6,15 @@ Liveinspired::Application.routes.draw do
 
   root :to => "home#index"
   devise_for :users
+  namespace :admin do
+    resources :home, only: %i(index)
+  end
+  get 'admin', to: 'admin/home#index'
   resources :channels do
     member do
       get  'list_subscribers'
       get  'messages_report'
       post 'delete_all_messages'
-
     end
     resources :messages do
       member do

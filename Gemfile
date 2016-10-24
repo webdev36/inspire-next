@@ -77,7 +77,7 @@ group :development, :test do
   gem 'pry'
 end
 
-group :development do
+group :development, :production_local do
   gem 'web-console'
 end
 

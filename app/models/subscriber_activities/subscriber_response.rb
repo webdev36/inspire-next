@@ -19,7 +19,7 @@
 
 class SubscriberResponse < SubscriberActivity
 
-  after_create :assign_channel_and_subscriber
+  after_create :assign_channel_and_subscriber, :send_stats_d_update
 
   before_validation :case_convert_message
 
@@ -127,7 +127,12 @@ class SubscriberResponse < SubscriberActivity
     return false
   end
 
+  def send_stats_d_update
+    StatsD.increment("subscriber_id.#{subscriber_id}.subscriber_response")
+  end
+
   private
+
   def case_convert_message
     self.caption = caption.downcase if caption
     self.title = title.downcase if title

@@ -64,9 +64,11 @@ class IndividuallyScheduledMessagesChannel < Channel
       message_ids.each do |message_id|
         subscriber_ids.each do |subscriber_id|
           if has_already_been_sent_message?(subscriber_id, message_id)
-            Rails.logger.info "action=group_subscribers_by_message from=individually_scheduled_messages_channel status=warn warn=skip_already_sent message_id=#{message_id} subscriber_id=#{subscriber_id}"
+            StatsD.increment("subscriber_id.#{subscriber_id}.message.#{message_id}.already_sent")
+            # Rails.logger.info "action=group_subscribers_by_message from=individually_scheduled_messages_channel schedule=non_relative status=warn warn=skip_already_sent message_id=#{message_id} subscriber_id=#{subscriber_id}"
             next
           else
+            StatsD.increment("subscriber_id.#{subscriber_id}.message.#{message_id}.queued")
             if msh[message_id]
               msh[message_id] << Subscriber.find(subscriber_id)
             else
@@ -91,16 +93,20 @@ class IndividuallyScheduledMessagesChannel < Channel
       subscriber_ids.each do |subscriber_id|
         if time_to_send?(subscriber_id, message)
           if has_already_been_sent_message?(subscriber_id, message_id)
+            StatsD.increment("subscriber_id.#{subscriber_id}.message.#{message_id}.already_sent")
             # maske this less noisy for now.. lots of these
             # Rails.logger.info "action=group_subscribers_by_message from=individually_scheduled_messages_channel status=warn warn=skip_already_sent message_id=#{message_id} subscriber_id=#{subscriber_id}"
             next
           else
+            StatsD.increment("subscriber_id.#{subscriber_id}.message.#{message_id}.queued")
             if msh[message_id]
               msh[message_id] << Subscriber.find(subscriber_id)
             else
               msh[message_id] = [Subscriber.find(subscriber_id)]
             end
           end
+        else
+          StatsD.increment("subscriber_id.#{subscriber_id}.message.#{message_id}.not_time_to_send")
         end
       end
     end

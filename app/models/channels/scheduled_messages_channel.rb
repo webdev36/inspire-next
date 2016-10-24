@@ -25,7 +25,7 @@
 
 
 class ScheduledMessagesChannel < Channel
-  
+
   SENT_MESSAGE_MARKER = 1_000_000
 
   def self.system_channel?
@@ -45,19 +45,22 @@ class ScheduledMessagesChannel < Channel
   def broadcastable?
     false
   end
-  
+
   def type_abbr
     "Scheduled"
   end
 
   def individual_messages_have_schedule?
     false
-  end    
+  end
 
   def group_subscribers_by_message
     message = messages.where("seq_no < ?",SENT_MESSAGE_MARKER).order('seq_no asc').first
     if message
-      {message.id=>subscribers.to_a}
+      subscribers.to_a.each do |sub|
+        StatsD.increment("subscriber_id.#{sub.id}.message.#{message.id}.queued")
+      end
+      { message.id => subscribers.to_a }
     else
       nil
     end

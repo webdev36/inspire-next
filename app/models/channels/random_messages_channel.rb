@@ -24,12 +24,12 @@
 #
 
 class RandomMessagesChannel < Channel
- 
+
   def self.system_channel?
     false
   end
 
- 
+
   def has_schedule?
     true
   end
@@ -38,7 +38,7 @@ class RandomMessagesChannel < Channel
   def sequenced?
     false
   end
- 
+
   def broadcastable?
    false
   end
@@ -49,7 +49,7 @@ class RandomMessagesChannel < Channel
 
   def individual_messages_have_schedule?
     false
-  end    
+  end
 
   def group_subscribers_by_message
     msh = {}
@@ -65,12 +65,9 @@ class RandomMessagesChannel < Channel
         else
           msh[random_message] = [subscriber]
         end
+        StatsD.increment("subscriber_id.#{subscriber.id}.message.#{random_message}.queued")
       end
     end
     msh
   end
-
-
-
-    
 end
