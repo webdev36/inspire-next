@@ -1,0 +1,15 @@
+# docker.application_test.yml
+AWS_ACCESS_KEY_ID:          notvalidaws
+AWS_SECRET_ACCESS_KEY:      notvalidsecret
+AWS_REGION:                 us-east-1
+REDIS_URL:                  redis://127.0.0.1:6379/5
+DB_POOL:                    "20"
+PAPERTRAIL_API_TOKEN:       meh
+S3_BUCKET_NAME:             liveinspired-mms
+SENDGRID_PASSWORD:          notvalidusername
+SENDGRID_USERNAME:          notvalidpassword
+TPARTY_MESSAGING_SYSTEM:    Twilio
+TPARTY_PRIMARY_KEYWORD:     INSPIRE
+TWILIO_AUTH_TOKEN:          notvalid
+TWILIO_SID:                 notavalidtoken
+TZ:                         America/New_York

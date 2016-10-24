@@ -1,0 +1,26 @@
+machine:
+  services:
+    - redis
+  ruby:
+    version: 2.3.1
+  environment:
+    OMA_ENV: test
+    INSPIRE_ENV: test
+    RAILS_ENV: test
+    RACK_ENV: test
+    POSTGRES_POOL: 5
+    CIRCLE_ENV: test
+    DATABASE_URL: postgres://ubuntu:@127.0.0.1:5432/circle_test
+  hosts:
+    liveinspired.herokuapp.com: 127.0.0.1
+
+checkout:
+  post:
+    - mkdir -p log
+    - cp config/application.yml.ci config/application_test.yml
+
+database:
+  override:
+    - bundle exec rake db:create db:schema:load
+
+
