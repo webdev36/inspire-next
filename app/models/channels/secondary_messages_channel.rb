@@ -65,7 +65,7 @@ class SecondaryMessagesChannel < Channel
           orig_message = Message.find(message.options[:message_id]) rescue nil
           if subs_ids.blank?
             StatsD.increment("warn_sub_ids_blank")
-            Rails.info.logger "info=no_subscriber_ids_found mmessage='No subscribers found in junk message options'"
+            Rails.logger.info "info=no_subscriber_ids_found mmessage='No subscribers found in junk message options'"
           end
           subs_ids.each do |subs_id|
             subscriber = Subscriber.find_by_id(subs_id)
