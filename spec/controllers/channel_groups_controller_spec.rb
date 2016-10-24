@@ -86,8 +86,8 @@ describe ChannelGroupsController do
         channels = (0..2).map {|i| Channel.find(channels[i].id)}
         channel_group.channels << channels
         get :show, { user_id:user.id, id: channel_group.id }
-        expect(assigns(:channel_group)).to eq(channel_group)
-        expect(assigns(:channels)).to match(channels)
+        expect(assigns(:channel_group).id).to eq(channel_group.id)
+        expect(assigns(:channels).map(&:id).sort).to match(channels.map(&:id).sort)
       end
     end
     describe "GET new" do

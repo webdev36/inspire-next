@@ -23,7 +23,6 @@ describe 'Integration/JordanOldIHelpCase' do
       counter += 1
     end
     after_stats
-    binding.pry
   end
 
   def before_stats
