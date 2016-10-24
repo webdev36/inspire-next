@@ -14,6 +14,8 @@ Liveinspired::Application.configure do
   config.serve_static_files = true
   config.active_record.raise_in_transactional_callbacks = true
   config.static_cache_control = "public, max-age=3600"
+
+  config.lograge.enabled = true
   # used to reaise errors on deprecations, so we can find and fix
 
   config.eager_load = true

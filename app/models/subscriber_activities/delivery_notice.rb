@@ -29,6 +29,12 @@ class DeliveryNotice < SubscriberActivity
     end
   end
 
+  scope :recently_sent, -> { where(created_at: 2.hours.ago..Time.now) }
+
+  def self.recently_sent_count
+    recently_sent.count
+  end
+
   def self.of_primary_messages
     includes(:message).where("messages.primary=true").references(:messages)
   end

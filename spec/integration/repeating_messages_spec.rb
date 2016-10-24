@@ -82,7 +82,7 @@ describe 'Integration/Repeat messages' do
     incoming_message['From'] = @subscriber.phone_number
     incoming_message['To'] = @channel.tparty_keyword
     incoming_message['Body'] = "7"
-    controller = TwilioController.new.handle_request(incoming_message)
+    controller = TwilioController.new.send(:handle_request,incoming_message)
     expect(@subscriber.subscriber_responses.length == 1).to be_truthy
     @message.reload
     expect(@message.subscriber_responses.length == 1).to be_truthy

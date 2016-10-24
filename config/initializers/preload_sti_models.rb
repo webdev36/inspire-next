@@ -15,7 +15,7 @@ if Rails.env.development?
   end
 
   require_dependency Rails.root.join("app","models","subscriber_activity.rb").to_s
-  SUBSCRIBER_ACTIVITY_TYPES = %w[DeliveryNotice SubscriberResponse]
+  SUBSCRIBER_ACTIVITY_TYPES = %w[DeliveryNotice SubscriberResponse DeliveryErrorNotice]
   SUBSCRIBER_ACTIVITY_TYPES.each do |c|
     require_dependency Rails.root.join("app","models","subscriber_activities","#{c.underscore}.rb").to_s
   end

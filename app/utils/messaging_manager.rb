@@ -13,11 +13,11 @@ class MessagingManager
     end
   end
 
-  def broadcast_message(message,subscribers)
+  def broadcast_message(message, subscribers)
 
     phone_numbers = subscribers.map(&:phone_number)
     content_url = message.content.exists? ? message.content.url : nil
-    from_num=nil
+    from_num = nil
 
     if message.options && message.options[:tparty_keyword].present?
       from_num = message.options[:tparty_keyword]
@@ -37,8 +37,13 @@ class MessagingManager
       title_text =   get_final_message_title(message,subscriber)
       message_text = get_final_message_content(message,subscriber)
 
-      if send_message(subscriber.phone_number,title_text,message_text,
-          content_url,from_num)
+      if DeliveryNotice.where(:subscriber_id => subscriber.id).recently_sent.count > 4
+        Rails.logger.error "action=send_message status=error error=too_many_recently_sent_messages subscriber_id=#{subscriber.id} message_id=#{message.id} caption='#{message.caption}'"
+        DeliveryErrorNotice.create(message: message, title: title_text, caption: message_text,
+                                   subscriber: subscriber, options: message.options.merge('error' => 'too many recently sent messages'))
+        next
+       end
+      if send_message(subscriber.phone_number, title_text, message_text, content_url, from_num)
         if message.primary?
           dn = DeliveryNotice.create(message: message,      title: title_text,
                                      caption: message_text, subscriber: subscriber,
@@ -48,7 +53,7 @@ class MessagingManager
                                      title: title_text,     caption: message_text,
                                      subscriber:subscriber, options: message.options)
         end
-        Rails.logger.info "action=send_message status=ok delivery_notice_id=#{dn.nil? ? 'nil' : dn.id} message_id=#{message.id} primary_message=#{message.primary?} subscriber_id=#{subscriber.id} method=broadcast_message caption='#{message_text}' "
+        Rails.logger.info "action=send_message status=ok delivery_notice_id=#{dn.nil? ? 'nil' : dn.id} message_id=#{message.options[:message_id] ? message.options[:message_id] : message.id} primary_message=#{message.primary?} subscriber_id=#{subscriber.id} method=broadcast_message caption='#{message_text}' reminder_message=#{message.options[:reminder_message] ? 'y' : 'n'} repeat_reminder_message=#{message.options[:repeat_reminder_message] ? 'y' : 'n'}"
       else
         Rails.logger.error "action=send_message status=error subscriber_id=#{subscriber.id} message_id=#{message.id} caption='#{message.caption}'"
       end

@@ -43,7 +43,6 @@ class Channel < ActiveRecord::Base
 
   serialize :schedule, Hash
 
-
   validates :name, presence:true, uniqueness:{scope: [:user_id,:deleted_at]}
 
   validates :type, presence:true, :inclusion=>{:in=>['AnnouncementsChannel',
@@ -76,9 +75,7 @@ class Channel < ActiveRecord::Base
       end
     end
   end
-
-  #scope :with_subscriber, lambda{|phone_number| includes(:subscribers).where("subscribers.phone_number=?",phone_number)}
-
+  # scope :with_subscriber, lambda{ |phone_number| includes(:subscribers).where("subscribers.phone_number=?",phone_number)}
   @child_classes = []
 
   def self.inherited(child)

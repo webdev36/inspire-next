@@ -9,24 +9,26 @@ class TwilioController < ApplicationController
     end
   end
 
-  def handle_request(params)
-    if params["Body"].blank?
-      Rails.logger.error "action=create_subscriber_response error=body_blank from=twilio_controller status=error error_message='#{e.mesage}' body='#{params['Body']}' from='#{params['From']}' to='#{params['To']}'"
-      return false
+  private
+
+    def handle_request(params)
+      if params["Body"].blank?
+        Rails.logger.error "action=create_subscriber_response error=body_blank from=twilio_controller status=error body='#{params['Body']}' from='#{params['From']}' to='#{params['To']}'"
+        return false
+      end
+      if params["From"].blank?
+        Rails.logger.error "action=create_subscriber_response error=from_blank from=twilio_controller status=error body='#{params['Body']}' from='#{params['From']}' to='#{params['To']}'"
+        return false
+      end
+      sr = SubscriberResponse.create(caption: params["Body"].downcase,
+           origin: Subscriber.format_phone_number(params["From"]),
+           tparty_identifier: Subscriber.format_phone_number(params["To"]))
+      sr.try_processing
+      Rails.logger.info "action=create_subscriber_response from=twilio_controller status=ok body='#{params['Body']}' from='#{params['From']}' to='#{params['To']}'"
+      true
+    rescue => e
+      Rails.logger.error "action=create_subscriber_response from=twilio_controller status=error error_message='#{e.message}' body='#{params['Body']}' from='#{params['From']}' to='#{params['To']}'"
+      false
     end
-    if params["From"].blank?
-      Rails.logger.error "action=create_subscriber_response error=from_blank from=twilio_controller status=error error_message='#{e.mesage}' body='#{params['Body']}' from='#{params['From']}' to='#{params['To']}'"
-      return false
-    end
-    sr = SubscriberResponse.create(caption: params["Body"].downcase,
-         origin: Subscriber.format_phone_number(params["From"]),
-         tparty_identifier: Subscriber.format_phone_number(params["To"]))
-    sr.try_processing
-    Rails.logger.info "action=create_subscriber_response from=twilio_controller status=ok body='#{params['Body']}' from='#{params['From']}' to='#{params['To']}'"
-    true
-  rescue => e
-    Rails.logger.error "action=create_subscriber_response from=twilio_controller status=error error_message='#{e.mesage}' body='#{params['Body']}' from='#{params['From']}' to='#{params['To']}'"
-    false
-  end
 
 end

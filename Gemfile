@@ -28,6 +28,9 @@ gem 'will_paginate-bootstrap', '0.2.5'
 gem 'sidekiq'
 gem 'sidekiq-failures'
 
+# clean up logs from Heroku
+gem 'lograge'
+
 gem 'statsd-instrument'
 
 gem 'sinatra'
