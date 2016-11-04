@@ -155,5 +155,5 @@ class SecondaryMessagesChannel < Channel
       messages.destroy(junk) if junk
     end
   end
-
 end
+

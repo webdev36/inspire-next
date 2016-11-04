@@ -32,27 +32,36 @@ class ResponseMessage < Message
     true
   end
 
-
   def type_abbr
     'Response'
   end
 
-  def requires_user_response?  
+  def requires_user_response?
     true
-  end  
+  end
 
   def has_action_on_user_response?
     true
-  end  
+  end
 
   def process_subscriber_response(sr)
+    flag_executed = false
     response_actions.each do |ra|
       if sr.content_text =~ /#{ra.response_text}/
-        ra.action.execute({:subscribers=>[sr.subscriber],:from_channel=>channel}) if ra.action
-        break
-      end     
+        if ra.action
+          ra.action.execute({:subscribers=>[sr.subscriber],:from_channel=>channel})
+          handle_subscriber_response_success(sr, 'matched text triggered execution', 'response action')
+          flag_exectued = true
+          break
+        else
+          handle_subscriber_response_error(sr, 'matched text but no action supplied', 'response action')
+        end
+      end
+    end
+    if flag_executed == false
+      handle_subscriber_response_error(sr, 'no matches for subscriber response', 'response action')
     end
     true
-  end  
-    
+  end
 end
+

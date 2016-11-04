@@ -122,6 +122,12 @@ class SubscriberActivity < ActiveRecord::Base
     raise NotImplementedError
   end
 
+  def update_processing_log(message)
+    self.options['log'] = [] if self.options['log'].nil?
+    self.options['log'] << {'at' => Time.now.to_s, 'msg' => message }
+    self.save
+  end
+
 
 private
   def normalize_phone_number

@@ -5,4 +5,5 @@ tr id="action_notice_#{entry.id}" data-type='action_notice' data-id="#{entry.id}
       | Action
     .description
       = raw "#{entry.caption}"
-  td.time-ago #{time_ago_in_words(entry.created_at)} ago
+  td.time-ago title="#{entry.created_at}"
+    | #{time_ago_in_words(entry.created_at)} ago

@@ -95,55 +95,102 @@ class ChannelGroup < ActiveRecord::Base
     when :custom
       process_custom_command(subscriber_response)
     else
+      handle_channel_group_subscriber_response_error(subscriber_response, 'cannot find a command type', 'command_switch')
       false
     end
   end
 
   def process_start_command(subscriber_response)
     phone_number = subscriber_response.origin
-    return false if !phone_number || phone_number.blank?
-    return false if !default_channel
-    return true if channels.with_subscriber(phone_number).size > 0
+    if !phone_number || phone_number.blank?
+      handle_channel_group_subscriber_response_error(subscriber_response, 'no phone number supplied', 'start')
+      return false
+    end
+    if !default_channel
+      handle_channel_group_subscriber_response_error(subscriber_response, 'no default channel', 'start')
+      return false
+    end
+    if channels.with_subscriber(phone_number).size > 0
+      handle_channel_group_subscriber_response_error(subscriber_response, 'already in a channel group', 'start')
+      return true
+    end
     subscriber = user.subscribers.find_by_phone_number(phone_number)
     if !subscriber
+      subscriber_response.update_processing_log('New subscriber created due to START command, and no subscriber found.')
       subscriber = user.subscribers.create!(phone_number:phone_number,name:phone_number)
     end
     default_channel.subscribers << subscriber
+    handle_channel_group_subscriber_response_success(subscriber_response, 'start command ok', 'start')
     true
+  end
+
+  def handle_channel_group_subscriber_response_error(subscriber_response, error_type, action)
+    StatsD.increment("channel_group.#{self.id}.subscriber_response.#{subscriber_response.id}.#{action}_command.#{error_type.underscore}")
+    Rails.logger.error "error=#{error_type.underscore} subscriber_response_id=#{subscriber_response.id} channel_group_id=#{self.id}"
+    subscriber_response.update_processing_log("Rejected #{action} command: #{error_type}")
+  end
+
+  def handle_channel_group_subscriber_response_success(subscriber_response, info_type, action)
+    StatsD.increment("channel_group.#{self.id}.subscriber_response.#{subscriber_response.id}.#{action}_command.#{info_type.underscore}")
+    Rails.logger.info "info=#{info_type.underscore} subscriber_response_id=#{subscriber_response.id} channel_group_id=#{self.id}"
+    subscriber_response.update_processing_log("#{action.titleize} command: #{info_type}")
   end
 
   def process_stop_command(subscriber_response)
     phone_number = subscriber_response.origin
-    return false if phone_number.blank?
-    phone_number_subs={}
+    if phone_number.blank?
+      handle_channel_group_subscriber_response_error(subscriber_response, 'no phone number supplied', 'stop')
+      return false
+    end
+    phone_number_subs = {}
     found = false
     channels.with_subscriber(phone_number).each do |ch|
-      found=true
-      ch.subscribers.delete(ch.subscribers.find_by_phone_number(phone_number))
+      found = true
+      subscribers_to_delete = ch.subscribers.find_by_phone_number(phone_number)
+      ch.subscribers.delete(subscribers_to_delete)
+      Array(subscribers_to_delete).each do |xsub|
+        StatsD.increment("channel.#{ch.id}.subscriber.#{xsub.id}.remove")
+        Rails.logger.info "info=remove_from_channel message='Subscriber issued stop command' subscriber_response_id=#{subscriber_response.id} channel_id=#{ch.id} subscriber_id=#{xsub.id}"
+        subscriber_response.update_processing_log("Removed subscriber #{xsub.id} from channel #{ch.id} due to stop command.")
+      end
     end
-    return false if !found
-    return true
+    if !found
+      handle_channel_group_subscriber_response_error(subscriber_response, 'no channel_found to remove', 'stop')
+      return false
+    else
+      return true
+    end
   end
 
   def process_custom_command(subscriber_response)
     return true if process_on_demand_channels(subscriber_response)
     ch = associate_subscriber_response_with_channel(subscriber_response)
-    return false if !ch
+    if !ch
+      handle_channel_group_subscriber_response_error(subscriber_response, 'channel association failed', 'custom')
+      return false
+    end
     return ask_channel_to_process_subscriber_response(ch,subscriber_response)
   end
 
   def process_on_demand_channels(subscriber_response)
     msg = subscriber_response.content_text
-    return false if msg.blank?
+    if msg.blank?
+      handle_channel_group_subscriber_response_error(subscriber_response, 'no subscriber message found', 'on_demand')
+      return false
+    end
     tokens = msg.split
-    return false if tokens.length != 1
+    if tokens.length != 1
+      handle_channel_group_subscriber_response_error(subscriber_response, 'on demand command has too many words', 'on_demand')
+      return false
+    end
     ch = channels.where(type:'OnDemandMessagesChannel').
       where("lower(one_word) = ?",tokens[0].downcase).first
-    return false if !ch
+    if !ch
+      handle_channel_group_subscriber_response_error(subscriber_response, 'on demand command cannot find matching channel', 'on_demand')
+      return false
+    end
     retval = ch.process_subscriber_response(subscriber_response)
   end
-
-
 
   def associate_subscriber_response_with_channel(subscriber_response)
     ch = channels.with_subscriber(subscriber_response.origin).first
@@ -193,25 +240,26 @@ class ChannelGroup < ActiveRecord::Base
   end
 
   private
-  def check_channel_group_credentials(channel)
-    if channel && channel.class != Hash
-      raise ActiveRecord::Rollback,"Channel has to be of same user" if (self.channels.count > 0 && channel.user_id != self.channels.first.user_id)
-      raise ActiveRecord::Rollback,"Channel is already part of another group" if channel.channel_group && channel.channel_group != self
-    end
-    true
-  end
 
-  def add_keyword
-    cg = ChannelGroup.find_by_tparty_keyword(tparty_keyword)
-    if !ChannelGroup.find_by_tparty_keyword(tparty_keyword)
-      MessagingManagerWorker.perform_async('add_keyword',{'keyword'=>tparty_keyword})
+    def check_channel_group_credentials(channel)
+      if channel && channel.class != Hash
+        raise ActiveRecord::Rollback,"Channel has to be of same user" if (self.channels.count > 0 && channel.user_id != self.channels.first.user_id)
+        raise ActiveRecord::Rollback,"Channel is already part of another group" if channel.channel_group && channel.channel_group != self
+      end
+      true
     end
-  end
 
-  def remove_keyword
-    if tparty_keyword && ChannelGroup.by_tparty_keyword(tparty_keyword).count == 1
-      MessagingManagerWorker.perform_async('remove_keyword',{'keyword'=>tparty_keyword})
+    def add_keyword
+      cg = ChannelGroup.find_by_tparty_keyword(tparty_keyword)
+      if !ChannelGroup.find_by_tparty_keyword(tparty_keyword)
+        MessagingManagerWorker.perform_async('add_keyword',{'keyword'=>tparty_keyword})
+      end
     end
-  end
+
+    def remove_keyword
+      if tparty_keyword && ChannelGroup.by_tparty_keyword(tparty_keyword).count == 1
+        MessagingManagerWorker.perform_async('remove_keyword',{'keyword'=>tparty_keyword})
+      end
+    end
 
 end

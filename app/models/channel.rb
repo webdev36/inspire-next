@@ -221,7 +221,6 @@ class Channel < ActiveRecord::Base
     raise NotImplementedError
   end
 
-
   def sent_messages_ids(subscriber)
     message_ids = messages.select(:id).map(&:id)
     subscriber_ids = [subscriber.id]
@@ -251,36 +250,68 @@ class Channel < ActiveRecord::Base
     end
   end
 
+  def handle_subscriber_response_error(subscriber_response, error_type, action)
+    StatsD.increment("channel.#{self.id}.subscriber_response.#{subscriber_response.id}.phone_#{error_type.underscore}")
+    Rails.logger.error "error=phone_#{error_type.underscore} message='Subscriber phone #{error_type}' subscriber_response_id=#{subscriber_response.id} channel_id=#{self.id}"
+    subscriber_response.update_processing_log("Received #{action} command, but #{error_type}")
+  end
+
+  def handle_subscriber_response_success(subscriber_response, info_type, action)
+    StatsD.increment("channel.#{self.id}.subscriber_response.#{subscriber_response.id}.#{info_type.underscore}")
+    Rails.logger.info "info=#{info_type.underscore} subscriber_response_id=#{subscriber_response.id} channel_id=#{self.id}"
+    subscriber_response.update_processing_log("#{action.titleize} command: #{info_type}")
+  end
+
   def process_start_command(subscriber_response)
     if !allow_mo_subscription
-      Rails.logger.error("MO Subscription not allowed #{subscriber_response.inspect}")
+      handle_subscriber_response_error(subscriber_response, 'no mobile subscription allowed', 'start')
       return false
     end
     if mo_subscription_deadline.present? && Time.now > mo_subscription_deadline
-      Rails.logger.error("MO Subscription expired at #{mo_subscription_deadline} #{subscriber_response.inspect}")
+      handle_subscriber_response_error(subscriber_response, 'mobile subscription has closed', 'start')
       return false
     end
     phone_number = subscriber_response.origin
-    return false if !phone_number
-    return true if subscribers.find_by_phone_number(phone_number)
+    if !phone_number
+      handle_subscriber_response_error(subscriber_response, 'no phone number supplied', 'start')
+      return false
+    end
+    if subscribers.find_by_phone_number(phone_number)
+      handle_subscriber_response_error(subscriber_response, 'already subscribed to a channel', 'start')
+      return true
+    end
 
     subscriber = user.subscribers.find_by_phone_number(phone_number)
     if !subscriber
       subscriber = user.subscribers.create!(phone_number:phone_number,name:phone_number)
+      subscriber_response.update_processing_log('New subscriber created due to START command, and no subscriber found.')
     end
     subscribers << subscriber
+    StatsD.increment("channel.#{self.id}.subscriber_response.#{subscriber_response.id}.start_command.ok")
+    Rails.logger.info "info=added_to_channel message='Subscriber added to channel' subscriber_response_id=#{subscriber_response.id} channel_id=#{self.id}"
+    subscriber_response.update_processing_log('Received START command. Subscriber added to channel by channel action.')
     true
   end
 
   def process_stop_command(subscriber_response)
     begin
       phone_number = subscriber_response.origin
-      return false if phone_number.blank?
+      if phone_number.blank?
+        handle_subscriber_response_error(subscriber_response, 'no phone number supplied', 'stop')
+        return false
+      end
       subscriber = subscribers.find_by_phone_number(phone_number)
-      return false if !subscriber
+      if !subscriber
+        handle_subscriber_response_error(subscriber_response, 'no subscriber found', 'stop')
+        return false
+      end
       subscribers.delete(subscriber)
       save!
-    rescue
+      StatsD.increment("channel.#{self.id}.subscriber.#{subscriber.id}.remove")
+      Rails.logger.info "info=removed_from_channel message='Subscriber removed to channel' subscriber_response_id=#{subscriber_response.id} channel_id=#{self.id} subscriber_id=#{subscriber.id}"
+      subscriber_response.update_processing_log('Received STOP command. Subscriber removed from channel by channel action.')
+    rescue => e
+      handle_subscriber_response_error(subscriber_response, "a critical error: #{e.message}", 'stop')
       return false
     end
     return true
@@ -296,15 +327,24 @@ class Channel < ActiveRecord::Base
     end
   end
 
+  # this should be in the child channel type, so it returns false by default here
   def process_custom_channel_command(subscriber_response)
     false
   end
 
+  # this is where the matching happens for most cahnnnels. Need to insert better
+  # logic here
   def associate_response_with_last_primary_message(subscriber_response)
     subscriber = subscribers.find_by_phone_number(subscriber_response.origin)
-    return false if !subscriber
+    if !subscriber
+      handle_subscriber_response_error(subscriber_response, 'could not match subscriber to subscriber response', 'associate_subscriber')
+      return false
+    end
     dn = subscriber.delivery_notices.of_primary_messages_that_require_response.last
-    return false if !dn
+    if !dn
+      handle_subscriber_response_error(subscriber_response, 'could not match delivery notice to subscriber response', 'associate_delivery_notice')
+      return false
+    end
     subscriber_response.message = dn.message
     subscriber_response.save
     subscriber_response.message
