@@ -328,7 +328,7 @@ describe ChannelGroup do
         ch2.subscribers << subs
         sr = create(:subscriber_response,message_content:Faker::Lorem.sentence,origin:phone_number)
         expect{
-          subject.associate_subscriber_response_with_channel(sr)}.to change{
+          subject.associate_subscriber_response_with_group_channel(sr)}.to change{
             ch2.subscriber_responses.count
           }.by(1)
         sr = SubscriberResponse.find(sr.id)

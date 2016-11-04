@@ -128,8 +128,13 @@ class SubscriberActivity < ActiveRecord::Base
     self.save
   end
 
+  def clear_processing_log
+    self.options['log'] = []
+    self.save
+  end
 
 private
+
   def normalize_phone_number
     self.origin = Subscriber.format_phone_number(origin)
   end

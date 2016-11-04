@@ -164,10 +164,16 @@ class ChannelGroup < ActiveRecord::Base
 
   def process_custom_command(subscriber_response)
     return true if process_on_demand_channels(subscriber_response)
-    ch = associate_subscriber_response_with_channel(subscriber_response)
+    ch = associate_subscriber_response_with_group_channel(subscriber_response)
     if !ch
-      handle_channel_group_subscriber_response_error(subscriber_response, 'channel association failed', 'custom')
-      return false
+      handle_channel_group_subscriber_response_error(subscriber_response, 'channel group association failed', 'custom')
+      if !ch
+        ch = associate_subscriber_response_with_tparty_channel(subscriber_response)
+        if !ch
+          handle_channel_group_subscriber_response_error(subscriber_response, 'tparty channel association failed', 'custom')
+          return false
+        end
+      end
     end
     return ask_channel_to_process_subscriber_response(ch,subscriber_response)
   end
@@ -192,12 +198,29 @@ class ChannelGroup < ActiveRecord::Base
     retval = ch.process_subscriber_response(subscriber_response)
   end
 
-  def associate_subscriber_response_with_channel(subscriber_response)
+  def associate_subscriber_response_with_group_channel(subscriber_response)
     ch = channels.with_subscriber(subscriber_response.origin).first
     if ch
       subscriber_response.channel = ch
       subscriber_response.channel_group = nil
       subscriber_response.save
+    end
+    ch
+  end
+
+  def associate_subscriber_response_with_tparty_channel(subscriber_response)
+    sra = SubscriberResponseAssociator.new(subscriber_response)
+    recommendation = sra.recommendation
+    if recommendation
+      ch = Channel.find(recommendation[:channel_id])
+      if ch
+        subscriber_response.channel = ch
+        subscriber_response.message_id = recommendation[:message_id]
+        if ch.channel_group
+          subscriber_response.channel_group = ch.channel_group
+        end
+        subscriber_response.save
+      end
     end
     ch
   end
@@ -241,25 +264,28 @@ class ChannelGroup < ActiveRecord::Base
 
   private
 
-    def check_channel_group_credentials(channel)
-      if channel && channel.class != Hash
-        raise ActiveRecord::Rollback,"Channel has to be of same user" if (self.channels.count > 0 && channel.user_id != self.channels.first.user_id)
-        raise ActiveRecord::Rollback,"Channel is already part of another group" if channel.channel_group && channel.channel_group != self
-      end
-      true
+  def check_channel_group_credentials(channel)
+    if channel && channel.class != Hash
+      raise ActiveRecord::Rollback,"Channel has to be of same user" if (self.channels.count > 0 && channel.user_id != self.channels.first.user_id)
+      raise ActiveRecord::Rollback,"Channel is already part of another group" if channel.channel_group && channel.channel_group != self
     end
+    true
+  end
 
-    def add_keyword
-      cg = ChannelGroup.find_by_tparty_keyword(tparty_keyword)
-      if !ChannelGroup.find_by_tparty_keyword(tparty_keyword)
-        MessagingManagerWorker.perform_async('add_keyword',{'keyword'=>tparty_keyword})
-      end
+  def add_keyword
+    cg = ChannelGroup.find_by_tparty_keyword(tparty_keyword)
+    if !ChannelGroup.find_by_tparty_keyword(tparty_keyword)
+      MessagingManagerWorker.perform_async('add_keyword',{'keyword'=>tparty_keyword})
     end
+  end
 
-    def remove_keyword
-      if tparty_keyword && ChannelGroup.by_tparty_keyword(tparty_keyword).count == 1
-        MessagingManagerWorker.perform_async('remove_keyword',{'keyword'=>tparty_keyword})
-      end
+  def remove_keyword
+    if tparty_keyword && ChannelGroup.by_tparty_keyword(tparty_keyword).count == 1
+      MessagingManagerWorker.perform_async('remove_keyword',{'keyword'=>tparty_keyword})
     end
-
+  end
 end
+
+
+
+

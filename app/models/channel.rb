@@ -135,6 +135,10 @@ class Channel < ActiveRecord::Base
     where("lower(tparty_keyword) = ?",tparty_keyword.downcase)
   end
 
+  def self.not_in_group(channel_group_ids)
+    where("channel_group_id IS NOT in (?)", Array(channel_group_ids))
+  end
+
   def self.pending_send
     where("next_send_time <= ?",Time.now )
   end
