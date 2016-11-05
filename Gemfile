@@ -87,6 +87,7 @@ end
 
 group :staging, :production do
   gem 'rails_serve_static_assets'
+  gem 'rails_12factor'
 end
 
 group :test do
