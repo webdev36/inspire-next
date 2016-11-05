@@ -6,7 +6,8 @@
       h4
         | #{sa_title(@target, @criteria, @type, @unprocessed)}
       p
-        = @target.type
+        - if @target.respond_to?(:type)
+          = @target&.type
     .col-md-4
 
 #subscriber-activities-section.row
@@ -46,7 +47,7 @@
                             .icon
                               = sa.decorate.icon
                             .type.text-uppercase style="font-weight: 100; font-size: 70%;"
-                              = sa.type.gsub("Notice", '')
+                              = sa.type.gsub("Notice", '').gsub("Subscriber", '')
 
                           .col-md-11.text-left
                             = raw sa.decorate.display_text
