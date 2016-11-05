@@ -403,6 +403,7 @@ DEPENDENCIES
   bootstrap3-datetimepicker-rails (~> 4.17.42)
   capybara (= 2.10.1)
   chronic
+  climate_control
   clockwork
   cocoon
   coffee-rails (= 4.2.1)

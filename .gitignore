@@ -8,6 +8,7 @@ capybara-*.html
 /public/system
 /coverage/
 config/application.yml
+config/database.yml
 /spec/tmp
 **.orig
 rerun.txt
