@@ -1,12 +1,12 @@
 base: &base
   adapter: postgresql
-  host: <%= ENV['POSTGRES_HOST'] || ENV['DB_1_PORT_5432_TCP_ADDR'] || Resolv.getaddress('db') || 'localhost' %>
+  host: localhost
   encoding: unicode
   database: <%= ENV['POSTGRES_DATABASE'] || "liveinspired_#{Rails.env}" %>
   port: <%= ENV['POSTGRES_PORT'] || ENV['DB_1_PORT_5432_TCP_ADDR']  || '5432' %>
   pool: <%= ENV['POSTGRES_POOL'] || 10 %>
   username: <%= ENV['POSTGRES_USERNAME'] || 'postgres' %>
-  password: <%= ENV['POSTGRES_PASSWORD'] %>
+  password: <%= ENV['POSTGRES_PASSWORD'] || 'guest119A' %>
   prepared_statements: false
 
 test:
