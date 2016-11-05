@@ -1,7 +1,10 @@
 require 'spec_helper'
 
+
+
+
+
 describe DatePickerInput do
-  puts "--beforefinal--"
   xit "#input " do
     expect(DatePickerInput.new(double.as_null_object,
       double,double,

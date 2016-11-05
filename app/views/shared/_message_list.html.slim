@@ -5,16 +5,17 @@
     .row
       .col-md-8
         .panel-title Messages
+        - @message_counts_by_type.each do |type, count|
+          = link_to "#{type.gsub(/Message$/, '')}(#{count})", channel_path(@channel, message_type: type)
+      
       .col-md-4.pull-right.text-right
         = link_to new_channel_message_path(@channel), class: "btn btn-primary btn-xs", id: 'message-new' do
           span.glyphicon.glyphicon-plus
-
+          
   .panel-body
     - if @messages && @messages.size > 0
       .row
         .col-md-12
-          - @message_counts_by_type.each do |type, count|
-            => link_to "#{type.gsub(/Message$/, '')}(#{count})", channel_path(@channel, message_type: type)
           table.table.table-striped#messages_table
             thead
               tr
@@ -24,11 +25,11 @@
               - @messages.each_with_index do |message, index|
                 - message = message.decorate
                 tr id="message_#{message.id}"
-                  td
-                    = link_to message.title_text, channel_message_path(@channel, message)
+                  td.col-md-8
+                    = link_to message.decorate.title_text, channel_message_path(@channel, message)
                     .small = message.type.gsub(/Message$/, "")
                     = message_subtext(@channel, message, index)
-                  td.text-right
+                  td.text-right.col-md-4
                     - if message.is_a?(ResponseMessage)
                       => link_to 'Response Actions', channel_message_response_actions_path(@channel, message), class: 'btn btn-default btn-xs'
                     - if @channel.broadcastable?

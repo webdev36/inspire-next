@@ -68,11 +68,15 @@ class OnDemandMessagesChannel < Channel
         channel_group.all_channel_subscribers.include?(
             subscriber_response.subscriber)
     end
-    return false if !subscriber
+    if !subscriber
+      handle_subscriber_response_error(subscriber_response, 'subscriber not found for on demand channel', 'on_demand')
+      return false
+    end
     if subscriber_response.content_text.strip =~ /^#{one_word}$/i
       send_random_message(subscriber)
       return true
     else
+      handle_subscriber_response_error(subscriber_response, 'subscriber command did not match available commands', 'on_demand')
       return false
     end
   end

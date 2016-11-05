@@ -47,6 +47,16 @@
             dd= @message.repeat_reminder_delay
             dt: strong No of repeat reminders:
             dd= @message.number_of_repeat_reminders
+    - if @message.type == 'TagMessage'
+      .row
+        .col-md-12
+          h5.section-header Tag Message Attributes
+      - @message.message_options.each do |mo|
+        .row
+          .col-md-4
+            = mo.key
+          .col-md-8
+            = mo.value
 
   .col-md-4 style="border-left: 1px solid #ccc; min-height: 300px;"
     .row

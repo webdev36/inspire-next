@@ -124,6 +124,8 @@ class SubscriberResponse < SubscriberActivity
       return false
     end
   rescue => e
+    StatsD.increment("subscriber_response.#{self.id}.subscrber_response_raise")
+    Rails.logger.error("error=raise_try_processing message='#{e.message}'")
     return false
   end
 

@@ -1,8 +1,23 @@
-tr.timeline-entry id="subscriber_response_#{entry.id}" data-type='subscriber_response' data-id="#{entry.id}"
-  td.text-center = icon('reply', title: 'The subscriber replied', class: 'color-success fa-2x')
+tr.timeline-entry id="subscriber_response_#{entry.id}" data-type='subscriber_response' data-id="#{entry.id}" title="Subscriber response id:#{entry.id}"
+  td.text-center
+    - if entry.processed
+      = icon('reply', title: 'The subscriber replied and has been processed.', class: 'color-success fa-2x')
+    - else
+      = icon('reply', title: 'The subscriber replied but processing has not occured yet to match to a message.', class: 'color-warning fa-2x')
   td
     .type
       | Reply
     .description
       = raw "The subscriber replied: '#{entry.caption}'"
-  td.time-ago #{time_ago_in_words(entry.created_at)} ago
+    .details
+      - if entry.channel_id && entry.message_id
+        = raw "Matched to channel: #{link_to(entry.channel_id, channel_path(entry.channel_id))}, message: #{link_to(entry.message_id, channel_message_path(entry.channel_id, entry.message_id))}"
+      - elsif entry.channel_id
+        = raw "Matched to channel: #{link_to(entry.channel_id, channel_path(entry.channel_id))}, not matched with a message."
+      - else
+        | Not matched to channel or message
+  td.time-ago title="#{entry.created_at}"
+    | #{time_ago_in_words(entry.created_at)} ago
+
+
+
