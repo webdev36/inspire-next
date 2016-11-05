@@ -19,7 +19,7 @@
       - if @channel.channel_group.blank?
         = f.input :tparty_keyword, label: "Service Identifier", hint: "This is supplied to you by ILiveInspired. It uniquely identifies this project. It's a phone number that the messages will be sent from to your subscribers."
       - else
-        = f.association :channel_group, collection: @user.channel_groups, readonly: true
+        = f.association :channel_group, collection: @user.channel_groups, readonly: false
 
       = render partial: "channels/editor/schedule_section", locals: { f: f }
 
