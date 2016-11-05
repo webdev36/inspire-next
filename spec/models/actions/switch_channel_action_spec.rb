@@ -57,29 +57,38 @@ describe SwitchChannelAction do
         cg.channels << [ch1,ch2]
         ch1.subscribers << subs
       end
+
       it "moves a subscriber from one channel to another" do
         expect {
-          expect(cmd.execute({subscribers:[subs],from_channel:ch1})).to eq(true)
-        }.to change{ActionNotice.count}.by(1)
+          expect(
+            cmd.execute( { subscribers:[subs], from_channel:ch1} )
+            ).to eq(true)
+        }.to change{
+          ActionNotice.count
+          }.by(2)
         expect(ch1.subscribers).not_to be_include(subs)
         expect(ch2.subscribers).to be_include(subs)
       end
+
       it "returns false if subscriber or from_channel is blank" do
         expect(cmd.execute({subscribers:[],from_channel:ch1})).to eq(false)
         expect(cmd.execute({subscribers:[subs],from_channel:nil})).to eq(false)
       end
+
       it "returns false if subscriber is not in from_channel" do
         ch1.subscribers.delete(subs)
-        expect(cmd.execute({subscribers:[subs],from_channel:ch1})).to eq(false)
+        expect {
+          cmd.execute({subscribers:[subs],from_channel:ch1})
+        }.to change {
+          ActionErrorNotice.count
+        }.by(1)
       end
+
       it "returns true if subscriber is already in to_channel and removes him from from_channel" do
         ch2.subscribers << subs
         expect(cmd.execute({subscribers:[subs],from_channel:ch1})).to eq(true)
         expect(ch1.subscribers).not_to be_include(subs)
       end
-
-
     end
   end
-
 end

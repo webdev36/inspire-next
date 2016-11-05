@@ -1,5 +1,13 @@
 require 'spec_helper'
 
+def send_an_inbound_message_from_a_nonsubscriber(from_phone, to, message)
+  incoming_message = build :inbound_twilio_message
+  incoming_message['From'] = Subscriber.format_phone_number(from_phone)
+  incoming_message['To'] = to
+  incoming_message['Body'] = message
+  controller = TwilioController.new.send(:handle_request,incoming_message)
+end
+
 def send_a_subscriber_response(sub, to, message)
   incoming_message = build :inbound_twilio_message
   incoming_message['From'] = sub.phone_number
@@ -45,6 +53,7 @@ def setup_user_and_system
   @subscriber = create :subscriber, user: @user
   @channel = build :individually_scheduled_messages_channel, user: @user
   @channel.tparty_keyword = '+12025551212'
+  @channel.relative_schedule = true
   @channel.save
 end
 
@@ -85,7 +94,35 @@ def create_repeating_response_message(channel = nil, schedule = 'Day 1 12:00')
   message.schedule = schedule
   message.active = true
   message.requires_response = true
+  message.next_send_time = 1.minute.ago
   message.save
   message
+end
+
+def create_switching_channel_message(from_channel, to_channel, schedule = 'Minute 5')
+  @switching_channel_message = build :switch_channel_action_message, channel: from_channel, schedule: schedule
+  @switching_channel_message.action.as_text = "Switch channel to #{to_channel.id}"
+  @switching_channel_message.action.data['to_channel_in_group'] = []
+  @switching_channel_message.action.data['to_channel_out_group'] = [to_channel.id]
+  @switching_channel_message.next_send_time = 1.minute.ago
+  @switching_channel_message.save
+  @switching_channel_message
+end
+
+def create_multi_switching_channel_message(from_channel, to_channels, channel_group, schedule = 'Minute 5')
+  @switching_channel_message = build :switch_channel_action_message, channel: from_channel, schedule: schedule
+  @switching_channel_message.action.as_text = "Switch channel to #{to_channels.first}"
+  @switching_channel_message.action.data['to_channel_in_group'] = []
+  @switching_channel_message.action.data['to_channel_out_group'] = []
+  to_channels.each do |ch|
+    if ch.channel_group_id == channel_group.id
+      @switching_channel_message.action.data['to_channel_in_group'] << ch.id
+    else
+      @switching_channel_message.action.data['to_channel_out_group'] << ch.id
+    end
+  end
+  @switching_channel_message.next_send_time = 1.minute.ago
+  @switching_channel_message.save
+  @switching_channel_message
 end
 

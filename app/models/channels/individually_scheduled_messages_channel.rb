@@ -65,7 +65,7 @@ class IndividuallyScheduledMessagesChannel < Channel
         subscriber_ids.each do |subscriber_id|
           if has_already_been_sent_message?(subscriber_id, message_id)
             StatsD.increment("subscriber.#{subscriber_id}.message.#{message_id}.already_sent")
-            Rails.logger.info "action=group_subscribers_by_message from=individually_scheduled_messages_channel schedule=non_relative status=warn warn=skip_already_sent message_id=#{message_id} subscriber_id=#{subscriber_id}" if Rails.env != 'production'
+            # Rails.logger.info "action=group_subscribers_by_message from=individually_scheduled_messages_channel schedule=non_relative status=warn warn=skip_already_sent message_id=#{message_id} subscriber_id=#{subscriber_id}" if Rails.env != 'production'
             next
           else
             StatsD.increment("subscriber.#{subscriber_id}.message.#{message_id}.queued")
@@ -87,18 +87,18 @@ class IndividuallyScheduledMessagesChannel < Channel
     subscriber_ids = subscribers.map(&:id)
     #For each message
     msh = {}
-    messages.active.each do |message|
+    messages.active.order('created_at ASC').each do |message|
       message_id = message.id
       #For all subscribers
       subscriber_ids.each do |subscriber_id|
         if time_to_send?(subscriber_id, message)
           if has_already_been_sent_message?(subscriber_id, message_id)
             StatsD.increment("subscriber.#{subscriber_id}.message.#{message_id}.already_sent")
-            # maske this less noisy for now.. lots of these
-            Rails.logger.info "action=group_subscribers_by_message from=individually_scheduled_messages_channel status=warn warn=skip_already_sent message_id=#{message_id} subscriber_id=#{subscriber_id}" if Rails.env != 'production'
+            # Rails.logger.info "action=group_subscribers_by_message from=individually_scheduled_messages_channel status=warn warn=skip_already_sent message_id=#{message_id} subscriber_id=#{subscriber_id}"
             next
           else
             StatsD.increment("subscriber.#{subscriber_id}.message.#{message_id}.queued")
+            # Rails.logger.info "action=group_subscribers_by_message from=individually_scheduled_messages_channel info=queued_subscriber_message message_id=#{message_id} subscriber_id=#{subscriber_id}"
             if msh[message_id]
               msh[message_id] << Subscriber.find(subscriber_id)
             else
@@ -106,6 +106,7 @@ class IndividuallyScheduledMessagesChannel < Channel
             end
           end
         else
+          # Rails.logger.info "action=group_subscribers_by_message from=individually_scheduled_messages_channel info=not_time_to_send message_id=#{message_id} subscriber_id=#{subscriber_id}"
           StatsD.increment("subscriber.#{subscriber_id}.message.#{message_id}.not_time_to_send")
         end
       end
@@ -119,9 +120,13 @@ class IndividuallyScheduledMessagesChannel < Channel
       subscriber_added_time  = subscriber_added_to_channel_at(subscriber_id)
       subscriber_target_time = message.target_time(subscriber_added_time)
       if subscriber_target_time && subscriber_target_time < Time.now
-        Rails.logger.info "info=time_to_send message_id=#{message.id} subscriber_id=#{subscriber_id} subscriber_target_time=#{subscriber_target_time}" if Rails.env != 'production'
+        # Rails.logger.info "info=time_to_send message_id=#{message.id} subscriber_id=#{subscriber_id} subscriber_target_time=#{subscriber_target_time}"
         flag = true
+      else
+        # Rails.logger.info "info=time_to_send message_id=#{message.id} subscriber_id=#{subscriber_id} subscriber_target_time=#{subscriber_target_time}"
       end
+    else
+      # Rails.logger.info "mesasge does not respond to target time"
     end
     flag
   end
@@ -133,10 +138,10 @@ class IndividuallyScheduledMessagesChannel < Channel
   # Find the messages which have not been sent and whose next_send_time
   # is in the past
   def group_subscribers_by_message
-    if !relative_schedule
-      group_subscribers_by_message_non_relative_schedule
-    else
+    if relative_schedule
       group_subscribers_by_message_relative_schedule
+    else
+      group_subscribers_by_message_non_relative_schedule
     end
   end
 
