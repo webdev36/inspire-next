@@ -94,13 +94,16 @@ class Channel < ActiveRecord::Base
 
   def send_scheduled_messages
     msg_no_subs_hash = group_subscribers_by_message
-    if msg_no_subs_hash && msg_no_subs_hash!={}
-      msg_no_subs_hash.each do |msg_no,subscribers|
+    if msg_no_subs_hash && msg_no_subs_hash.keys.length != 0
+      msg_no_subs_hash.each do |msg_no, subscribers|
         message = Message.find_by_id(msg_no)
         if message && message.internal?
           message.send_to_subscribers(subscribers)
         else
-          next if subscribers.nil? || subscribers.count == 0
+          if subscribers.nil? || subscribers.count == 0
+            # puts "Skipping there are no subscribers to be sent this message"
+            next
+          end
           MessagingManager.new_instance.broadcast_message(message,subscribers)
         end
       end
@@ -109,6 +112,8 @@ class Channel < ActiveRecord::Base
         message = Message.find(msg_no) rescue nil
         message.perform_post_send_ops(subs) if message
       end
+    else
+      # Rails.logger.info "info=no_subscribers_by_message channel_id=#{self.id}"
     end
     reset_next_send_time
   end
