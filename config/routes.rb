@@ -15,6 +15,7 @@ Liveinspired::Application.routes.draw do
       get  'list_subscribers'
       get  'messages_report'
       post 'delete_all_messages'
+      get  'timeline'
     end
     resources :messages do
       member do
