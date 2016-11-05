@@ -5,6 +5,9 @@
     .col-md-8
       h4
         | #{sa_title(@target, @criteria, @type, @unprocessed)}
+      p
+        - if @target.respond_to?(:type)
+          = @target&.type
     .col-md-4
 
 #subscriber-activities-section.row
@@ -18,26 +21,48 @@
             .col-md-12
               table#subscriber-activities-list.table.table-striped
                 thead: tr
-                  th.text-center Processed
+                  th Subscriber
                   th Activity
-                  th.text-right When
+                  th.text-center Processed
+                  th.text-right
+                    i.fa.fa-clock-o
                 tbody
                   - @subscriber_activities.each do |sa|
                     tr id="subscriber_activity_#{sa.id}"
+                      td
+                        .row
+                          .col-md-3.text-center
+                            .icon
+                              i.fa.fa-user.fa-2x
+                          .col-md-9
+                            .name
+                              = link_to sa.decorate.subscriber_name, subscriber_path(sa.subscriber_id)
+                        .row
+                          .col-md-1
+                            .phone_number.text-smaller style="color: #888; font-size: 90%;"
+                              = sa.decorate.subscriber_phone_number
+                      td
+                        .row
+                          .col-md-1.text-center
+                            .icon
+                              = sa.decorate.icon
+                            .type.text-uppercase style="font-weight: 100; font-size: 70%;"
+                              = sa.type.gsub("Notice", '').gsub("Subscriber", '')
+
+                          .col-md-11.text-left
+                            = raw sa.decorate.display_text
                       td.text-center
                         - if sa.processed?
-                          = icon('thumbs-up', class: 'color-success')
+                          = icon('thumbs-up', class: 'color-success', title: "Message id: #{sa.id}")
                         - else
-                          = icon('thumbs-down', class: 'color-danger')
-                      td = sa_description(sa)
-                      td.text-right
+                          = icon('thumbs-down', class: 'color-danger', title: "Message id: #{sa.id}")
+                      td.text-right title="#{sa.created_at}"
                         = link_to sa_path(sa).merge(action: :show) do
                           | #{time_ago_in_words(sa.created_at)} ago
-      .row
-        .col-md-12.text-center
-          = will_paginate @subscriber_activities
 
-.row#page-actions
-  .panel.panel-default
-    .panel-body.text-center
-      = link_to "Back", request.referer, class: "btn btn-primary"
+            .row
+              .col-md-12.text-center
+                = will_paginate @subscriber_activities
+
+
+

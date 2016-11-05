@@ -11,31 +11,50 @@
         p = @subscriber.remarks
 
 .row
-  h4.section-header
+  h4.section-header.text-center
     | Last 24 Hours
   .col-md-3
-    .well.text-center.background-color-gallery
-      .title Sent
-      .value = @sent_last_24_hours
+    .well.background-color-gallery
+      .row
+        .col-md-6.text-left
+          .icon = icon('envelope', title: 'A message was sent to the subscriber', class: 'color-info fa-2x')
+        .col-md-6.text-right
+          .value = @sent_last_24_hours
+          .title.text-uppercase Sent
   .col-md-3
-    .well.text-center.background-color-gallery
-      .title Replies
-      .value = @replies_last_24_hours
+    .well.background-color-gallery
+      .row
+        .col-md-6.text-left
+          .icon = icon('reply', title: 'The subscriber replied.', class: 'color-success fa-2x')
+        .col-md-6.text-right
+          .value = @replies_last_24_hours
+          .title.text-uppercase Replies
   .col-md-3
-    .well.text-center.background-color-gallery
-      .title Actions
-      .value = @actions_last_24_hours
+    .well.background-color-gallery
+      .row
+        .col-md-6.text-left
+          .icon = icon('bolt', title: 'Action taken on subscriber account', class: 'color-info fa-2x')
+        .col-md-6.text-right
+          .value = @actions_last_24_hours
+          .title.text-uppercase Actions
   .col-md-3
-    .well.text-center.background-color-gallery
-      .title Errors
-      .value = @errors_last_24_hours
+    .well.background-color-gallery
+      .row
+        .col-md-6.text-left
+          .icon = icon('exclamation', title: 'There was a problem', class: 'color-danger fa-2x')
+        .col-md-6.text-right
+          .value = @errors_last_24_hours
+          .title Errors
+
 hr
 .row
   .col-md-12
     .row
       .col-md-4
-        h4.section-header
+        h4.section-header.text-center
           | Channels
+        .alert.alert-default
+          | Subscribed channels show a sub tag. Click the 'rem' button to remove a subscriber from a channel, and the 'add' button to add a user to a channel.
         table.table.table-striped#subscribers-subscriptions-table
           tbody
             - @subscriber.subscriptions.each do |subscription|
@@ -62,16 +81,22 @@ hr
                 td = link_to "#{channel.id}-#{channel.name}", channel_path(channel.id)
                 td = link_to 'Add', channel_add_subscriber_path(channel.id, @subscriber.id),method: :post, class: "btn btn-default btn-xs"
 
-      .col-md-4
-        h4.section-header Sending Activity
-        img src="http://graphite.omamatic.com/render/?width=400&height=250&_salt=1477352987.646&lineMode=staircase&drawNullAsZero=true&areaMode=stacked&title=Messages%20Queued&target=integral(stats.counters.inspire.production.subscriber.#{@subscriber.id}.message.*.queued.count)"
-      .col-md-4
-        h4.section-header Response Activity
+      .col-md-8.text-center
+        h4.section-header Messaging Activity
+        .row
+          .col-md-12
+            img src="http://graphite.omamatic.com/render/?width=600&height=400&_salt=1478272837.451&title=Subscriber%20Activity&lineMode=staircase&drawNullAsZero=true&areaMode=stacked&from=-7days&colorList=418acb%2Cred&hideLegend=false&uniqueLegend=true&fontName=Sans&target=alias(summarize(stats.counters.inspire.production.subscriber.#{@subscriber.id}.subscriber_response.count%2C%221h%22)%2C%22reply%22)&target=alias(summarize(stats.counters.inspire.production.subscriber.#{@subscriber.id}.message.*.delivery_notice.count%2C%221h%22)%2C%22message%20sent%22)"
+        .row
+          .col-md-12
+            img src="http://graphite.omamatic.com/render/?width=600&height=400&_salt=1478271805.688&title=Messages%20Sent&lineMode=staircase&drawNullAsZero=true&areaMode=stacked&from=-7days&colorList=418acb%2C418acb%2C418acb&target=summarize(stats.counters.inspire.production.subscriber.#{@subscriber.id}.message.*.delivery_notice.count%2C%221h%22)"
+        .row
+          .col-md-12
+            img src="http://graphite.omamatic.com/render/?width=600&height=400&_salt=1478271999.161&title=Subscriber%20Responses&lineMode=staircase&drawNullAsZero=true&areaMode=stacked&from=-7days&colorList=418acb%2C418acb%2C418acb&target=summarize(stats.counters.inspire.production.subscriber.#{@subscriber.id}.subscriber_response.count%2C%221h%22)&hideLegend=true"
 
 hr
 .row
   .col-md-12
-    h4.section-header
+    h4.section-header.text-center
       | Recent Activity
     .row
       .col-md-12
@@ -81,7 +106,8 @@ hr
               tr
                 th.text-center Type
                 th Activity
-                th.text-right When
+                th.text-right
+                  = icon('clock-o')
             tbody
               - @timeline.each do |entry|
                 = render partial: "subscribers/timeline/#{entry.class.name.underscore}_row", locals: { entry: entry }
@@ -111,3 +137,7 @@ hr
         => link_to "Subscriber Activities",
                   subscriber_activities_path(subscriber_id: @subscriber.id),
                   class: "btn btn-default"
+btn btn-default"
+
+
+

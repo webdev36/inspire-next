@@ -20,10 +20,10 @@ module ChannelsHelper
     return false
   end
 
-  def message_subtext(channel,message,index)
+  def message_subtext(channel, message, index)
     if channel.individual_messages_have_schedule?
       if channel.relative_schedule?
-        content_tag(:div,message.schedule,class:'small').html_safe
+        content_tag(:div,message.schedule, class:'small').html_safe
       else
         content_tag(:div,message.next_send_time.strftime("%c"),class:'small').html_safe if message.next_send_time
       end
@@ -31,7 +31,11 @@ module ChannelsHelper
       schedule = channel.converted_schedule
       if schedule
         content_tag(:div,schedule.next_occurrences(index+1)[index].strftime("%c"),class:'small').html_safe
+      else
+        content_tag(:div,schedule, class:'small').html_safe
       end
+    else
+      content_tag(:div, message.schedule, class: 'small').html_safe
     end
   end
 
