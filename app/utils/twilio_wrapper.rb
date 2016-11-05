@@ -22,8 +22,16 @@ class TwilioWrapper
     end
   end
 
+  def redis_do_not_send?
+    [true, 'true'].include?(redis_do_not_send)
+  end
+
+  def redis_do_not_send
+    REDIS.get('inspire.do_not_send')
+  end
+
   def allowed_to_send?
-    !ENV['DO_NOT_SEND'] && mock != true
+    !ENV['DO_NOT_SEND'] && mock != true && !redis_do_not_send?
   end
 
   def sid
