@@ -65,7 +65,7 @@ class IndividuallyScheduledMessagesChannel < Channel
         subscriber_ids.each do |subscriber_id|
           if has_already_been_sent_message?(subscriber_id, message_id)
             StatsD.increment("subscriber.#{subscriber_id}.message.#{message_id}.already_sent")
-            # Rails.logger.info "action=group_subscribers_by_message from=individually_scheduled_messages_channel schedule=non_relative status=warn warn=skip_already_sent message_id=#{message_id} subscriber_id=#{subscriber_id}"
+            Rails.logger.info "action=group_subscribers_by_message from=individually_scheduled_messages_channel schedule=non_relative status=warn warn=skip_already_sent message_id=#{message_id} subscriber_id=#{subscriber_id}" if Rails.env != 'production'
             next
           else
             StatsD.increment("subscriber.#{subscriber_id}.message.#{message_id}.queued")
@@ -95,7 +95,7 @@ class IndividuallyScheduledMessagesChannel < Channel
           if has_already_been_sent_message?(subscriber_id, message_id)
             StatsD.increment("subscriber.#{subscriber_id}.message.#{message_id}.already_sent")
             # maske this less noisy for now.. lots of these
-            # Rails.logger.info "action=group_subscribers_by_message from=individually_scheduled_messages_channel status=warn warn=skip_already_sent message_id=#{message_id} subscriber_id=#{subscriber_id}"
+            Rails.logger.info "action=group_subscribers_by_message from=individually_scheduled_messages_channel status=warn warn=skip_already_sent message_id=#{message_id} subscriber_id=#{subscriber_id}" if Rails.env != 'production'
             next
           else
             StatsD.increment("subscriber.#{subscriber_id}.message.#{message_id}.queued")
@@ -119,7 +119,7 @@ class IndividuallyScheduledMessagesChannel < Channel
       subscriber_added_time  = subscriber_added_to_channel_at(subscriber_id)
       subscriber_target_time = message.target_time(subscriber_added_time)
       if subscriber_target_time && subscriber_target_time < Time.now
-        # Rails.logger.info "info=time_to_send message_id#{message.id} subscriber_id=#{subscriber_id} subscriber_target_time=#{subscriber_target_time}"
+        Rails.logger.info "info=time_to_send message_id=#{message.id} subscriber_id=#{subscriber_id} subscriber_target_time=#{subscriber_target_time}" if Rails.env != 'production'
         flag = true
       end
     end
