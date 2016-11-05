@@ -5,7 +5,6 @@ describe 'Integration/MatchSROutsideChannelGroup' do
   it 'matches a subscriber response outside the channel group' do
     original_time = Time.now.midnight
     travel_to_time(original_time - (32.days))
-    puts "Setting up channel at #{Time.now}"
     setup_user_channel_group_and_channel
     create_30_days_of_daily_simple_messages(@channel)
     @outside_channel = build :individually_scheduled_messages_channel, user: @user, tparty_keyword: @channel_group.tparty_keyword
@@ -15,7 +14,6 @@ describe 'Integration/MatchSROutsideChannelGroup' do
 
     # the next day, a subscriber registers and gets in channel and out of channel messages setup
     travel_to_time(original_time - 31.days)
-    Rails.logger.info "Adding subscriber at #{Time.now}"
     @subscriber = create :subscriber, user: @user
     @channel.subscribers << @subscriber
     @outside_channel.subscribers << @subscriber

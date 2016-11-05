@@ -341,7 +341,7 @@ class Channel < ActiveRecord::Base
   def associate_response_with_last_primary_message(subscriber_response)
     subscriber = subscribers.find_by_phone_number(subscriber_response.origin)
     if !subscriber
-      handle_subscriber_response_error(subscriber_response, 'could not match subscriber to subscriber response', 'associate_subscriber')
+      handle_subscriber_response_error(subscriber_response, 'could not match subscriber to phone', 'associate_subscriber')
       return false
     end
     dn = subscriber.delivery_notices.of_primary_messages_that_require_response.last
