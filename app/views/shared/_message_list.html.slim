@@ -5,16 +5,17 @@
     .row
       .col-md-8
         .panel-title Messages
+        - @message_counts_by_type.each do |type, count|
+          = link_to "#{type.gsub(/Message$/, '')}(#{count})", channel_path(@channel, message_type: type)
+      
       .col-md-4.pull-right.text-right
         = link_to new_channel_message_path(@channel), class: "btn btn-primary btn-xs", id: 'message-new' do
           span.glyphicon.glyphicon-plus
-
+          
   .panel-body
     - if @messages && @messages.size > 0
       .row
         .col-md-12
-          - @message_counts_by_type.each do |type, count|
-            => link_to "#{type.gsub(/Message$/, '')}(#{count})", channel_path(@channel, message_type: type)
           table.table.table-striped#messages_table
             thead
               tr

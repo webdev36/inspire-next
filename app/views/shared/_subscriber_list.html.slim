@@ -3,9 +3,11 @@
 #subscribers-section.panel.panel-default
   .panel-heading
     .row
-      .col-md-8
+      .col-md-4
         = "Subscribers (#{@subscribers.count})"
-      .col-md-4.text-right.pull-right
+      .col-md-5
+        = search_field_tag 'search', nil ,placeholder: 'Enter name or phone',class: 'form-control'
+      .col-md-3.text-right.pull-right
         = link_to new_subscriber_path, class: "btn btn-primary btn-xs", id: 'subscriber-new'
           span.glyphicon.glyphicon-plus
   .panel-body
