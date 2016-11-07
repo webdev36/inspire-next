@@ -1,8 +1,8 @@
 require 'spec_helper'
 require 'support/integration_setups.rb'
 
-describe 'Integration/Repeat messages' do
-  it 'repeats message if no response is received and its configured to do so' do
+describe 'Integration/Reminder messages' do
+  it 'reminder message send if no response is received' do
     # a uesr setups a channel with repeatsing messages
     travel_to(2016, 9, 1, 10, 0, 0)
     setup_user_and_system
@@ -50,7 +50,7 @@ describe 'Integration/Repeat messages' do
     expect(@subscriber.delivery_notices.length == 3).to be_truthy
   end
 
-  it 'does not send a reminder message when receiving a response' do
+  it 'are not sent when receiving a response' do
     # a uesr setups a channel with repeatsing messages
     travel_to(2016, 9, 1, 10, 0, 0)
     setup_user_and_system

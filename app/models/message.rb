@@ -29,14 +29,16 @@
 class Message < ActiveRecord::Base
   acts_as_paranoid
   include RelativeSchedule
+  include RecurringScheduler
 
   attr_accessible :title, :caption, :type, :content,
-    :next_send_time,:reminder_message_text,:reminder_delay,
+    :next_send_time,:reminder_message_text, :reminder_delay,
     :repeat_reminder_message_text, :repeat_reminder_delay,
-    :number_of_repeat_reminders,:action_attributes,:schedule,
-    :relative_schedule_type,:relative_schedule_number,
-    :relative_schedule_day,:relative_schedule_hour,
-    :relative_schedule_minute,:active, :message_options_attributes
+    :number_of_repeat_reminders, :action_attributes, :schedule,
+    :relative_schedule_type, :relative_schedule_number,
+    :relative_schedule_day, :relative_schedule_hour,
+    :relative_schedule_minute, :active, :message_options_attributes,
+    :recurring_schedule
 
   serialize :options, Hash
   serialize :recurring_schedule, Hash
@@ -49,25 +51,26 @@ class Message < ActiveRecord::Base
   has_many :message_options
   accepts_nested_attributes_for :message_options, :reject_if => lambda { |a| a[:key].blank? || a[:value].blank? }, :allow_destroy => true
 
-has_attached_file :content,
-                   storage: :s3,
-                   s3_credentials: {
-                      access_key_id: ENV["AWS_ACCESS_KEY_ID"],
-                      secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"],
-                   },
-                   s3_region: ENV["AWS_REGION"],
-                   styles: {
-                      thumb: { geometry: "100x100>", format: "jpg" },
-                   }
+  has_attached_file :content,
+                     storage: :s3,
+                     s3_credentials: {
+                        access_key_id: ENV["AWS_ACCESS_KEY_ID"],
+                        secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"],
+                     },
+                     s3_region: ENV["AWS_REGION"],
+                     styles: {
+                        thumb: { geometry: "100x100>", format: "jpg" },
+                     }
 
   belongs_to :channel
-  validates :seq_no, uniqueness:{scope: [:channel_id,:deleted_at]}
+
+  validates  :seq_no, uniqueness:{scope: [:channel_id,:deleted_at]}
 
   before_create :update_seq_no
-  after_create :aftr_create_cb
+  after_create  :aftr_create_cb
 
   before_validation :form_schedule
-  validate :check_relative_schedule
+  validate          :check_relative_schedule
 
   accepts_nested_attributes_for :action
   validates_associated :action
@@ -317,11 +320,27 @@ private
     self.seq_no = cur_max+1
   end
 
+  # def after_create_actions
+  #   self.reload
+  #   self.requires_response = self.requires_user_response?
+  #   # self.next_send_time = 1.minute.ago if channel.individual_messages_have_schedule?
+  #   self.save if self.changed?
+  #   self.channel.save!
+  # end
+
   def aftr_create_cb
     msg = Message.find(id) #Update the requires_response based on type
-    msg.update_attribute(:requires_response,msg.requires_user_response?)
+    msg.update_attribute(:requires_response, msg.requires_user_response?)
     channel.save! #This is required so that the channel's update_send_time is reliably called
   end
+#
+  # def set_next_send_time
+  #   if channel.individual_messages_have_schedule?
+  #     self.update_attribute(:next_send_time, 1.minute.ago)
+  #     self.channel.self.next_send_time = 1.minute.ago
+  #     channel.save!
+  #   end
+  # end
 
   def new_update_seq_no
     seq_no = channel.messages.count

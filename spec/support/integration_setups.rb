@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'date'
 
 def send_an_inbound_message_from_a_nonsubscriber(from_phone, to, message)
   incoming_message = build :inbound_twilio_message
@@ -32,6 +33,20 @@ def travel_to_same_day_at(hour, minute)
   Timecop.travel(t)
 end
 
+def date_of_next(day)
+  date  = Date.parse(day)
+  delta = date > Date.today ? 0 : 7
+  date + delta
+end
+
+def travel_to_next_dow(day_of_week)
+  today_as_date = Date.parse(Time.now.to_s)
+  target_date = date_of_next(day_of_week)
+  target_time = Time.parse(target_date.to_s)
+  travel_to_time(target_time)
+end
+
+
 def create_30_days_of_daily_response_messages(channel)
   (1..30).to_a.each do |daily_index|
     create_repeating_response_message(channel, "Day #{daily_index} 12:00")
@@ -54,6 +69,24 @@ def setup_user_and_system
   @channel = build :individually_scheduled_messages_channel, user: @user
   @channel.tparty_keyword = '+12025551212'
   @channel.relative_schedule = true
+  @channel.save
+end
+
+def setup_user_and_individually_scheduled_messages_non_relative_schedule
+  setup_user_and_system
+  @channel.relative_schedule = false
+  @channel.save
+end
+
+def setup_user_and_individually_scheduled_messages_relative_schedule
+  setup_user_and_system
+end
+
+def setup_user_and_scheduled_messages_channel
+  @user = create :user
+  @subscriber = create :subscriber, user: @user
+  @channel = build :scheduled_messages_channel, user: @user
+  @channel.tparty_keyword = '+12025551212'
   @channel.save
 end
 

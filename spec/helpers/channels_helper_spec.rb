@@ -20,7 +20,7 @@ describe ChannelsHelper do
       expect(user_channel_types).to be_include(:RandomMessagesChannel)
       expect(user_channel_types).to be_include(:IndividuallyScheduledMessagesChannel)
     end
-  end  
+  end
   describe "channel schedulable" do
     it "returns right values for the various channel types" do
       expect(channel_schedulable?("AnnouncementsChannel")).to eq(false)
@@ -28,6 +28,7 @@ describe ChannelsHelper do
       expect(channel_schedulable?("ScheduledMessagesChannel")).to eq(true)
       expect(channel_schedulable?("OrderedMessagesChannel")).to eq(true)
       expect(channel_schedulable?("RandomMessagesChannel")).to eq(true)
+      expect(channel_schedulable?('IndividuallyScheduledMessagesChannel')).to eq(false)
       expect(channel_schedulable?("UnknownChannelType")).to eq(false)
     end
   end

@@ -44,7 +44,7 @@ class TwilioWrapper
 
   def send_message(phone_number,title,caption,content_url,from_num)
     if allowed_to_send?
-      Rails.logger.info "action=send_message from=twiliow_wrapper status=ok phone_number='#{phone_number}' title='#{title}' caption='#{caption}' content_url='#{content_url}' from_num='#{from_num}'"
+      Rails.logger.info "action=send_message from=twilio_wrapper status=ok phone_number='#{phone_number}' title='#{title}' caption='#{caption}' content_url='#{content_url}' from_num='#{from_num}'"
       h = {from:from_num, body:caption}
       h[:media_url] = content_url if content_url.present?
       h[:to]=phone_number

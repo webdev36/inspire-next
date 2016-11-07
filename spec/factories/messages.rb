@@ -72,10 +72,51 @@ FactoryGirl.define do
     action
   end
 
-  factory :response_message do
+  factory :response_message, class: 'ResponseMessage' do
     title {Faker::Lorem.sentence}
     caption {Faker::Lorem.sentence}
     type "ResponseMessage"
+    channel
+  end
+
+  factory :static_response_message_with_reminders, class: 'ResponseMessage' do
+    title   { Faker::Lorem.sentence }
+    caption { Faker::Lorem.sentence }
+    type 'ResponseMessage'
+    reminder_message_text { "Reminder: #{Faker::Lorem.sentence}"}
+    reminder_delay 60
+    repeat_reminder_message_text { "Repeat Reminder: #{Faker::Lorem.sentence}" }
+    repeat_reminder_delay 120
+    number_of_repeat_reminders 1
+    schedule 'Minute 1'
+    active true
+    requires_response true
+    next_send_time { 1.minute.ago }
+    channel
+  end
+
+  factory :recurring_response_message_with_reminders, class: 'ResponseMessage' do
+    title   { Faker::Lorem.sentence }
+    caption { Faker::Lorem.sentence }
+    type 'ResponseMessage'
+    reminder_message_text { "Reminder: #{Faker::Lorem.sentence}"}
+    reminder_delay 60
+    repeat_reminder_message_text { "Repeat Reminder: #{Faker::Lorem.sentence}" }
+    repeat_reminder_delay 120
+    number_of_repeat_reminders 1
+    active true
+    requires_response true
+    schedule nil
+    recurring_schedule { {
+                            :validations=> {
+                              :day=>[1],
+                              :hour_of_day=>[9],
+                              :minute_of_hour=>[45]
+                            },
+                            :rule_type=>"IceCube::WeeklyRule",
+                            :interval=>1,
+                            :week_start=>0
+                        } }
     channel
   end
 
