@@ -2,16 +2,39 @@ require 'spec_helper'
 
 describe TwilioWrapper do
   subject {TwilioWrapper}
-  
-  it "is possible to switch on and off mocking" do
-    TwilioWrapper.mock_calls = false
-    expect(TwilioWrapper.new.mock).to eq(false)
-    TwilioWrapper.mock_calls = true
-    expect(TwilioWrapper.new.mock).to eq(true)
+  context 'Liveinspired.do_not_send module' do
+    it 'is off in test mode' do
+      expect(Liveinspired.do_not_send == true).to be_truthy
+    end
+    it 'can control the TwilioWrapper' do
+      TwilioWrapper.mock_calls = false
+      expect(TwilioWrapper.new.mock).to eq(false)
+      Liveinspired.turn_off_message_sending!
+      expect(TwilioWrapper.new.mock).to eq(true)
+      Liveinspired.turn_on_message_sending!
+      expect(TwilioWrapper.new.mock).to eq(false)
+    end
   end
 
-  it "default during test is mock on" do
-    expect(TwilioWrapper.new.mock).to eq(true)
+  context 'MOCKS and ENV' do
+    it "is possible to switch on and off mocking" do
+      TwilioWrapper.mock_calls = false
+      expect(TwilioWrapper.new.mock).to eq(false)
+      expect(TwilioWrapper.new.allowed_to_send?).to be_truthy
+      TwilioWrapper.mock_calls = true
+      expect(TwilioWrapper.new.mock).to eq(true)
+      expect(TwilioWrapper.new.allowed_to_send?).to be_falsey
+    end
+
+    it 'will not send messages to the API if there is an ENV variable of DO_NOT_SEND' do
+      ClimateControl.modify DO_NOT_SEND: 'true', RAILS_ENV: 'production' do
+        expect(TwilioWrapper.new.mock).to eq(true)
+        expect(TwilioWrapper.new.allowed_to_send? == false).to be_truthy
+      end
+    end
+    it "default during test is mock on" do
+      expect(TwilioWrapper.new.mock).to eq(true)
+    end
   end
 
   describe "instance" do
@@ -54,7 +77,7 @@ describe TwilioWrapper do
           'dummy',message,media_url,from_num)
       end
 
-      it "returns false if send_message throws Request Error" do 
+      it "returns false if send_message throws Request Error" do
         allow(messages).to receive(:create).and_raise("Twilio::REST::RequestError")
         expect(subject.send_message(phone_number,
             'dummy',message,nil,from_num)).to eq(false)

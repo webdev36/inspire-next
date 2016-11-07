@@ -36,14 +36,21 @@ class SendMessageAction < Action
   end
 
   def execute(opts={})
-    return false if opts[:subscribers].nil? || opts[:subscribers].empty?
+    if opts[:subscribers].nil? || opts[:subscribers].empty?
+      Rails.logger.info "info=no_subscribers_in_action_opts class=send_message_action action_id=#{self.id} message_id=#{opts[:message].try(:[], 'id')}"
+      return false
+    end
     subscribers = opts[:subscribers]
     message = Message.find_by_id(message_to_send)
-    return false if !message
+    if !message
+      Rails.logger.info "info=message_not_found_from_action_opts class=send_message_action action_id=#{self.id} message_id=#{opts[:message].try(:[], 'id')}"
+      return false
+    end
     MessagingManager.new_instance.broadcast_message(message,subscribers)
     message.perform_post_send_ops(subscribers)
     return true
-  rescue
+  rescue => e
+    Rails.logger.error "error=raise class=send_message_action action_id=#{self.id} message_id=#{opts[:message].try(:[], 'id')} message='#{e.message}'"
     return false
   end
 end

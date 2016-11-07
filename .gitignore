@@ -7,6 +7,8 @@ capybara-*.html
 /db/*.sqlite3-journal
 /public/system
 /coverage/
+config/application.yml
+config/database.yml
 /spec/tmp
 **.orig
 rerun.txt

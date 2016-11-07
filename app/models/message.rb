@@ -87,9 +87,10 @@ has_attached_file :content,
     end
   end
 
-  scope :primary,   -> { where( primary: true ) }
-  scope :secondary, -> { where( primary:false)  }
-  scope :active,    -> { where( active: true)   }
+  scope :primary,      -> { where( primary: true )          }
+  scope :secondary,    -> { where( primary:false)           }
+  scope :active,       -> { where( active: true)            }
+  scope :in_seq_order, -> { order("seq_no ASC NULLS LAST")  }
 
   @child_classes = []
 
@@ -108,7 +109,7 @@ has_attached_file :content,
   end
 
   def self.pending_send
-    where(active:true).where("next_send_time <= (?)",Time.now )
+    where(active:true).in_seq_order.where("next_send_time <= (?)",Time.now )
   end
 
   def reset_next_send_time

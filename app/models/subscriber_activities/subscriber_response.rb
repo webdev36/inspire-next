@@ -18,9 +18,7 @@
 #
 
 class SubscriberResponse < SubscriberActivity
-
   after_create :assign_channel_and_subscriber, :send_stats_d_update
-
   before_validation :case_convert_message
 
   def self.parse_message(pmessage_text,tparty_identifier=nil)

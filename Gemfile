@@ -87,6 +87,7 @@ end
 
 group :staging, :production do
   gem 'rails_serve_static_assets'
+  gem 'rails_12factor'
 end
 
 group :test do
@@ -98,6 +99,7 @@ group :test do
   gem 'recursive-open-struct'
   gem 'rack-test', require: 'rack/test'
   gem 'test-unit'
+  gem 'climate_control'
 end
 
 group :assets, :test do
