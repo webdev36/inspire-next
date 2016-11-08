@@ -192,7 +192,7 @@ class ChannelGroup < ActiveRecord::Base
     ch = channels.where(type:'OnDemandMessagesChannel').
       where("lower(one_word) = ?",tokens[0].downcase).first
     if !ch
-      handle_channel_group_subscriber_response_error(subscriber_response, 'on demand command cannot find matching channel', 'on_demand')
+      handle_channel_group_subscriber_response_error(subscriber_response, 'on demand command did not match channel', 'on_demand')
       return false
     end
     retval = ch.process_subscriber_response(subscriber_response)

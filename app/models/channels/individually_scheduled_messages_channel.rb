@@ -22,6 +22,28 @@
 #  relative_schedule :boolean
 #  send_only_once    :boolean          default(FALSE)
 #
+# NOTES
+# Individually scheduled messages channels use a different scheduling system
+# based on what the message itself says to do. So, bascially, the channel
+# iterates over all mesasges in the cahnnel whenever the cron calls  it to
+# see if anything needs to be sent.
+#
+# A channel can be setup with a "relative schedule", which means dates for
+# sending are calculated relative to when the subscriber was added to the
+# channel. They can also be "not_relateive_schedule" which means that times
+# are calculated relative to the channel's view of time.
+#
+# Practically, waht this means, is that when you schedule a message in a
+# channel:
+#   If relatively shceduled (on subscriber time):
+#      They are sceduled one time at Day 1 8:00, Week 4 Monday 14:00, or
+#      they are schedulee recurring using the reucrring_schedule object
+#   if they are static scheduled (on channel time)
+#      They are scheduled at a fixed date and time (next_send_at), the
+#      schedule and the recurring_scheduled will BOTH be blank.
+#      THey are scheduled recurring using the recurring_schedule object
+#      taht is stored on the message.
+
 
 class IndividuallyScheduledMessagesChannel < Channel
 
@@ -52,97 +74,19 @@ class IndividuallyScheduledMessagesChannel < Channel
     true
   end
 
-  def has_already_been_sent_message?(subscriber_id, message_id)
-    SubscriberMessageSent.has_already_been_sent_message?(subscriber_id, message_id)
-  end
-
-  def group_subscribers_by_message_non_relative_schedule
-    subscriber_ids = subscribers.pluck(:id)
-    message_ids    = messages.active.pending_send.pluck(:id)
-    if message_ids.length > 0
-      msh = {}
-      message_ids.each do |message_id|
-        subscriber_ids.each do |subscriber_id|
-          if has_already_been_sent_message?(subscriber_id, message_id)
-            StatsD.increment("subscriber.#{subscriber_id}.message.#{message_id}.already_sent")
-            # Rails.logger.info "action=group_subscribers_by_message from=individually_scheduled_messages_channel schedule=non_relative status=warn warn=skip_already_sent message_id=#{message_id} subscriber_id=#{subscriber_id}" if Rails.env != 'production'
-            next
-          else
-            StatsD.increment("subscriber.#{subscriber_id}.message.#{message_id}.queued")
-            if msh[message_id]
-              msh[message_id] << Subscriber.find(subscriber_id)
-            else
-              msh[message_id] = [Subscriber.find(subscriber_id)]
-            end
-          end
-        end
-      end
-      return msh
-    else
-      return nil
-    end
-  end
-
-  def group_subscribers_by_message_relative_schedule
-    subscriber_ids = subscribers.map(&:id)
-    #For each message
+  # Find the messages which have not been sent and whose next_send_time
+  # is in the past
+  def group_subscribers_by_message
     msh = {}
-    messages.active.order('created_at ASC').each do |message|
-      message_id = message.id
-      #For all subscribers
-      subscriber_ids.each do |subscriber_id|
-        if time_to_send?(subscriber_id, message)
-          if has_already_been_sent_message?(subscriber_id, message_id)
-            StatsD.increment("subscriber.#{subscriber_id}.message.#{message_id}.already_sent")
-            # Rails.logger.info "action=group_subscribers_by_message from=individually_scheduled_messages_channel status=warn warn=skip_already_sent message_id=#{message_id} subscriber_id=#{subscriber_id}"
-            next
-          else
-            StatsD.increment("subscriber.#{subscriber_id}.message.#{message_id}.queued")
-            # Rails.logger.info "action=group_subscribers_by_message from=individually_scheduled_messages_channel info=queued_subscriber_message message_id=#{message_id} subscriber_id=#{subscriber_id}"
-            if msh[message_id]
-              msh[message_id] << Subscriber.find(subscriber_id)
-            else
-              msh[message_id] = [Subscriber.find(subscriber_id)]
-            end
-          end
-        else
-          # Rails.logger.info "action=group_subscribers_by_message from=individually_scheduled_messages_channel info=not_time_to_send message_id=#{message_id} subscriber_id=#{subscriber_id}"
-          StatsD.increment("subscriber.#{subscriber_id}.message.#{message_id}.not_time_to_send")
+    messages.each do |message|
+      subscribers.each do |subscriber|
+        if SendMessageChecker.send_to_subscriber?(subscriber, message)
+          msh[message.id] = [] if msh[message.id].blank?
+          msh[message.id] << subscriber
         end
       end
     end
     msh
-  end
-
-  def time_to_send?(subscriber_id, message)
-    flag = false
-    if message.respond_to?(:target_time)
-      subscriber_added_time  = subscriber_added_to_channel_at(subscriber_id)
-      subscriber_target_time = message.target_time(subscriber_added_time)
-      if subscriber_target_time && subscriber_target_time < Time.now
-        # Rails.logger.info "info=time_to_send message_id=#{message.id} subscriber_id=#{subscriber_id} subscriber_target_time=#{subscriber_target_time}"
-        flag = true
-      else
-        # Rails.logger.info "info=time_to_send message_id=#{message.id} subscriber_id=#{subscriber_id} subscriber_target_time=#{subscriber_target_time}"
-      end
-    else
-      # Rails.logger.info "mesasge does not respond to target time"
-    end
-    flag
-  end
-
-  def subscriber_added_to_channel_at(subscriber_id)
-    Subscription.where(subscriber_id: subscriber_id, channel_id: self.to_param).first.created_at
-  end
-
-  # Find the messages which have not been sent and whose next_send_time
-  # is in the past
-  def group_subscribers_by_message
-    if relative_schedule
-      group_subscribers_by_message_relative_schedule
-    else
-      group_subscribers_by_message_non_relative_schedule
-    end
   end
 
   def perform_post_send_ops(msg_no_subs_hash)

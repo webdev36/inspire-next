@@ -58,8 +58,8 @@ describe IndividuallyScheduledMessagesChannel do
     end
 
     it "group_subscribers_by_message groups messages with pending_send" do
-      m1 = create(:message,channel:channel,next_send_time:1.day.ago)
-      m2 = create(:message,channel:channel,next_send_time:1.minute.ago)
+      m1 = create(:message,channel:channel,next_send_time: 1.day.ago)
+      m2 = create(:message,channel:channel,next_send_time: 1.minute.ago)
       m3 = create(:message,channel:channel)
       s1 = create(:subscriber,user:user)
       s2 = create(:subscriber,user:user)
@@ -67,37 +67,61 @@ describe IndividuallyScheduledMessagesChannel do
       channel.subscribers << s1
       channel.subscribers << s2
       msh = subject.group_subscribers_by_message
-      expect(msh.length).to eq(2)
-      expect(msh[m1.id].to_a).to match_array([s1,s2])
-      expect(msh[m2.id].to_a).to match_array([s1,s2])
+      expect(msh.length).to eq(1)
+      expect(msh.has_key?(m1.id)).to be_falsey
+      expect(msh[m2.id].to_a.map(&:id).sort).to match_array([s1,s2].map(&:id).sort)
     end
 
     it "for messages with relative_schedule, the group_subscribers_by_message groups correctly" do
       channel.relative_schedule = true
       channel.save
-      m1 = create(:message,channel:channel,relative_schedule_type:'Minute',
-      relative_schedule_number: '20')
-      m2 = create(:message,channel:channel,relative_schedule_type:'Week',
-        relative_schedule_number:1,relative_schedule_day:'Thursday',
-        relative_schedule_hour:19,relative_schedule_minute:'00')
-      m3 = create(:message,channel:channel,relative_schedule_type:'Week',
-        relative_schedule_number:1,relative_schedule_day:'Friday',
-        relative_schedule_hour:19,relative_schedule_minute:'00')
-      Timecop.freeze(Time.new(2014,1,20))
+      travel_to_string_time('January 20, 2014 08:00')
+      m1 = create(:message, channel: channel,
+                            relative_schedule_type:'Minute',
+                            relative_schedule_number: '20')
+      m2 = create(:message, channel:channel,
+                            relative_schedule_type:'Week',
+                            relative_schedule_number:1,
+                            relative_schedule_day:'Thursday',
+                            relative_schedule_hour:19,
+                            relative_schedule_minute:'00')
+      m3 = create(:message, channel: channel,
+                            relative_schedule_type:'Week',
+                            relative_schedule_number:1,
+                            relative_schedule_day:'Friday',
+                            relative_schedule_hour:19,
+                            relative_schedule_minute:'00')
+
       s1 = create(:subscriber,user:user)
       s2 = create(:subscriber,user:user)
       s3 = create(:subscriber,user:user)
-      channel.subscribers << s1
-      channel.subscribers << s2
-      channel.subscribers << s3
-      Timecop.freeze(Time.new(2014,1,23,19,10))
-      create(:delivery_notice,subscriber:s1,message:m1)
-      create(:delivery_notice,subscriber:s3,message:m2)
+      expect {
+        channel.subscribers << s1
+        channel.subscribers << s2
+        channel.subscribers << s3
+      }.to change { Subscription.count }.by(3)
+
+      create(:delivery_notice, subscriber:s1, message: m1)
+
+      travel_to_string_time("January 20, 2014, 8:20")
+      create(:delivery_notice, subscriber:s1, message: m1)
       msh = subject.group_subscribers_by_message
-      expect(msh.length).to eq(2)
-      expect(msh[m1.id].to_a).to match_array([s2,s3])
-      expect(msh[m2.id].to_a).to match_array([s1,s2])
-      Timecop.return
+      expect(msh.length).to eq(1)
+      expect(msh[m1.id].to_a.map(&:id).sort).to match_array([s2,s3].map(&:id).sort)
+
+      travel_to_next_dow('Thursday')
+      travel_to_next_dow('Thursday')
+      create(:delivery_notice, subscriber:s3, message: m2)
+      travel_to_same_day_at(19,00)
+      msh = subject.group_subscribers_by_message
+      expect(msh.length).to eq(1)
+      expect(msh[m2.id].to_a.map(&:id).sort).to match_array([s1,s2].map(&:id).sort)
+
+      travel_to_next_dow('Friday')
+      travel_to_same_day_at(19,00)
+      msh = subject.group_subscribers_by_message
+      expect(msh.length).to eq(1)
+      expect(msh[m3.id].to_a.map(&:id).sort).to match_array([s1,s2,s3].map(&:id).sort)
     end
 
     it "with absolute schedule makes the messages inactive once sent" do
@@ -115,33 +139,35 @@ describe IndividuallyScheduledMessagesChannel do
       expect(subject.next_send_time).to be < Time.now
     end
 
-    it "send_scheduled_messages sends messages whose next_send_time is in past" do
-      m1 = create(:message,channel:channel,next_send_time:1.day.ago)
-      m2 = create(:message,channel:channel,next_send_time:1.minute.ago)
+    it "send_scheduled_messages sends messages to time not in the distant past" do
+      m1 = create(:message, channel:channel, next_send_time:1.day.ago )
+      m2 = create(:message, channel:channel, next_send_time:1.minute.ago)
       s1 = create(:subscriber,user:user)
       s2 = create(:subscriber,user:user)
       channel.subscribers << s1
       channel.subscribers << s2
       d1 = double.as_null_object
-      allow(MessagingManager).to receive(:new_instance){d1}
+      allow(MessagingManager).to receive(:new_instance){ d1 }
       ma = []
       allow(d1).to receive(:broadcast_message){ |message,subscribers|
         expect(subscribers.to_a).to match_array([s1,s2])
         ma << message
       }
       subject.send_scheduled_messages
-      expect(ma).to match_array([Message.find(m1.id),Message.find(m2.id)])
+      expect(ma.map(&:id).sort).to match_array([Message.find(m2.id)].map(&:id).sort)
     end
 
-    it "tmap runs on a relative weekly schedule" do
-      Timecop.travel(Time.new(2014,1,1,10,0))
+    it "runs on a relative weekly schedule" do
+      travel_to_string_time('January 1, 2014, 10:00')
       user = create(:user)
-      channel_group = create(:channel_group,user:user)
-      channel = create(:individually_scheduled_messages_channel,name:'TMAP-M', user:user,
-        keyword:'group1')
+      channel_group = create(:channel_group, user:user)
+      channel       = create(:individually_scheduled_messages_channel,
+                              name:'TMAP-M', user:user,
+                              keyword:'group1')
       channel.relative_schedule = true
       channel.save
-      subscriber = create(:subscriber,user:user)
+      subscriber = create(:subscriber, user: user)
+
       msg0 = create(:message,channel:channel,title:'',caption:'Welcome to TMap',
         relative_schedule_type:'Minute',
         relative_schedule_number:1)
@@ -173,95 +199,22 @@ describe IndividuallyScheduledMessagesChannel do
         relative_schedule_hour:21,
         relative_schedule_minute:0
       )
-      channel.subscribers << subscriber
 
+      channel.subscribers << subscriber
       # the first time it runs it sends a mesage to the subscriber
-      Timecop.travel(Time.new(2014,1,1,11,0))
-      expect {
-        TpartyScheduledMessageSender.new.perform
-        }.to change{
-          DeliveryNotice.where(subscriber_id:subscriber.id).count
-        }.by 1
+      travel_to_string_time('January 1, 2014 10:01')
+      expect { run_worker! }.to change{ DeliveryNotice.count }.by(1)
 
       # but the messages are sccheduled after this, so no message goes
-      Timecop.travel(Time.new(2014,1,2,18,00))
-      expect {
-        TpartyScheduledMessageSender.new.perform
-        }.to_not change{
-          DeliveryNotice.where(subscriber_id:subscriber.id).count
-        }
+      travel_to_string_time('January 2, 2014 18:00')
+      expect { run_worker! }.to_not change{ DeliveryNotice.count }
 
       # message 1, the first week, on Thursday at 7pm
-      Timecop.travel(Time.new(2014,1,2,19,00,01))
-      expect {
-        TpartyScheduledMessageSender.new.perform
-        }.to change{
-          DeliveryNotice.where(subscriber_id:subscriber.id).count
-        }.by 1
+      travel_to_string_time('January 11, 2014 19:00')
+      expect { run_worker! }.to change { DeliveryNotice.count }.by(1)
 
-      Timecop.travel(Time.new(2014,1,2,19,01,30))
-      expect {
-        TpartyScheduledMessageSender.new.perform
-        }.to change{
-          DeliveryNotice.where(subscriber_id:subscriber.id).count
-        }.by 1
-
-      Timecop.travel(Time.new(2014,1,2,19,30,30))
-      expect {
-        TpartyScheduledMessageSender.new.perform
-        }.to change{
-          DeliveryNotice.where(subscriber_id:subscriber.id).count
-        }.by 1
-
-      Timecop.travel(Time.new(2014,1,3,19,00,01))
-      expect {
-        TpartyScheduledMessageSender.new.perform
-        }.to change{
-          DeliveryNotice.where(subscriber_id:subscriber.id).count
-        }.by 1
-
-      Timecop.travel(Time.new(2014,1,3,19,01,30))
-      expect {
-        TpartyScheduledMessageSender.new.perform
-        }.to change{
-          DeliveryNotice.where(subscriber_id:subscriber.id).count
-        }.by 1
-      #Breaks MVC, but this test case is a bit over-ambitious for a model anyway
-      params={}
-      params["Body"]="#{channel.tparty_keyword} #{channel.keyword} yes"
-      params["From"]=subscriber.phone_number
-      resp =  TwilioController.new.send(:handle_request,params)
-      Timecop.travel(Time.new(2014,1,3,19,30,30))
-      expect {
-          TpartyScheduledMessageSender.new.perform
-          }.to_not change{
-            DeliveryNotice.where(subscriber_id:subscriber.id).count
-          }
-
-      Timecop.travel(Time.new(2014,1,3,21,00,01))
-      expect {
-        TpartyScheduledMessageSender.new.perform
-        }.to change{
-          DeliveryNotice.where(subscriber_id:subscriber.id).count
-        }.by 1
-
-      params={}
-      params["Body"]="#{channel.tparty_keyword} #{channel.keyword} yes"
-      params["From"]=subscriber.phone_number
-      TwilioController.new.send(:handle_request,params)
-
-      Timecop.travel(Time.new(2014,1,3,21,01,30))
-      expect {
-        TpartyScheduledMessageSender.new.perform
-        }.to_not change{
-          DeliveryNotice.where(subscriber_id:subscriber.id).count
-        }
-      Timecop.travel(Time.new(2014,1,3,21,30,30))
-      expect {
-          TpartyScheduledMessageSender.new.perform
-          }.to_not change{
-            DeliveryNotice.where(subscriber_id:subscriber.id).count
-          }
+      travel_to_string_time('January 12, 2014 19:00')
+      expect { run_worker! }.to change { DeliveryNotice.count }.by(1)
     end
 
     it "is always pending_send" do
