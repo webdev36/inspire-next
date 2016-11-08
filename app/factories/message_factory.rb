@@ -9,6 +9,8 @@ class MessageFactory
       @strong_params.delete "action_attributes"
     end
 
+    @strong_params['recurring_schedule'] = nil if @strong_params['recurring_schedule'] == 'null'
+
     if message_type == "ActionMessage"
       @data = { resume_from_last_state: @strong_params["action_attributes"]["resume_from_last_state"] }
       @strong_params["action_attributes"].delete "resume_from_last_state"
@@ -34,8 +36,7 @@ class MessageFactory
         when "one_time"
           message.recurring_schedule = nil
         when "recurring"
-          message.next_send_time = nil
-          message.update_next_send_time_for_recurring_schedule
+          message.next_send_time = 1.minute.ago
         end
       end
 
