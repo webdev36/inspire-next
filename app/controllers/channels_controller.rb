@@ -15,13 +15,14 @@ class ChannelsController < ApplicationController
       .order(created_at: :desc)
       .page(params[:channels_page])
       .per_page(10)
+      .search(params[:search])
     @channel_groups = @user.channel_groups
       .order(created_at: :desc)
       .page(params[:channel_groups_page])
       .per_page(10)
 
     respond_to do |format|
-      format.html
+      format.html #index.html.erb
       format.json { render json: @channels }
     end
   end
