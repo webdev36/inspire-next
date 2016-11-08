@@ -55,14 +55,14 @@ describe RecurringScheduler do
     context 'relative to a supplied date' do
       it 'can provide a time by reading its recurring_schedule field' do
         helper.recurring_schedule = {:validations=>{:day=>[1], :hour_of_day=>[9], :minute_of_hour=>[45]}, :rule_type=>"IceCube::WeeklyRule", :interval=>1, :week_start=>0}
-        expect( helper.next_occurrence(Chronic.parse('January 1, 2020')) ).to be_within(5).of(Time.parse("2020-01-06 09:45:00 -0500"))
+        expect( helper.relative_next_occurrence(Chronic.parse('January 1, 2020')) ).to be_within(5).of(Time.parse("2020-01-06 09:45:00 -0500"))
       end
     end
     context 'relative to now' do
       it 'can provide a time by reading its recurring_schedule field' do
         travel_to_time(Chronic.parse('November 6, 2016 at noon'))
         helper.recurring_schedule = {:validations=>{:day=>[1], :hour_of_day=>[9], :minute_of_hour=>[45]}, :rule_type=>"IceCube::WeeklyRule", :interval=>1, :week_start=>0}
-        expect( helper.next_occurrence ).to be_within(1.minute).of(Time.parse("2016-11-07 09:45:00 -0500"))
+        expect( helper.relative_next_occurrence ).to be_within(1.minute).of(Time.parse("2016-11-07 09:45:00 -0500"))
       end
     end
   end

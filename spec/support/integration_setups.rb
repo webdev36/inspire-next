@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'date'
+require 'chronic'
 
 def send_an_inbound_message_from_a_nonsubscriber(from_phone, to, message)
   incoming_message = build :inbound_twilio_message
@@ -16,36 +17,6 @@ def send_a_subscriber_response(sub, to, message)
   incoming_message['Body'] = message
   controller = TwilioController.new.send(:handle_request,incoming_message)
 end
-
-def travel_to(year, month, day, hour, minute, second)
-  t = Time.local(year, month, day, hour, minute, second)
-  Timecop.travel(t)
-end
-
-def travel_to_time(ruby_time)
-  t = Time.local(ruby_time.year, ruby_time.month, ruby_time.day, ruby_time.hour, ruby_time.min, ruby_time.sec)
-  Timecop.travel(t)
-end
-
-def travel_to_same_day_at(hour, minute)
-  tn = Time.now
-  t = Time.local(tn.year, tn.month, tn.day, hour, minute, 0)
-  Timecop.travel(t)
-end
-
-def date_of_next(day)
-  date  = Date.parse(day)
-  delta = date > Date.today ? 0 : 7
-  date + delta
-end
-
-def travel_to_next_dow(day_of_week)
-  today_as_date = Date.parse(Time.now.to_s)
-  target_date = date_of_next(day_of_week)
-  target_time = Time.parse(target_date.to_s)
-  travel_to_time(target_time)
-end
-
 
 def create_30_days_of_daily_response_messages(channel)
   (1..30).to_a.each do |daily_index|

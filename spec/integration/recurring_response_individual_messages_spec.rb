@@ -3,25 +3,55 @@ require 'support/integration_setups.rb'
 
 describe 'Integration/RecurringResponseIndividualMessages' do
   context 'non-relative messages' do
-    it 'it sends a recurring response message based on a set schedule' do
-      travel_to_time(Time.now - 30.days)
-      travel_to_next_dow('Tuesday') # skip. it should run in 6 days
-      travel_to_same_day_at(9,0)
+    it 'sends a recurring response messages (same message weekly without reconfig)' do
+      travel_to_string_time('September 6, 2016 9:00') # its a Tuesday
       setup_user_and_individually_scheduled_messages_non_relative_schedule
       repeating_message = create :recurring_response_message_with_reminders, channel: @channel
-      travel_to_same_day_at(10,0)
-      subscriber = create :subscriber, user: @user
-      @channel.subscribers << subscriber
-      expect(@channel.subscribers.length == 1).to be_truthy
-      run_worker!
-      expect(subscriber.delivery_notices.count == 0).to be_truthy
-      travel_to_next_dow('Monday')
-      travel_to_same_day_at(8,0)
-      run_worker!
-      expect(subscriber.delivery_notices.length == 0).to be_truthy
-      travel_to_same_day_at(9,46)
-      @channel.send_scheduled_messages
-      expect(subscriber.delivery_notices.length == 1).to be_truthy
+
+      expect {
+        travel_to_same_day_at(10,0)
+        subscriber = create :subscriber, user: @user
+        @channel.subscribers << subscriber
+      }.to change { Subscriber.count }.by(1)
+
+      expect {
+        run_worker!
+      }.to_not change { DeliveryNotice.count }
+
+      # its before the recurring window of time
+      [1,2].each do |the_time|
+        expect {
+          travel_to_next_dow('Monday')
+          travel_to_same_day_at(8,0)
+          run_worker!
+        }.to_not change { DeliveryNotice.count }
+
+        expect {
+          travel_to_same_day_at(9,45)
+          run_worker!
+          travel_to_same_day_at(9,48)
+          run_worker!
+        }.to change { DeliveryNotice.count }.by(1)
+
+        expect {
+          travel_to_same_day_at(10,25)
+          run_worker!
+        }.to_not change { DeliveryNotice.count }
+
+        expect {
+          travel_to_same_day_at(10,45)
+          run_worker!
+          travel_to_same_day_at(10,48)
+          run_worker!
+        }.to change { DeliveryNotice.count }.by(1)
+
+        expect {
+          travel_to_same_day_at(11,45)
+          run_worker!
+          travel_to_same_day_at(11,48)
+          run_worker!
+        }.to change { DeliveryNotice.count }.by(1)
+      end
     end
   end
 end

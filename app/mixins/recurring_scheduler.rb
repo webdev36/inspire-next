@@ -26,7 +26,7 @@ module RecurringScheduler
       no = language_time(self.send(static_schedule_field), time_base)
     elsif has_recurring_schedule_field_data?
       no =  Time.now if relative_occurrence_right_now?(time_base)
-    else # absolute time, only shoudl be run once
+    else # absolute time, only should be run once
       no = next_send_time
     end
     no

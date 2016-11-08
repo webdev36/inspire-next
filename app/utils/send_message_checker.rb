@@ -26,8 +26,8 @@ class SendMessageChecker
   # the relative schedule case is where the subscriber's subscribed time is the
   # basiss for callcuating if we send the message to teh subscriber or not
   def valid_schedule?
-    return false if message_is_too_past_due_to_send_to_subscriber?(scheduled_time_at)
-    return false if !message_is_due_to_be_sent_to_subscriber?(scheduled_time_at)
+    return false if message_is_too_past_due_to_send_to_subscriber?
+    return false if !message_is_due_to_be_sent_to_subscriber?
     true
   end
 
@@ -36,18 +36,18 @@ class SendMessageChecker
   # it should calculate based on the channel time itself.
   def scheduled_time_at
     @scheduled_time_at ||= begin
-      if channel.relative_schedule
+      if channel.relative_schedule # to subscriber
         relative_scheduled_time
       else
-        static_scheduled_time
+        static_scheduled_time # to channel creation
       end
     end
   end
 
-  # the static schedule case iswhere the subscriber subscribed time doesn't mattch
+  # the static schedule time is where the subscriber subscribed time doesn't match
   # the messages are scheduled relative to an absolute date and time
   def static_scheduled_time
-    @static_schedule_case ||= message.next_occurrence
+    @static_scheduled_time ||= message.next_occurrence(channel_created_at)
   end
 
   # when is this message scheduled to go to the subscriber in the relative case
@@ -57,6 +57,10 @@ class SendMessageChecker
 
   def channel
     @channel ||= message.channel
+  end
+
+  def channel_created_at
+    @channel_created_at ||= channel.created_at
   end
 
   # validates if its recurring, if we have recently sent a mesasge, if not then
@@ -69,13 +73,22 @@ class SendMessageChecker
     end
   end
 
-  def message_is_due_to_be_sent_to_subscriber?(scheduled_time = Time.now)
-    (Time.now - 3.minutes) <= scheduled_time &&
-     scheduled_time <= (Time.now + 3.minutes)
+  def message_is_due_to_be_sent_to_subscriber?
+    schedule_delta <= 240.0
   end
 
-  def message_is_too_past_due_to_send_to_subscriber?(scheduled_time)
-    scheduled_time < (Time.now - 24.hours)
+  # a recurring scheduler will return a nil if its not time to process. So,
+  # if there is a nil, we set it to NOT NOW timewise
+  def schedule_delta
+    sd = 9999999999.0
+    sd = (Time.now - scheduled_time_at).abs if scheduled_time_at
+    sd
+  end
+
+  def message_is_too_past_due_to_send_to_subscriber?
+    flag = true
+    flag = scheduled_time_at < (Time.now - 24.hours) if scheduled_time_at
+    flag
   end
 
   def subscriber_added_to_channel_at
@@ -114,9 +127,10 @@ class SendMessageChecker
   # what to do with the message
   def print_calc
     puts ""
-    puts "TimeNow:#{Time.now} MessageId:#{message.id} ChannelRelative#{channel.relative_schedule}"
-    puts "Schedule:#{message.schedule} NextSendAT:#{message.next_send_time} RecurringSchedule:#{message.recurring_schedule}"
-    puts "SubscriberAddedToChannelAt:#{subscriber_added_to_channel_at}"
+    puts "TimeNow: #{Time.now} MessageId: #{message.id} ChannelRelative? #{channel.relative_schedule}"
+    puts "MsgSchedule: #{message.schedule} MsgNextSendAT:#{message.next_send_time} MsgRecurringSchedule:#{message.recurring_schedule}"
+    puts "SubAddedToChannelAt: #{subscriber_added_to_channel_at} ChannelCreatedAt: #{channel_created_at}"
+    puts "ScheduledAt: #{scheduled_time_at} Schedule Delta: #{schedule_delta}"
     puts ""
   end
 

@@ -4,101 +4,116 @@ require 'support/integration_setups.rb'
 describe 'Integration/Reminder messages' do
   it 'reminder message send if no response is received' do
     # a uesr setups a channel with repeatsing messages
-    travel_to(2016, 9, 1, 10, 0, 0)
-    setup_user_and_system
-    @channel.relative_schedule = true
-    @channel.save
+    travel_to_string_time('September 1, 2016 10:00')
+    setup_user_and_individually_scheduled_messages_relative_schedule
     message = create_repeating_response_message(@channel)
-    run_worker!
-
+    expect {
+      run_worker!
+    }.to_not change { DeliveryNotice.count }
     # an hour later, we add a subscriber
-    travel_to(2016, 9, 1, 10, 01, 0)
-    @channel.subscribers.push @subscriber
-    @channel.reload
-    expect(@channel.subscribers.length == 1).to be_truthy
-    run_worker!
-    expect(@subscriber.delivery_notices.length == 0).to be_truthy
+    expect {
+      # an hour later, we add a subscrxiber
+      travel_to_string_time('September 1, 2016 11:00')
+      @channel.subscribers.push @subscriber
+    }.to change { @channel.subscribers.length }.by(1)
+
+    expect {
+      run_worker!
+    }.to_not change { DeliveryNotice.count }
 
     # the first meessage is "Day 1, 12:00", so it SHOULD go now
-    travel_to(2016, 9, 1, 12, 01, 0)
-    run_worker!
-    @subscriber.reload
-    expect(@subscriber.delivery_notices.length == 1).to be_truthy
+    expect {
+      travel_to_string_time('September 2, 2016 12:00')
+      run_worker!
+      travel_to_same_day_at(12,03)
+      run_worker!
+    }.to change { DeliveryNotice.count }.by(1)
 
     # the message count doesnt change, its not reminder time
-    travel_to(2016, 9, 1, 12, 30, 0)
-    run_worker!
-    @subscriber.reload
-    expect(@subscriber.delivery_notices.length == 1).to be_truthy
+    expect {
+      travel_to_same_day_at(12,30)
+      run_worker!
+    }.to_not change { DeliveryNotice.count }
 
     # the time is ready for the next reminder, it should be sent now.
-    travel_to(2016, 9, 1, 13, 02, 0)
-    run_worker!
-    @subscriber.reload
-    expect(@subscriber.delivery_notices.length == 2).to be_truthy
+    expect {
+      travel_to_same_day_at(13,00)
+      run_worker!
+      travel_to_same_day_at(13,03)
+      run_worker!
+    }.to change { DeliveryNotice.count }.by(1)
 
     # the time not ready for the next reminder.
-    travel_to(2016, 9, 1, 13, 30, 0)
-    run_worker!
-    @subscriber.reload
-    expect(@subscriber.delivery_notices.length == 2).to be_truthy
+    expect {
+      travel_to_same_day_at(13,30)
+      run_worker!
+    }.to_not change { DeliveryNotice.count }
 
     # the time is ready for the next reminder, it should be sent now.
-    travel_to(2016, 9, 1, 14, 02, 0)
-    run_worker!
-    @subscriber.reload
-    expect(@subscriber.delivery_notices.length == 3).to be_truthy
+    expect {
+      travel_to_same_day_at(14,00)
+      run_worker!
+      travel_to_same_day_at(14,03)
+      run_worker!
+    }.to change { DeliveryNotice.count }.by(1)
   end
 
   it 'are not sent when receiving a response' do
-    # a uesr setups a channel with repeatsing messages
-    travel_to(2016, 9, 1, 10, 0, 0)
-    setup_user_and_system
-    @channel.relative_schedule = true
-    @channel.save
+    travel_to_string_time('September 1, 2016 10:00')
+    setup_user_and_individually_scheduled_messages_relative_schedule
     @message = create_repeating_response_message(@channel)
-    run_worker!
-    # an hour later, we add a subscriber
-    travel_to(2016, 9, 1, 11, 0, 0)
-    @channel.subscribers.push @subscriber
-    @channel.reload
-    expect(@channel.subscribers.length == 1).to be_truthy
-    run_worker!
+    expect {
+      run_worker!
+    }.to_not change { DeliveryNotice.count }
 
-    travel_to(2016, 9, 1, 12, 01, 0)
-    run_worker!
-    @subscriber.reload
-    expect(@subscriber.delivery_notices.length == 1).to be_truthy
+    expect {
+      # an hour later, we add a subscrxiber
+      travel_to_string_time('September 1, 2016 11:00')
+      @channel.subscribers.push @subscriber
+    }.to change { @channel.subscribers.length }.by(1)
+
+    expect {
+      run_worker!
+    }.to_not change { DeliveryNotice.count }
+
+    # the first meessage is "Day 1, 12:00", so it SHOULD go now
+    expect {
+      travel_to_string_time('September 2, 2016 12:00')
+      run_worker!
+      travel_to_same_day_at(12,03)
+      run_worker!
+    }.to change { DeliveryNotice.count }.by(1)
 
     # the message count doesnt change, its not reminder time
-    travel_to(2016, 9, 1, 12, 30, 0)
-    run_worker!
-    @subscriber.reload
-    expect(@subscriber.delivery_notices.length == 1).to be_truthy
+    expect {
+      travel_to_same_day_at(12,30)
+      run_worker!
+    }.to_not change { DeliveryNotice.count }
 
-    # an inbound message comes in from the subscriber
-    travel_to(2016, 9, 1, 12, 35, 0)
-    incoming_message = build :inbound_twilio_message
-    incoming_message['From'] = @subscriber.phone_number
-    incoming_message['To'] = @channel.tparty_keyword
-    incoming_message['Body'] = "7"
-    controller = TwilioController.new.send(:handle_request,incoming_message)
-    expect(@subscriber.subscriber_responses.length == 1).to be_truthy
-    @message.reload
-    expect(@message.subscriber_responses.length == 1).to be_truthy
+    # a subscriber sends a message
+    expect {
+      travel_to_string_time('September 2, 2016 12:34')
+      incoming_message = build :inbound_twilio_message
+      incoming_message['From'] = @subscriber.phone_number
+      incoming_message['To'] = @channel.tparty_keyword
+      incoming_message['Body'] = "7"
+      controller = TwilioController.new.send(:handle_request,incoming_message)
+    }.to change { SubscriberResponse.count }.by(1)
 
-    # the time is ready for the next reminder, but it should not be sent
-    # becuase the subscriber responded
-    travel_to(2016, 9, 1, 13, 02, 0)
-    run_worker!
-    @subscriber.reload
-    expect(@subscriber.delivery_notices.length == 1).to be_truthy
+    # the first meessage is "Day 1, 13:00", so it SHOULD go now, but shouldn't
+    # becuase we got a response
+    expect {
+      travel_to_string_time('September 2, 2016 13:00')
+      run_worker!
+      travel_to_same_day_at(13,03)
+      run_worker!
+    }.to_not change { DeliveryNotice.count }
 
-    # and we still dont send one later
-    travel_to(2016, 9, 1, 14, 30, 0)
-    run_worker!
-    @subscriber.reload
-    expect(@subscriber.delivery_notices.length == 1).to be_truthy
-
+    expect {
+      travel_to_string_time('September 2, 2016 14:00')
+      run_worker!
+      travel_to_same_day_at(14,03)
+      run_worker!
+    }.to_not change { DeliveryNotice.count }
   end
 end

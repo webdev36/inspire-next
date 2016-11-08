@@ -46,8 +46,9 @@ class ResponseMessage < Message
 
   def process_subscriber_response(sr)
     flag_executed = false
+    flag_executed = true if response_actions.length == 0
     response_actions.each do |ra|
-      if sr.content_text =~ /#{ra.response_text}/
+      if sr.content_text =~ /#{ra.response_text}/im
         if ra.action
           ra.action.execute({:subscribers=>[sr.subscriber],:from_channel=>channel})
           handle_subscriber_response_success(sr, 'matched text triggered execution', 'response action')
@@ -59,7 +60,7 @@ class ResponseMessage < Message
       end
     end
     if flag_executed == false
-      handle_subscriber_response_error(sr, 'no matches for subscriber response', 'response action')
+      handle_subscriber_response_error(sr, 'nsubscriber response not matched', 'response action')
     end
     true
   end
