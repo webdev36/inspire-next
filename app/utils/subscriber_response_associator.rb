@@ -23,6 +23,26 @@ class SubscriberResponseAssociator
     recommendation
   end
 
+  def caption
+    subscriber_response.caption
+  end
+
+  # sr.content_text =~ /#{ra.response_text}/im
+  def most_recent_matching_message_response
+    message_id = nil
+    expected_responses_map.keys.each do |key|
+      if !(caption !~ /#{key}/im) # if the caption contains the string
+        message_id = expected_responses_map[key].try(:first)
+        Rails.logger.info "class=subscriber_response_associator info=matched_subscriber_response caption='#{caption}' key='#{key}' message_id=#{message_id} subscriber_response_id=#{subscriber_response.id}"
+        break
+      end
+    end
+    msg = Message.find(message_id) if message_id
+    if msg
+      { message_id: msg.id, channel_id: msg.channel_id }
+    end
+  end
+
   def has_expected_responses?
     expected_responses_map.keys.length > 0
   end
@@ -32,13 +52,17 @@ class SubscriberResponseAssociator
   end
 
   def first_response_expecting_dn
-    dn = response_expecting_delivery_notices.first
-    { message_id: dn.message_id, channel_id: dn.channel_id }
+    resp = nil
+    dn = response_expecting_delivery_notices&.first
+    resp = { message_id: dn.message_id, channel_id: dn.channel_id } if dn
+    resp
   end
 
   def first_delivery_notice
-    dn = delivery_notices.first
-    { message_id: dn.message_id, channel_id: dn.channel_id }
+    resp = nil
+    dn = delivery_notices&.first
+    resp = { message_id: dn.message_id, channel_id: dn.channel_id } if dn
+    resp
   end
 
   def subscriber
@@ -53,8 +77,13 @@ class SubscriberResponseAssociator
   end
 
   def potential_channel_ids
-    @potential_channel_ids ||= Channel.by_tparty_keyword(subscriber_response.tparty_identifier)
-                                      .map(&:id)
+    @potential_channel_ids ||= begin
+      pcids = []
+      Channel.by_tparty_keyword(subscriber_response.tparty_identifier).pluck(:id).each { |id| pcids << id }
+      ChannelGroup.where(:tparty_keyword => subscriber_response.tparty_identifier)
+                  .includes(:channels).pluck('channels.id').each { |id| pcids << id }
+      pcids.uniq
+    end
   end
 
   def expected_responses_map

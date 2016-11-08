@@ -32,8 +32,10 @@ describe TwilioWrapper do
         expect(TwilioWrapper.new.allowed_to_send? == false).to be_truthy
       end
     end
-    it "default during test is mock on" do
-      expect(TwilioWrapper.new.mock).to eq(true)
+    it "defaults during test is mock on" do
+      ClimateControl.modify RAILS_ENV: 'test' do
+        expect(TwilioWrapper.new.mock).to eq(true)
+      end
     end
   end
 

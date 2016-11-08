@@ -29,7 +29,7 @@ class SubscriberActivity < ActiveRecord::Base
   belongs_to :message
 
   before_validation :normalize_phone_number
-  before_save :update_derived_attributes_before_save
+  before_save       :update_derived_attributes_before_save
 
   after_initialize do |sa|
     if sa.new_record?
@@ -54,6 +54,10 @@ class SubscriberActivity < ActiveRecord::Base
 
   def self.child_classes
     @child_classes
+  end
+
+  def self.recently_created
+    where(created_at: 24.hours.ago..Time.now)
   end
 
   def self.of_subscriber(subscriber)

@@ -255,12 +255,13 @@ class Channel < ActiveRecord::Base
     when :custom
       process_custom_command(subscriber_response)
     else
+      handle_subscriber_response_error(subscriber_response, 'command not identitied', 'channel_root')
       false
     end
   end
 
   def handle_subscriber_response_error(subscriber_response, error_type, action)
-    StatsD.increment("channel.#{self.id}.subscriber_response.#{subscriber_response.id}.phone_#{error_type.underscore}")
+    StatsD.increment("channel.#{self.id}.subscriber_response.#{subscriber_response.id}.#{error_type.underscore}")
     Rails.logger.error "error=phone_#{error_type.underscore} message='Subscriber phone #{error_type}' subscriber_response_id=#{subscriber_response.id} channel_id=#{self.id}"
     subscriber_response.update_processing_log("Received #{action} command, but #{error_type}")
   end
@@ -327,14 +328,35 @@ class Channel < ActiveRecord::Base
   end
 
   def process_custom_command(subscriber_response)
-    return true if process_custom_channel_command(subscriber_response)
-    message = associate_response_with_last_primary_message(subscriber_response)
-    if message
-      return message.process_subscriber_response(subscriber_response)
+    flag = false
+    sra = SubscriberResponseAssociator.new(subscriber_response)
+    recommendation = sra.recommendation
+    if recommendation
+      message = Message.find(recommendation[:message_id])
+      if message
+        # have the message process hte subscriber response, and see what to do
+        subscriber_response.message = message
+        subscriber_response.save
+        flag = message.process_subscriber_response(subscriber_response)
+      else
+        handle_subscriber_response_error(subscriber_response, 'mesage not found for custom command', 'custom')
+      end
     else
-      false
+      handle_subscriber_response_error(subscriber_response, 'no recommendation for custom command', 'custom')
     end
+    flag
   end
+
+ # def process_custom_command(subscriber_response)
+ #   return true if process_custom_channel_command(subscriber_response)
+ #   message = associate_response_with_last_primary_message(subscriber_response)
+ #   if message
+ #     return message.process_subscriber_response(subscriber_response)
+ #   else
+ #     handle_subscriber_response_error(subscriber_response, 'custom message not associated with message', 'custom')
+ #     false
+ #   end
+ # end
 
   # this should be in the child channel type, so it returns false by default here
   def process_custom_channel_command(subscriber_response)

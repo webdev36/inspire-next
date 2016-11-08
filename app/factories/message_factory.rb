@@ -20,6 +20,7 @@ class MessageFactory
       message = if @current_message.nil?
         @channel.messages.new @strong_params
       else
+        @strong_params['recurring_schedule'] = JSON.parse(@strong_params['recurring_schedule']) if @strong_params['recurring_schedule']
         @current_message.assign_attributes @strong_params
         @current_message.action = nil unless message_type == "ActionMessage"
         @current_message
