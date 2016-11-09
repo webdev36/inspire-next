@@ -70,11 +70,11 @@ class MessagesController < ApplicationController
     @channels = current_user.channels
 
     respond_to do |format|
-      if @message.update_attributes(params[:message])
-        format.html { redirect_to [@channel,@message], notice: 'Message was successfully updated.' }
+      if @message.save
+        format.html { redirect_to [@channel, @message], notice: 'Message was successfully updated.' }
         format.json { head :no_content }
       else
-        Rails.logger.error "#{@message.errors.inspect}"
+        Rails.logger.error "error=error_updating_message message_id=#{@message.try(:id)} message='#{@message.errors.inspect}'"
         format.html { render action: "edit" }
         format.json { render json: @message.errors, status: :unprocessable_entity }
       end
