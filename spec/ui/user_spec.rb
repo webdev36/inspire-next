@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-feature 'UI/User', js: true do
+feature 'UI/User' do
   background do
     @user = create(:user)
     @channel = create(:channel, user:@user)
@@ -19,25 +19,6 @@ feature 'UI/User', js: true do
         expect(page).to have_content(@user.email)
       end
     end
-
-    scenario 'user searches channel about name' do
-      within '#channels-section' do
-        fill_in 'search', :with => "test"
-        keypress = "var e = $.Event('keydown', { keyCode: 13 }); $('body').trigger(e);"
-        page.driver.execute_script(keypress)
-      end
-      visit channels_path
-      expect(page).to have_text("Channels and Channel Groups")
-    end
-
-    scenario 'user searches subscriber about name' do
-      within '#subscribers-section' do
-        fill_in 'search', :with => "ethan"
-        keypress = "var e = $.Event('keydown', { keyCode: 13 }); $('body').trigger(e);"
-        page.driver.execute_script(keypress)
-      end
-      visit subscribers_path
-      expect(page).to have_text("Subscribers")
-    end
   end
 end
+
