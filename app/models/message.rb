@@ -199,7 +199,7 @@ class Message < ActiveRecord::Base
   def grouped_responses
     return [] if subscriber_responses.size < 1
     content_hash = {}
-    srs = subscriber_responses.order('created_at ASC')
+    srs = subscriber_responses.order('created_at DESC')
     srs.each do |sr|
       if content_hash[sr.content_text]
         content_hash[sr.content_text][:subscriber_responses] << sr
@@ -218,7 +218,7 @@ class Message < ActiveRecord::Base
         :subscribers => rec[:subscribers].uniq
       }
     end
-    retval.sort!{|x,y| x[:message_content]<=>y[:message_content]}
+    #retval.sort!{|x,y| x[:message_content]<=>y[:message_content]}
     retval
   end
 
