@@ -284,10 +284,8 @@ class Message < ActiveRecord::Base
           next
         else
           error_rows << row.to_h
-          binding.pry
         end
       rescue => e
-        binding.pry
         error_rows << row.to_h
       end
     end

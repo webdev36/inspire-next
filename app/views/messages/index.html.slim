@@ -25,7 +25,11 @@
           tbody
             - @messages.find_each do |message|
               tr
-                td = link_to message.caption, channel_message_path(@channel, message)
+                - if message.type == 'TagMessage'
+                    - message.caption = message.decorate.message_text 
+                    td = link_to message.caption, channel_message_path(@channel, message)
+                - else  
+                    td = link_to message.caption, channel_message_path(@channel, message)
                 td = message.created_at
                 td
                   => link_to t(".edit", default: t("helpers.links.edit")),
