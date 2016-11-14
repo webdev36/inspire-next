@@ -97,7 +97,7 @@ class ExportUserData
   end
 
   def subscriber_ids
-    @hannel_ids ||= subscribers.all.pluck(:id)
+    @channel_ids ||= subscribers.all.pluck(:id)
   end
 
   def message_ids
