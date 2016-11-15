@@ -258,15 +258,12 @@ class Message < ActiveRecord::Base
     all.each do |message|
       csv << message.attributes.values_at(*column_names)
         if message.type == 'TagMessage'
-          #binding.pry
           csv << message.message_options.column_names
           message.message_options.each do |message_tag|
-            #binding.pry
-            #csv << message_tag.attributes.values_at(*column_names)
             csv << message_tag.attributes.values_at("id","message_id","key","value","created_at","updated_at")
           end
+          csv << ["*******"]
         end
-        csv << ["*******"]
       end
     end
   end
