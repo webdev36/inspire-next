@@ -45,6 +45,7 @@ class MessageDecorator < Draper::Decorator
   end
 
   def tag_message_text
+    #binding.pry
     mo = self.message_options.sample
     "#{mo.key}: #{mo.value[0..100]} and #{self.message_options.count} other tags"
   end
