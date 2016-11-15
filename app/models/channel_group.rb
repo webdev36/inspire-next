@@ -39,6 +39,8 @@ class ChannelGroup < ActiveRecord::Base
   before_create  :add_keyword
   before_destroy :remove_keyword
 
+  scope :search, -> (search) { where('lower(name) LIKE ?',"%#{search.to_s.downcase}%") }
+
   after_initialize do |channel_group|
     if channel_group.new_record?
       begin

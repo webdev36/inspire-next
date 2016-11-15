@@ -10,19 +10,20 @@ feature 'UI/Subscriber' do
     background do
       @channel = create(:channel, user:@user)
       @message = create(:message, channel:@channel)
-      @subscriber = create(params[:search],user:@user)
-      @channel.subscribers << @subscriber
+      @search_subscriber = create(:subscriber,user:@user, name: 'Apple Orange')
+      @other_subscriber = create(:subscriber, user:@user, name: 'Banana Coconut')
+      @channel.subscribers << @search_subscriber
+      @channel.subscribers << @other_subscriber
       within navigation_selector do
         click_link 'Subscribers'
       end
-      within page_selector do
-        click_link @subscriber.name
-      end
     end
-    scenario 'has the list searched subscribers' do
-      within page_header_selector do
-        expect(page).to have_content(@subscriber.name)
-      end
+    scenario 'can search and find subscribers by' do
+      fill_in 'subscribers_search', :with => 'apple'
+      click_button('Search')
+      page.all('table#subscribers_table tr').count.should == 1
+      page.should have_content('Apple')
+      page.should_not have_content('Banana')
     end
   end
 end

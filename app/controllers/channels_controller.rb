@@ -1,4 +1,7 @@
 class ChannelsController < ApplicationController
+  include Mixins::SubscriberSearch
+  include Mixins::ChannelSearch
+  include Mixins::ChannelGroupSearch
   before_action :load_channel
   skip_before_action :load_channel, only: %i(
       new create index add_subscriber remove_subscriber
@@ -10,17 +13,8 @@ class ChannelsController < ApplicationController
 
   def index
     session[:root_page] = channels_path
-    @channels = @user.channels
-      .where(channel_group_id: nil)
-      .order(created_at: :desc)
-      .page(params[:channels_page])
-      .per_page(10)
-      .search(params[:search])
-    @channel_groups = @user.channel_groups
-      .order(created_at: :desc)
-      .page(params[:channel_groups_page])
-      .per_page(10)
-
+    handle_channel_query
+    handle_channel_group_query
     respond_to do |format|
       format.html #index.html.erb
       format.json { render json: @channels }

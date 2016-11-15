@@ -1,11 +1,16 @@
 class ChannelGroupsController < ApplicationController
+  include Mixins::SubscriberSearch
+  include Mixins::ChannelSearch
+  include Mixins::ChannelGroupSearch
   before_filter :load_channel_group, :except => [:create_from_web]
   skip_before_filter :load_channel_group, :only => [:new,:create,:remove_channel]
   before_filter :load_user, :only =>[:new,:create]
   before_filter :load_channel, :only => [:remove_channel]
 
   def show
-    @channels = @channel_group.channels.page(params[:channels_page]).per_page(10) if @channel_group
+    handle_channel_query
+    handle_subscribers_query
+    # @channels = @channel_group.channels.page(params[:channels_page]).per_page(10) if @channel_group
     respond_to do |format|
       format.html # show.html.erb
       format.json { render json: @channel_group }

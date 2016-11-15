@@ -8,26 +8,8 @@
       = link_to new_subscriber_path, class: "btn btn-primary btn-xs"
         span.glyphicon.glyphicon-plus
 
-table.table.table-striped
-  thead
-    tr
-      th= model_class.human_attribute_name(:name)
-      th= model_class.human_attribute_name(:phone_number)
-      th= model_class.human_attribute_name(:remarks)
-      th= model_class.human_attribute_name(:created_at)
-      th
-  tbody
-    - @subscribers.each do |subscriber|
-      tr
-        td= link_to subscriber.name, subscriber_path(subscriber)
-        td= subscriber.phone_number
-        td= subscriber.remarks
-        td= subscriber.created_at
-        td.text-right
-           = link_to t(".edit", default: t("helpers.links.edit")),
-                      edit_subscriber_path(subscriber),
-                      class: "btn btn-default btn-xs"
 
 .row
-  .col-md-12.text-center
-  // TODO Should be a pagination here
+  .col-md-12
+    = render partial: 'shared/subscriber_list'
+

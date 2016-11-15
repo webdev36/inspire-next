@@ -1,9 +1,15 @@
 #channel-groups-section.panel.panel-default
   .panel-heading
     .row
-      .col-md-8
+      .col-md-4
         = raw "#{icon('folder-open')} Channel Groups (#{@channel_groups.count})"
-      .col-md-4.text-right.pull-right
+      .col-md-5
+        =form_tag request.url, method: :get do
+          .input-group
+            = search_field_tag :channel_group_search, params[:channel_group_search], placeholder: 'Search by name', class: 'form-control'
+            .input-group-btn
+              = button_tag('Search', class: 'btn btn-default')
+      .col-md-3.text-right.pull-right
         = link_to new_channel_group_path, class: "btn btn-primary btn-xs", id: 'channel-group-new'
           span.glyphicon.glyphicon-plus
 
