@@ -6,13 +6,17 @@
       .col-md-4
         = "Subscribers (#{@subscribers.count})"
       .col-md-5
-        = render "shared/search"
+        = form_tag request.url, method: :get do
+          .input-group
+            = search_field_tag :subscribers_search, params[:subscribers_search], placeholder: 'Search by name or phone', class: 'form-control'
+            .input-group-btn
+              = button_tag('Search', class: 'btn btn-default')
       .col-md-3.text-right.pull-right
         = link_to new_subscriber_path, class: "btn btn-primary btn-xs", id: 'subscriber-new'
           span.glyphicon.glyphicon-plus
   .panel-body
     - if @subscribers && @subscribers.count > 0
-      table.table.table-striped#channels_table
+      table.table.table-striped#subscribers_table
         thead
           th= subscriber_model_class.human_attribute_name(:name)
           th.text-center =icon('phone')

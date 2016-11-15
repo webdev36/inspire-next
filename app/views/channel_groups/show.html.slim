@@ -19,8 +19,10 @@
       dd= @channel_group.default_channel&.name
 
 .row
-  .col-md-12#channel-list
+  .col-md-6#channel-list
     = render partial: "shared/channel_list", locals: { channel_group: @channel_group }
+  .col-md-6#subscribers-list
+    = render partial: 'shared/subscriber_list'
 
 #page-actions.row
   .col-md-12

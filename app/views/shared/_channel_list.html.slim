@@ -5,13 +5,19 @@
 #channels-section.panel.panel-default
   .panel-heading
     .row
-      .col-md-8
+      .col-md-4
         span.icon
         - if channel_group
           = raw "#{icon('list-ol')} #{channel_group.name} channels (#{@channels.count})"
         - else
           = raw "#{icon('list-ol')} Channels (#{@channels.count})"
-      .col-md-4.pull-right.text-right
+      .col-md-5
+        =form_tag request.url, method: :get do
+          .input-group
+            = search_field_tag :channel_search, params[:channel_search], placeholder: 'Search for channel',class: 'form-control'
+            .input-group-btn
+              = button_tag('Search', class: 'btn btn-default')
+      .col-md-3.pull-right.text-right
         - if channel_group
           = link_to new_channel_path(channel_group_id: channel_group.id), class: "btn btn-primary btn-xs", id: 'channel-new' do
             span.glyphicon.glyphicon-plus

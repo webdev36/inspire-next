@@ -1,5 +1,7 @@
 class SubscribersController < ApplicationController
-
+  include Mixins::SubscriberSearch
+  include Mixins::ChannelSearch
+  include Mixins::ChannelGroupSearch
   before_filter :load_subscriber
   skip_before_filter :load_subscriber, :only => [:new,:create,:index]
   before_filter :load_user, :only =>[:new,:create,:index]
@@ -7,7 +9,7 @@ class SubscribersController < ApplicationController
   def index
     session[:root_page] = subscribers_path
     #@subscribers = @user.subscribers.load
-    @subscribers = @user.subscribers.search(params[:search])
+    handle_subscribers_query
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @subscribers }
@@ -15,12 +17,15 @@ class SubscribersController < ApplicationController
   end
 
   def show
-    @timeline = Timeline.timeline(@subscriber)
-
+    @timeline = Timeline.timeline(params.merge(:user_id => current_user.id))
     @sent_last_24_hours    = @subscriber.delivery_notices.where(created_at: 24.hours.ago..Time.now).count
     @replies_last_24_hours = @subscriber.subscriber_responses.where(created_at: 24.hours.ago..Time.now).count
     @errors_last_24_hours  = @subscriber.delivery_error_notices.where(created_at: 24.hours.ago..Time.now).count
     @actions_last_24_hours = @subscriber.action_notices.where(created_at: 24.hours.ago..Time.now).count
+
+    helper = SubscriberAvailableChannels.new(params.merge(:user_id => current_user.id))
+    @available_channels =  helper.channels
+    @subscribed_channel_ids = helper.subscribed_channel_ids
 
     respond_to do |format|
       format.html # show.html.erb

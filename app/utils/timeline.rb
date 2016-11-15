@@ -1,15 +1,36 @@
-class Timeline
-  attr_accessor :subscriber
-  # aggregates up the timeline of the subscriber
+require 'will_paginate/array'
 
-  def self.timeline(subscriber)
-    helper = new(subscriber)
+class Timeline
+  attr_accessor :params
+  # aggregates up the timeline of the subscriber
+  def self.timeline(params)
+    helper = new(params)
     helper.timeline
   end
 
-  def initialize(subscriber)
-    @subscriber = subscriber
+  def initialize(params)
+    @params = params
     @added = {}
+  end
+
+  def subscriber_id
+    @subscriber_id ||= params[:id]
+  end
+
+  def subscriber
+    @subscriber ||= Subscriber.find(subscriber_id)
+  end
+
+  def page
+    @page ||= params[:timeline_page] || 1
+  end
+
+  def per_page
+    @per_page ||= params[:timeline_per_page] || 10
+  end
+
+  def timeline
+    timeline_map.paginate(page: page, per_page: per_page)
   end
 
   def timeline_array
@@ -24,8 +45,8 @@ class Timeline
     end
   end
 
-  def timeline
-    @timeline ||= begin
+  def timeline_map
+    @timeline_map ||= begin
       tl = []
       map_by_type = {}
       subscriber_responses.each { |sr| add_to_timeline(sr) }
@@ -35,7 +56,7 @@ class Timeline
   end
 
   def subscriber_activities
-    SubscriberActivity.of_subscriber(@subscriber)
+    SubscriberActivity.of_subscriber(subscriber)
   end
 
   def subscriber_responses
