@@ -1,6 +1,6 @@
 module RelativeSchedule
 
-  NEVER = Time.now+1.year
+  NEVER = Time.now + 1.year
 
   attr_writer :relative_schedule_type,:relative_schedule_number,
     :relative_schedule_day,:relative_schedule_hour,:relative_schedule_minute
@@ -56,7 +56,7 @@ module RelativeSchedule
     case tokens[0]
     when 'Minute'
       md = schedule.match(/^Minute (\d+)$/)
-      return nil if (!md || !md[1]) 
+      return nil if (!md || !md[1])
       case field
       when :relative_schedule_type
         'Minute'
@@ -67,7 +67,7 @@ module RelativeSchedule
       end
     when 'Hour'
       md = schedule.match(/^Hour (\d+) (\d+)$/)
-      return nil if (!md || !md[1] || !md[2]) 
+      return nil if (!md || !md[1] || !md[2])
       case field
       when :relative_schedule_type
         'Hour'
@@ -80,14 +80,14 @@ module RelativeSchedule
       end
     when 'Day'
       md = schedule.match(/^Day (\d+) (\d+):(\d+)$/)
-      return nil if (!md || !md[1] || !md[2] || !md[3]) 
+      return nil if (!md || !md[1] || !md[2] || !md[3])
       case field
       when :relative_schedule_type
         'Day'
       when :relative_schedule_number
         md[1] rescue nil
       when :relative_schedule_hour
-        md[2]rescue nil        
+        md[2]rescue nil
       when :relative_schedule_minute
         md[3] rescue nil
       else
@@ -95,7 +95,7 @@ module RelativeSchedule
       end
     when 'Week'
       md = schedule.match(/^Week (\d+) (\S+) (\d+):(\d+)$/)
-      return nil if (!md || !md[1] || !md[2] || !md[3] || !md[4]) 
+      return nil if (!md || !md[1] || !md[2] || !md[3] || !md[4])
       case field
       when :relative_schedule_type
         'Week'
@@ -104,7 +104,7 @@ module RelativeSchedule
       when :relative_schedule_day
         md[2]
       when :relative_schedule_hour
-        md[3] rescue nil        
+        md[3] rescue nil
       when :relative_schedule_minute
         md[4] rescue nil
       else
@@ -162,16 +162,16 @@ module RelativeSchedule
     case tokens[0]
     when 'Minute'
       md = schedule.match(/^Minute (\d+)$/)
-      return NEVER if (!md || !md[1]) 
+      return NEVER if (!md || !md[1])
       minutes_from_now = md[1].to_i rescue 0
       return from_time+(60*minutes_from_now)
     when 'Hour'
       md = schedule.match(/^Hour (\d+) (\d+)$/)
-      return NEVER if (!md || !md[1] || !md[2]) 
+      return NEVER if (!md || !md[1] || !md[2])
       # There is an error in the calculation for time that is in past.
-      # The fix in 291aef7dc309db7b4dca00d08cf7f2413e8844d1 solves it. 
+      # The fix in 291aef7dc309db7b4dca00d08cf7f2413e8844d1 solves it.
       # But it creates some unreliable user scenarios if we have hourly messages
-      # configured at different times. 
+      # configured at different times.
       hours_from_now = (md[1].to_i)-1 rescue 0
       epoch = (from_time+hours_from_now.hours).beginning_of_hour
       return Chronic.parse("#{md[2]} minutes from now",now:epoch)
@@ -179,9 +179,9 @@ module RelativeSchedule
       md = schedule.match(/^Day (\d+) (\d+):(\d+)$/)
       return NEVER if (!md || !md[1] || !md[2] || !md[3])
       # There is an error in the calculation for time that is in past.
-      # The fix in 291aef7dc309db7b4dca00d08cf7f2413e8844d1 solves it. 
+      # The fix in 291aef7dc309db7b4dca00d08cf7f2413e8844d1 solves it.
       # But it creates some unreliable user scenarios if we have daily messages
-      # configured at different times. 
+      # configured at different times.
       days_from_now = (md[1].to_i)-1 rescue 0
       if days_from_now == 0
         epoch = from_time
@@ -191,7 +191,7 @@ module RelativeSchedule
       return Chronic.parse("#{md[2]}:#{md[3]}",now:epoch)
     when 'Week'
       md = schedule.match(/^Week (\d+) (\S+) (\d+):(\d+)$/)
-      return NEVER if (!md || !md[1] || !md[2] || !md[3] || !md[4]) 
+      return NEVER if (!md || !md[1] || !md[2] || !md[3] || !md[4])
       weeks_from_now = (md[1].to_i)-1 rescue 0
       wday = get_wday(md[2])
       if wday > from_time.wday
@@ -211,7 +211,7 @@ module RelativeSchedule
       else
         epoch = (from_time+weeks_from_now.weeks).beginning_of_day-1
       end
-      
+
       scheduled_time = Chronic.parse("#{md[2]} #{md[3]}:#{md[4]}",now:epoch)
       #Chronic does not handle past time well in case of week schedules.
       if scheduled_time < from_time
@@ -223,7 +223,7 @@ module RelativeSchedule
     end
   end
 
-  #This method returns time such that the message will be due for sending soon. 
+  #This method returns time such that the message will be due for sending soon.
   #This is used to reset the subscription time in order to ensure a subscriber
   #returning back to a channel starts receiving messages post the last received one.
   def reverse_engineer_target_time(from_time = Time.now)
@@ -233,18 +233,18 @@ module RelativeSchedule
     case tokens[0]
     when 'Minute'
       md = schedule.match(/^Minute (\d+)$/)
-      return from_time if (!md || !md[1]) 
+      return from_time if (!md || !md[1])
       minutes_from_now = md[1].to_i rescue 0
       return from_time-(60*(minutes_from_now+1))
     when 'Hour'
       md = schedule.match(/^Hour (\d+) (\d+)$/)
-      return from_time if (!md || !md[1] || !md[2]) 
+      return from_time if (!md || !md[1] || !md[2])
       hours_from_now = (md[1].to_i) rescue 0
       epoch = (from_time-hours_from_now.hours).beginning_of_hour
       return Chronic.parse("#{md[2]} minutes before now",now:epoch)-1.minute
     when 'Day'
       md = schedule.match(/^Day (\d+) (\d+):(\d+)$/)
-      return from_time if (!md || !md[1] || !md[2] || !md[3]) 
+      return from_time if (!md || !md[1] || !md[2] || !md[3])
       days_from_now = (md[1].to_i) rescue 0
       if days_from_now == 0
         epoch = from_time
@@ -254,7 +254,7 @@ module RelativeSchedule
       return epoch
     when 'Week'
       md = schedule.match(/^Week (\d+) (\S+) (\d+):(\d+)$/)
-      return from_time if (!md || !md[1] || !md[2] || !md[3] || !md[4]) 
+      return from_time if (!md || !md[1] || !md[2] || !md[3] || !md[4])
       weeks_from_now = (md[1].to_i) rescue 0
       epoch = (from_time-weeks_from_now.weeks).beginning_of_day
       # scheduled_time = Chronic.parse("#{md[2]} #{md[3]}:#{md[4]}",now:epoch)
@@ -266,5 +266,5 @@ module RelativeSchedule
     else
       return from_time
     end
-  end  
+  end
 end

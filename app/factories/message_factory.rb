@@ -9,6 +9,8 @@ class MessageFactory
       @strong_params.delete "action_attributes"
     end
 
+    @strong_params['recurring_schedule'] = nil if @strong_params['recurring_schedule'] == 'null'
+
     if message_type == "ActionMessage"
       @data = { resume_from_last_state: @strong_params["action_attributes"]["resume_from_last_state"] }
       @strong_params["action_attributes"].delete "resume_from_last_state"
@@ -20,6 +22,7 @@ class MessageFactory
       message = if @current_message.nil?
         @channel.messages.new @strong_params
       else
+        @strong_params['recurring_schedule'] = JSON.parse(@strong_params['recurring_schedule']) if @strong_params['recurring_schedule']
         @current_message.assign_attributes @strong_params
         @current_message.action = nil unless message_type == "ActionMessage"
         @current_message
@@ -33,8 +36,7 @@ class MessageFactory
         when "one_time"
           message.recurring_schedule = nil
         when "recurring"
-          message.next_send_time = nil
-          message.update_next_send_time_for_recurring_schedule
+          message.next_send_time = 1.minute.ago
         end
       end
 

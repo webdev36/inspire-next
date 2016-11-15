@@ -1,4 +1,6 @@
 require 'spec_helper'
+require 'date'
+require 'chronic'
 
 def send_an_inbound_message_from_a_nonsubscriber(from_phone, to, message)
   incoming_message = build :inbound_twilio_message
@@ -14,22 +16,6 @@ def send_a_subscriber_response(sub, to, message)
   incoming_message['To'] = to
   incoming_message['Body'] = message
   controller = TwilioController.new.send(:handle_request,incoming_message)
-end
-
-def travel_to(year, month, day, hour, minute, second)
-  t = Time.local(year, month, day, hour, minute, second)
-  Timecop.travel(t)
-end
-
-def travel_to_time(ruby_time)
-  t = Time.local(ruby_time.year, ruby_time.month, ruby_time.day, ruby_time.hour, ruby_time.min, ruby_time.sec)
-  Timecop.travel(t)
-end
-
-def travel_to_same_day_at(hour, minute)
-  tn = Time.now
-  t = Time.local(tn.year, tn.month, tn.day, hour, minute, 0)
-  Timecop.travel(t)
 end
 
 def create_30_days_of_daily_response_messages(channel)
@@ -54,6 +40,24 @@ def setup_user_and_system
   @channel = build :individually_scheduled_messages_channel, user: @user
   @channel.tparty_keyword = '+12025551212'
   @channel.relative_schedule = true
+  @channel.save
+end
+
+def setup_user_and_individually_scheduled_messages_non_relative_schedule
+  setup_user_and_system
+  @channel.relative_schedule = false
+  @channel.save
+end
+
+def setup_user_and_individually_scheduled_messages_relative_schedule
+  setup_user_and_system
+end
+
+def setup_user_and_scheduled_messages_channel
+  @user = create :user
+  @subscriber = create :subscriber, user: @user
+  @channel = build :scheduled_messages_channel, user: @user
+  @channel.tparty_keyword = '+12025551212'
   @channel.save
 end
 
