@@ -19,7 +19,6 @@ class ResponseActionsController < ApplicationController
   def new
     @response_action = @message.response_actions.new
     @action = @response_action.build_action if @response_action.action.blank?
-    binding.pry
     respond_to do |format|
       format.html # new.html.erb
       format.json { render json: @response_action }
