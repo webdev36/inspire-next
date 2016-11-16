@@ -135,14 +135,20 @@ class MessagesController < ApplicationController
   end
 
   def import
-    file = params[:import][:import_from]
-    resp = Message.import(@channel,file)
-    notice_message = resp[:message]
-    session.delete(:import_requester)
-    if resp[:completed]
-      redirect_to request.referer, notice: resp[:message]
-    else
-      redirect_to request.referer, error: resp[:message]
+    begin
+      file = params[:import][:import_from]
+      binding.pry
+      helper = ImportChannel.new(@channel, file)
+      if helper.import
+        notice_message = "Your channel messages were imported."
+        redirect_to request.referer, notice: notice_message
+      else
+        notice_message = "There was a problem importing your messages."
+        redirect_to request.referer, error: resp[:message]
+      end
+    rescue => e
+      puts "#{e.inspect}"
+      redirect_to request.referer, notice: "There was a problem uploading the file. Check your file and try again."
     end
   end
 

@@ -26,7 +26,7 @@ class Subscriber < ActiveRecord::Base
   has_many :subscriber_responses
   has_many :action_notices
 
-  scope :search, -> (search) { where('lower(name) LIKE ? OR phone_number LIKE ? ',"%#{search.to_s.downcase}%","%#{search.to_s.downcase}%") }
+  scope :search, -> (search) { where('lower(name) LIKE ? OR phone_number LIKE ?',"%#{search.to_s.downcase}%","%#{search.to_s.downcase}%") }
 
   validates :phone_number, presence:true, phone_number:true,
     uniqueness:{scope:[:user_id,:deleted_at]}

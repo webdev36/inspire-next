@@ -47,8 +47,8 @@ class Message < ActiveRecord::Base
   has_many :subscriber_responses
   has_one  :action, as: :actionable
   has_many :response_actions
-
   has_many :message_options
+
   accepts_nested_attributes_for :message_options, :reject_if => lambda { |a| a[:key].blank? || a[:value].blank? }, :allow_destroy => true
 
   has_attached_file :content,
@@ -304,7 +304,8 @@ class Message < ActiveRecord::Base
     rescue => e
       { completed: false, message: e.message, error_rows: error_rows }
     end
-
+  
+  
     def handle_subscriber_response_error(subscriber_response, error_type, action)
       StatsD.increment("message.#{self.id}.subscriber_response.#{subscriber_response.id}.#{error_type.underscore}")
       Rails.logger.error "error=#{error_type.underscore} subscriber_response_id=#{subscriber_response.id} message_id=#{self.id}"

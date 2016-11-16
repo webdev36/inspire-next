@@ -3,10 +3,33 @@
   = help_tag help_edit_message_path
 
 = simple_form_for :import, url: import_channel_messages_path, html: { class: "form-horizontal", multipart: true } do |f|
+#page-header.clearfix
   .row
-    .col-md-6
-      = f.input :import_from, as: :file
+    .col-md-8
+      h4
+        = raw "Import messages to #{link_to("#{@channel.name}", channel_path(@channel.id))} channel"
+    .col-md-4
+      = help_tag help_edit_message_path
 
-  .panel.panel-default style="padding-left: 228px;"
-    .panel-body
-      = f.button :submit, "Import"
+
+.row
+  .col-md-12
+    = simple_form_for :import, wrapper: :horizontal_form, url: import_channel_messages_path, html: { class: "form-horizontal", multipart: true } do |f|
+      .row
+        .col-md-4
+        .col-md-4
+          .well
+            .row
+              .col-md-12
+                .panel.panel-default
+                  .panel-heading
+                    h4 Import Messages into Channel
+                  .panel-body
+                    .alert.alert-warning
+                      | Select a file and import messages.  If you have edited the file from a previous export, the messages will be updated. If you have new messages, leave the "id" field off and they will be created.
+                    .import-field.text-center style="padding-left: 40px;"
+                      = f.input :import_from, as: :file
+                    .submit-field.text-center
+                      = f.button :submit, "Import"
+                    .back-to-channel.text-center style="margin-top: 30px;"
+                      = link_to "Back to channel", channel_path(@channel.id)

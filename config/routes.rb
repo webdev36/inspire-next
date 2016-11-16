@@ -16,6 +16,7 @@ Liveinspired::Application.routes.draw do
       get  'messages_report'
       post 'delete_all_messages'
       get  'timeline'
+      get  'export'
     end
     resources :messages do
       member do

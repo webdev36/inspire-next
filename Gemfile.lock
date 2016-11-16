@@ -47,6 +47,8 @@ GEM
       activesupport (= 4.2.7.1)
       arel (~> 6.0)
     activerecord-deprecated_finders (1.0.4)
+    activerecord-import (0.16.1)
+      activerecord (>= 3.2)
     activeresource (4.1.0)
       activemodel (~> 4.0)
       activesupport (~> 4.0)
@@ -400,6 +402,7 @@ DEPENDENCIES
   actionpack-action_caching
   actionpack-page_caching
   activerecord-deprecated_finders
+  activerecord-import (~> 0.4)
   activeresource
   annotate
   aws-sdk

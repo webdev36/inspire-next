@@ -84,14 +84,12 @@ Spork.prefork do
     end
 
     config.after(:each) do
-      Timecop.return
       DatabaseCleaner.clean
     end
 
     config.before(:each) do
       Sidekiq::Worker.clear_all
     end
-
   end
   # remove the SQL logging
   ::ActiveRecord::Base.logger = nil

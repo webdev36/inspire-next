@@ -123,7 +123,7 @@ describe ChannelsController do
         channel.subscribers << subscribers
         get :show, {user_id:user.id, :id => channel.id}
         expect(assigns(:channel)).to eq(channel)
-        expect(assigns(:subscribers)).to match(subscribers)
+        expect(assigns(:subscribers).map(&:id).sort).to match(subscribers.map(&:id).sort)
       end
     end
     describe "GET new" do

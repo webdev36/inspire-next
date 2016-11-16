@@ -3,9 +3,14 @@ require 'active_support/concern'
 module Mixins
   module SubscriberSearch
     extend ActiveSupport::Concern
+
+    def subscribers_page
+      params[:subscribers_page] || 1
+    end
+
     def handle_subscribers_query
       if @channel
-        @channel.subscribers.includes(:subscriptions)
+        @subscribers = @channel.subscribers.includes(:subscriptions)
                             .order("subscriptions.created_at DESC")
       elsif @channel_group
         channel_ids = @channel_group.channels.pluck(:id)
@@ -16,7 +21,7 @@ module Mixins
         @subscribers = @user.subscribers
                             .order(created_at: :desc)
       end
-      @subscribers = @subscribers.page(params[:subscribers_page])
+      @subscribers = @subscribers.page(subscribers_page)
                                  .per_page(10)
       @subscribers = @subscribers.search(params[:subscribers_search]) if params[:subscribers_search]
     end
