@@ -1,12 +1,15 @@
 class UsersController < ApplicationController
-  
+  include Mixins::SubscriberSearch
+  include Mixins::ChannelSearch
+  include Mixins::ChannelGroupSearch
+
   before_filter :load_user, :only => [:show]
-  
+
   def show
     session[:root_page] = user_path(@user)
-    @channels = @user.channels.where(channel_group_id:nil).page(params[:channels_page]).per_page(10)
-    @channel_groups = @user.channel_groups.page(params[:channel_groups_page]).per_page(10)
-    @subscribers = @user.subscribers.page(params[:subscribers_page]).per_page(10)
+    handle_channel_group_query
+    handle_channel_query
+    handle_subscribers_query
     respond_to do |format|
       format.html
       format.json { render json: [@channels,@subscribers] }
@@ -20,5 +23,5 @@ class UsersController < ApplicationController
     authenticate_user!
     @user = User.find(params[:id])
     redirect_to(root_url,alert:'Access Denied') unless @user == current_user
-  end    
+  end
 end

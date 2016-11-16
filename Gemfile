@@ -74,7 +74,6 @@ group :development, :test do
   gem 'database_cleaner'
   gem 'rspec-preloader'
   gem 'meta_request'
-  gem 'pry'
 end
 
 group :development, :test, :production_local do

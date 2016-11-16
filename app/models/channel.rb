@@ -60,8 +60,9 @@ class Channel < ActiveRecord::Base
   before_save :update_next_send_time
   before_destroy :remove_keyword
 
-  scope :search, -> (search) { where('lower(name) LIKE ?',"%#{search}%") }
-  
+  scope :search, -> (search)  { where('lower(name) LIKE ?',"%#{search.to_s.downcase}%") }
+  scope :not_in_any_group, -> { where('channel_group_id is NULL') }
+
 
 
   after_initialize do |channel|

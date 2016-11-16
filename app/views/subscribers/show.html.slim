@@ -50,38 +50,34 @@ hr
 .row
   .col-md-12
     .row
-      .col-md-4
+      .col-md-6
         h4.section-header.text-center
-          | Channels
-        .alert.alert-default
+          | Availlable Channels
+        .alert.alert-info
           | Subscribed channels show a sub tag. Click the 'rem' button to remove a subscriber from a channel, and the 'add' button to add a user to a channel.
-        table.table.table-striped#subscribers-subscriptions-table
-          tbody
-            - @subscriber.subscriptions.each do |subscription|
-              - if subscription.channel
-                tr id="subscription_#{subscription.id}" data-subscription-id="#{subscription.id}" data-subscribed-channel-id="#{subscription.channel_id}"
-                  td
-                    span.label.label-success
-                      | Sub
-                  td = link_to "#{subscription.channel.id}-#{subscription.channel.name}", channel_path(subscription.channel.id)
-                  td = link_to "Rem", channel_remove_subscriber_path(subscription.channel.id, @subscriber.id), method: :post, class: 'btn btn-danger btn-xs'
-            - @user.channel_groups.each do |channel_group|
-              - channel_group.channels.each do |channel|
-                - next if @subscriber.subscriptions.map(&:channel_id).include?(channel.id)
-                tr id="potential_channel_#{channel.id}"
-                  td
-                    span
-                  td = link_to "#{channel.id}-#{channel.name}", channel_path(channel.id)
-                  td = link_to 'Add', channel_add_subscriber_path(channel.id, @subscriber.id), method: :post, class: 'btn btn-default btn-xs'
-            - @user.channels.each do |channel|
-              - next if @subscriber.subscriptions.map(&:channel_id).include?(channel.id)
-              tr id="potential_channel_#{channel.id}"
-                td
-                  span
-                td = link_to "#{channel.id}-#{channel.name}", channel_path(channel.id)
-                td = link_to 'Add', channel_add_subscriber_path(channel.id, @subscriber.id),method: :post, class: "btn btn-default btn-xs"
+        .row
+          .col-md-12
+            table.table.table-striped#subscribers-subscriptions-table
+              tbody
+                - @available_channels.each do |channel|
+                  - if @subscribed_channel_ids.include?(channel.id)
+                    tr id="channel_#{channel.id}" data-subscribed="true"
+                      td
+                        span.label.label-success
+                          | Sub
+                      td = link_to "#{channel.id}-#{channel.name}", channel_path(channel.id)
+                      td = link_to "Rem", channel_remove_subscriber_path(channel.id, @subscriber.id), method: :post, class: 'btn btn-danger btn-xs'
+                  - else
+                    tr id="channel_#{channel.id}" data-subscribed='false'
+                      td
+                        span
+                      td = link_to "#{channel.id}-#{channel.name}", channel_path(channel.id)
+                      td = link_to 'Add', channel_add_subscriber_path(channel.id, @subscriber.id), method: :post, class: 'btn btn-default btn-xs'
+        .row
+          .col-md-12.text-center
+            = will_paginate @available_channels, param_name: "available_channels_page"
 
-      .col-md-8.text-center
+      .col-md-6.text-center
         h4.section-header Messaging Activity
         .row
           .col-md-12
@@ -101,16 +97,21 @@ hr
     .row
       .col-md-12
         - if Array(@timeline).length > 0
-          table#subscriber-timeline-list.table.table-striped
-            thead
-              tr
-                th.text-center Type
-                th Activity
-                th.text-right
-                  = icon('clock-o')
-            tbody
-              - @timeline.each do |entry|
-                = render partial: "subscribers/timeline/#{entry.class.name.underscore}_row", locals: { entry: entry }
+          .row
+            .col-md-12
+              table#subscriber-timeline-list.table.table-striped
+                thead
+                  tr
+                    th.text-center Type
+                    th Activity
+                    th.text-right
+                      = icon('clock-o')
+                tbody
+                  - @timeline.each do |entry|
+                    = render partial: "subscribers/timeline/#{entry.class.name.underscore}_row", locals: { entry: entry }
+          .row
+            .col-md-12.text-center
+              = will_paginate @timeline, param_name: 'timeline_page'
 
         - else
           .notification-well

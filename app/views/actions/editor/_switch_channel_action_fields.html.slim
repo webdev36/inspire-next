@@ -29,7 +29,4 @@ ruby:
 
     label.col-sm-12.control-label.text-align-left.font-normal Other channels:
     .col-sm-12
-    
       = select_tag :to_channel_out_group, options_for_select(other_channels.sort, to_channel_out_group), multiple: true, class: "select2"  
-
-      = binding.pry  

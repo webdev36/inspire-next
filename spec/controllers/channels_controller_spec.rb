@@ -108,10 +108,10 @@ describe ChannelsController do
         expect(assigns(:channels).map(&:id).sort).to match(@channels.map(&:id).sort)
         expect(assigns(:channel_groups).map(&:id).sort).to match([@channel_group.id])
       end
-      it "does not list channels part of group in @channels" do
+      it "does not list channels that are part of group in @channels" do
         @channel_group.channels << @channels[1]
         get :index, {}
-        expect(assigns(:channels)).to match_array([@channels[0],@channels[2]])
+        expect(assigns(:channels).map(&:id).sort).to match_array([@channels[0].id, @channels[2].id].sort)
         expect(assigns(:channel_groups)).to match_array([@channel_group])
       end
     end
