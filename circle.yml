@@ -11,6 +11,8 @@ machine:
     POSTGRES_POOL: 5
     CIRCLE_ENV: test
     DATABASE_URL: postgres://ubuntu:@127.0.0.1:5432/circle_test
+    STATSD_HOST: 127.0.0.1
+    STATSD_PORT: 8125
   hosts:
     liveinspired.herokuapp.com: 127.0.0.1
 
