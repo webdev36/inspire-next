@@ -47,8 +47,8 @@ class Message < ActiveRecord::Base
   has_many :subscriber_responses
   has_one  :action, as: :actionable
   has_many :response_actions
-
   has_many :message_options
+
   accepts_nested_attributes_for :message_options, :reject_if => lambda { |a| a[:key].blank? || a[:value].blank? }, :allow_destroy => true
 
   has_attached_file :content,
@@ -261,44 +261,44 @@ class Message < ActiveRecord::Base
     end
   end
 
-  def self.import(channel, file)
-    error_message = nil
-    csv_string = File.read(file.path).scrub
-    error_rows = []
-    count_rows = 0
-    CSV.parse(csv_string, headers:true) do |row|
-      count_rows += 1
-      begin
-        message = channel.messages.find_by_id(row["id"]) || channel.messages.new
-        hash_row = row.to_h
-        hash_row['seq_no'] = nil
-        hash_row.keys.each do |key|
-          hash_row[key] = {} if hash_row[key] == '{}'
-          message[key] = hash_row[key] unless ["options"].include?(key)
-        end
-        message.channel_id = channel.id
-        message.created_at = Time.current
-        message.updated_at = Time.current
-        message.form_schedule
-        if message.save
-          next
-        else
-          error_rows << row.to_h
-          binding.pry
-        end
-      rescue => e
-        binding.pry
-        error_rows << row.to_h
-      end
-    end
-    if error_rows.length > 0
-      { completed: true, message: "Import completed with #{error_rows.count} import failures", error_rows: error_rows }
-    else
-      { completed: true, message: nil, error_rows: error_rows }
-    end
-    rescue => e
-      { completed: false, message: e.message, error_rows: error_rows }
-    end
+  # def self.import(channel, file)
+  #   error_message = nil
+  #   csv_string = File.read(file.path).scrub
+  #   error_rows = []
+  #   count_rows = 0
+  #   CSV.parse(csv_string, headers:true) do |row|
+  #     count_rows += 1
+  #     begin
+  #       message = channel.messages.find_by_id(row["id"]) || channel.messages.new
+  #       hash_row = row.to_h
+  #       hash_row['seq_no'] = nil
+  #       hash_row.keys.each do |key|
+  #         hash_row[key] = {} if hash_row[key] == '{}'
+  #         message[key] = hash_row[key] unless ["options"].include?(key)
+  #       end
+  #       message.channel_id = channel.id
+  #       message.created_at = Time.current
+  #       message.updated_at = Time.current
+  #       message.form_schedule
+  #       if message.save
+  #         next
+  #       else
+  #         error_rows << row.to_h
+  #         binding.pry
+  #       end
+  #     rescue => e
+  #       binding.pry
+  #       error_rows << row.to_h
+  #     end
+  #   end
+  #   if error_rows.length > 0
+  #     { completed: true, message: "Import completed with #{error_rows.count} import failures", error_rows: error_rows }
+  #   else
+  #     { completed: true, message: nil, error_rows: error_rows }
+  #   end
+  # rescue => e
+  #   { completed: false, message: e.message, error_rows: error_rows }
+  # end
 
     def handle_subscriber_response_error(subscriber_response, error_type, action)
       StatsD.increment("message.#{self.id}.subscriber_response.#{subscriber_response.id}.#{error_type.underscore}")

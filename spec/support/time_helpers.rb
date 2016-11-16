@@ -38,3 +38,12 @@ def travel_to_next_dow(day_of_week)
   target_time = Time.parse(target_date.to_s)
   travel_to_time(target_time)
 end
+
+RSpec.configure do |config|
+  config.before(:each) do
+    Timecop.return
+  end
+  config.after(:each) do
+    Timecop.return
+  end
+end

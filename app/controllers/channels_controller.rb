@@ -2,6 +2,7 @@ class ChannelsController < ApplicationController
   include Mixins::SubscriberSearch
   include Mixins::ChannelSearch
   include Mixins::ChannelGroupSearch
+  include Mixins::MessageSearch
   before_action :load_channel
   skip_before_action :load_channel, only: %i(
       new create index add_subscriber remove_subscriber
@@ -23,12 +24,9 @@ class ChannelsController < ApplicationController
 
   def show
     if @channel
-      @subscribers = @channel.subscribers.includes(:subscriptions)
-        .order("subscriptions.created_at")
-        .page(params[:subscribers_page])
-        .per_page(10)
-
+      handle_subscribers_query
       @messages = @channel.messages
+      @messages = @messages.search(params[:message_search]) if params[:message_search]
 
       @message_counts_by_type = { "All" => @messages.size }
       %w(ActionMessage PollMessage ResponseMessage SimpleMessage TagMessage).each do |message_type|
@@ -178,6 +176,13 @@ class ChannelsController < ApplicationController
   def delete_all_messages
     @channel.messages.delete_all
     redirect_to :back, notice: "All messages were deleted."
+  end
+
+  def export
+    helper = ExportChannel.new(@channel.id)
+    respond_to do |format|
+      format.csv { send_data helper.to_csv, filename: "channel-#{@channel.id}-messages-#{Date.today}.csv" }
+    end
   end
 
   private

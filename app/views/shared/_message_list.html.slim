@@ -3,15 +3,20 @@
 #messages-section.panel.panel-default
   .panel-heading
     .row
-      .col-md-8
+      .col-md-4
         .panel-title Messages
         - @message_counts_by_type.each do |type, count|
           = link_to "#{type.gsub(/Message$/, '')}(#{count})", channel_path(@channel, message_type: type)
-      
-      .col-md-4.pull-right.text-right
+      .col-md-5
+        =form_tag request.url, method: :get do
+          .input-group
+            = search_field_tag :message_search, params[:message_search], placeholder: 'Message text',class: 'form-control'
+            .input-group-btn
+              = button_tag('Search', class: 'btn btn-default')
+      .col-md-3.pull-right.text-right
         = link_to new_channel_message_path(@channel), class: "btn btn-primary btn-xs", id: 'message-new' do
           span.glyphicon.glyphicon-plus
-          
+
   .panel-body
     - if @messages && @messages.size > 0
       .row

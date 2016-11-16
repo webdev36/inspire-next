@@ -2,6 +2,7 @@ require 'spec_helper'
 require 'support/integration_setups.rb'
 
 describe 'Integration/Message Flooding' do
+  let(:timecop_reset) { Timecop.return; true }
   context 'individually scheduled messages' do
     context 'relatively scheduled' do
       it 'does not flood' do

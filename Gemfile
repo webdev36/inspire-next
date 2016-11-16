@@ -53,7 +53,7 @@ gem 'thin'
 
 # Yaml-DB allows us to to db: load nad db:dump
 gem 'yaml_db'
-# gem 'activerecord-import', require: 'activerecord-import/base'
+gem 'activerecord-import',  '~> 0.4'
 gem 'polo'
 
 # Rails 4 compabilitiy wtih Rails 3 stuff, should be refactored and
