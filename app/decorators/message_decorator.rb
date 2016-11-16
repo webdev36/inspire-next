@@ -8,6 +8,10 @@ class MessageDecorator < Draper::Decorator
     h.raw("#{message_icon} #{message_display_text}")
   end
 
+  def message_text
+    h.raw("#{message_display_text}")
+  end
+
   def message_icon
     case type
     when 'ActionMessage'

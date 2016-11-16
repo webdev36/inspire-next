@@ -10,7 +10,7 @@ table#subscriber_response_table.table.table-striped
       tr
         - subscriber = @grouped_response[:subscribers].find { |subs| subs.phone_number == sr.origin }
         td= link_to subscriber.name, subscriber_path(subscriber)
-        td= link_to sr.created_at, subscriber_activity_path(sr.id, subscriber_id: subscriber.id)
+        td= link_to sr.created_at,subscriber_activity_path(sr.id, subscriber_id: subscriber.id)
 
 = will_paginate @subscriber_responses
 

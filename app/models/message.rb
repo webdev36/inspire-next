@@ -199,7 +199,7 @@ class Message < ActiveRecord::Base
   def grouped_responses
     return [] if subscriber_responses.size < 1
     content_hash = {}
-    srs = subscriber_responses.order('created_at ASC')
+    srs = subscriber_responses.order('created_at DESC')
     srs.each do |sr|
       if content_hash[sr.content_text]
         content_hash[sr.content_text][:subscriber_responses] << sr
@@ -218,7 +218,7 @@ class Message < ActiveRecord::Base
         :subscribers => rec[:subscribers].uniq
       }
     end
-    retval.sort!{|x,y| x[:message_content]<=>y[:message_content]}
+    #retval.sort!{|x,y| x[:message_content]<=>y[:message_content]}
     retval
   end
 
@@ -254,52 +254,58 @@ class Message < ActiveRecord::Base
 
   def self.my_csv(poptions={})
     CSV.generate(poptions) do |csv|
-      csv << column_names
-      all.each do |message|
-        csv << message.attributes.values_at(*column_names)
+    csv << column_names
+    all.each do |message|
+      csv << message.attributes.values_at(*column_names)
+        if message.type == 'TagMessage'
+          csv << message.message_options.column_names
+          message.message_options.each do |message_tag|
+            csv << message_tag.attributes.values_at("id","message_id","key","value","created_at","updated_at")
+          end
+          csv << ["*******"]
+        end
       end
     end
   end
 
-  # def self.import(channel, file)
-  #   error_message = nil
-  #   csv_string = File.read(file.path).scrub
-  #   error_rows = []
-  #   count_rows = 0
-  #   CSV.parse(csv_string, headers:true) do |row|
-  #     count_rows += 1
-  #     begin
-  #       message = channel.messages.find_by_id(row["id"]) || channel.messages.new
-  #       hash_row = row.to_h
-  #       hash_row['seq_no'] = nil
-  #       hash_row.keys.each do |key|
-  #         hash_row[key] = {} if hash_row[key] == '{}'
-  #         message[key] = hash_row[key] unless ["options"].include?(key)
-  #       end
-  #       message.channel_id = channel.id
-  #       message.created_at = Time.current
-  #       message.updated_at = Time.current
-  #       message.form_schedule
-  #       if message.save
-  #         next
-  #       else
-  #         error_rows << row.to_h
-  #         binding.pry
-  #       end
-  #     rescue => e
-  #       binding.pry
-  #       error_rows << row.to_h
-  #     end
-  #   end
-  #   if error_rows.length > 0
-  #     { completed: true, message: "Import completed with #{error_rows.count} import failures", error_rows: error_rows }
-  #   else
-  #     { completed: true, message: nil, error_rows: error_rows }
-  #   end
-  # rescue => e
-  #   { completed: false, message: e.message, error_rows: error_rows }
-  # end
-
+  def self.import(channel, file)
+    error_message = nil
+    csv_string = File.read(file.path).scrub
+    error_rows = []
+    count_rows = 0
+    CSV.parse(csv_string, headers:true) do |row|
+      count_rows += 1
+      begin
+        message = channel.messages.find_by_id(row["id"]) || channel.messages.new
+        hash_row = row.to_h
+        hash_row['seq_no'] = nil
+        hash_row.keys.each do |key|
+          hash_row[key] = {} if hash_row[key] == '{}'
+          message[key] = hash_row[key] unless ["options"].include?(key)
+        end
+        message.channel_id = channel.id
+        message.created_at = Time.current
+        message.updated_at = Time.current
+        message.form_schedule
+        if message.save
+          next
+        else
+          error_rows << row.to_h
+        end
+      rescue => e
+        error_rows << row.to_h
+      end
+    end
+    if error_rows.length > 0
+      { completed: true, message: "Import completed with #{error_rows.count} import failures", error_rows: error_rows }
+    else
+      { completed: true, message: nil, error_rows: error_rows }
+    end
+    rescue => e
+      { completed: false, message: e.message, error_rows: error_rows }
+    end
+  
+  
     def handle_subscriber_response_error(subscriber_response, error_type, action)
       StatsD.increment("message.#{self.id}.subscriber_response.#{subscriber_response.id}.#{error_type.underscore}")
       Rails.logger.error "error=#{error_type.underscore} subscriber_response_id=#{subscriber_response.id} message_id=#{self.id}"

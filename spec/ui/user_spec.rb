@@ -21,3 +21,4 @@ feature 'UI/User' do
     end
   end
 end
+

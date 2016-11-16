@@ -1,3 +1,8 @@
+.page-header.clearfix
+  h1.pull-left Import messages for #{@channel.name}
+  = help_tag help_edit_message_path
+
+= simple_form_for :import, url: import_channel_messages_path, html: { class: "form-horizontal", multipart: true } do |f|
 #page-header.clearfix
   .row
     .col-md-8
