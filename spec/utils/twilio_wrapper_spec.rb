@@ -32,7 +32,7 @@ describe TwilioWrapper do
         expect(TwilioWrapper.new.allowed_to_send? == false).to be_truthy
       end
     end
-    it 'will not send messages in test mode' do
+    xit 'will not send messages in test mode' do
       ClimateControl.modify RAILS_ENV: 'test', INSPIRE_ENV: 'test' do
         tw = TwilioWrapper.new
         expect(tw.allowed_to_send? == false).to be_truthy
