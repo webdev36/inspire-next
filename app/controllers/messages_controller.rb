@@ -1,4 +1,5 @@
 require 'will_paginate/array'
+require 'pry'
 class MessagesController < ApplicationController
   before_filter :load_channel
   before_filter  :build_channel_group_map, only: %i(new show)
@@ -63,11 +64,13 @@ class MessagesController < ApplicationController
   end
 
   def update
-    @message = @channel.messages.find(params[:id])
+    binding.pry
+    found_message = @channel.messages.find(params[:id])
     @message = MessageFactory
-                 .new(message_params, params, message: @message, channel: @channel)
+                 .new(message_params, params, message: found_message, channel: @channel)
                  .message
     @channels = current_user.channels
+    binding.pry
 
     respond_to do |format|
       if @message.save
