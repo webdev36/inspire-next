@@ -64,14 +64,11 @@ class MessagesController < ApplicationController
   end
 
   def update
-    binding.pry
     found_message = @channel.messages.find(params[:id])
     @message = MessageFactory
                  .new(message_params, params, message: found_message, channel: @channel)
                  .message
     @channels = current_user.channels
-    binding.pry
-
     respond_to do |format|
       if @message.save
         format.html { redirect_to [@channel, @message], notice: 'Message was successfully updated.' }

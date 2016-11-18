@@ -23,7 +23,6 @@ Liveinspired::Application.configure do
   config.action_mailer.raise_delivery_errors = false
   config.action_mailer.default_url_options = {host:'localhost:3000'}
 
-
   # Print deprecation notices to the Rails logger
   config.active_support.deprecation = :log
 
@@ -49,7 +48,7 @@ Liveinspired::Application.configure do
   config.log_level = :info
 
   # not show docker errors in the console in development mode
-  config.web_console.whitelisted_ips = %w(0.0.0.0/32 192.168.0.0/16)
+  config.web_console.whitelisted_ips = %w(0.0.0.0/32 192.168.0.0/16 172.18.0.0/16)
   config.web_console.automount = true
 
   config.time_zone = 'Eastern Time (US & Canada)'

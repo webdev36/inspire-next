@@ -47,7 +47,7 @@ Liveinspired::Application.configure do
   config.log_level = :info
 
   # not show docker errors in the console in development mode
-  config.web_console.whitelisted_ips = %w(0.0.0.0/32 192.168.0.0/16)
+  config.web_console.whitelisted_ips = %w(0.0.0.0/32 192.168.0.0/16 172.18.0.0/16)
   config.web_console.automount = true
 
   config.time_zone = 'Eastern Time (US & Canada)'

@@ -41,7 +41,6 @@ html lang="en"
             - else
               li = link_to "Sign in", new_user_session_path
 
-
     .container
       .row
         #page.col-md-12.mt-15
@@ -52,7 +51,14 @@ html lang="en"
         p.color-silver style="margin-top 20px;"
           .row
             .col-md-6.text-left style="font-size: 80%;padding-top: 30px;"
-              | &copy; #{link_to('ILiveInspired', 'http://www.iliveinspired.com/', "target" => '_blank')} v#{::APP_VERSION}, 2013-2016. Developed by #{link_to 'Audienti', 'https://audienti.com', target: '_blank'}. All rights reserved.
+              .row
+                .col-md-12
+                  | &copy; #{link_to('ILiveInspired', 'http://www.iliveinspired.com/', "target" => '_blank')} v#{::APP_VERSION}, 2013-2016. Developed by #{link_to 'Audienti', 'https://audienti.com', target: '_blank'}. All rights reserved.
+              .row
+                .col-md-12
+                  - if current_user
+                    span.text-smaller.text-grey
+                      | Logged in as: #{current_user.email}
             .col-md-6.text-right
               strong
                 span.icon

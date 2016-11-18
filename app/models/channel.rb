@@ -302,6 +302,7 @@ class Channel < ActiveRecord::Base
     end
     subscribers << subscriber
     StatsD.increment("channel.#{self.id}.subscriber_response.#{subscriber_response.id}.start_command.ok")
+    ActionNotice.create(caption: "Subscriber issued START and was added to #{content_tag("a",self.name,href:channel_path(id))} channel.", subscriber: subscriber.id)
     Rails.logger.info "info=added_to_channel message='Subscriber added to channel' subscriber_response_id=#{subscriber_response.id} channel_id=#{self.id}"
     subscriber_response.update_processing_log('Received START command. Subscriber added to channel by channel action.')
     true
@@ -322,6 +323,7 @@ class Channel < ActiveRecord::Base
       subscribers.delete(subscriber)
       save!
       StatsD.increment("channel.#{self.id}.subscriber.#{subscriber.id}.remove")
+      ActionNotice.create(caption: "Subscriber issued STOP and was removed from #{content_tag("a",self.name,href:channel_path(id))} channel.", subscriber: subscriber.id)
       Rails.logger.info "info=removed_from_channel message='Subscriber removed to channel' subscriber_response_id=#{subscriber_response.id} channel_id=#{self.id} subscriber_id=#{subscriber.id}"
       subscriber_response.update_processing_log('Received STOP command. Subscriber removed from channel by channel action.')
     rescue => e

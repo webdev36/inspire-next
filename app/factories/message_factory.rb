@@ -23,14 +23,12 @@ class MessageFactory
         @channel.messages.new @strong_params
       else
         @strong_params['recurring_schedule'] = JSON.parse(@strong_params['recurring_schedule']) if @strong_params['recurring_schedule']
-        binding.pry
         @strong_params.keys.each do |key|
           @current_message[key] = @strong_params[key]
         end
         @current_message.action = nil unless message_type == "ActionMessage"
         @current_message
       end
-      binding.pry
       message = construct_switch_channel_message(message) if switch_channel_action_message?
       message = construct_send_message_message(message)   if send_message_action_message?
 
