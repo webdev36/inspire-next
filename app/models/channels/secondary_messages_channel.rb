@@ -74,9 +74,14 @@ class SecondaryMessagesChannel < Channel
               if subscriber_has_delivery_notice?(subscriber, orig_message)
                 if in_the_reminder_send_window?(subscriber, orig_message)
                   if subscriber_has_not_responded?(subscriber, orig_message, message.created_at)
-                    msh[message_id] << subscriber
-                    StatsD.increment("subscriber.#{subscriber.id}.message.#{orig_message.id}.queued")
-                    Rails.logger.info "info=reminder_message_queued subscriber_id=#{subscriber.id} message_id=#{orig_message.id}"
+                    if subscriber_is_still_in_channel?(subscriber, orig_message)
+                      msh[message_id] << subscriber
+                      StatsD.increment("subscriber.#{subscriber.id}.message.#{orig_message.id}.queued")
+                      Rails.logger.info "info=reminder_message_queued subscriber_id=#{subscriber.id} message_id=#{orig_message.id}"
+                    else
+                      StatsD.increment("subscriber.#{subscriber.id}.message.#{orig_message.id}.no_longer_in_channel")
+                      Rails.logger.info "info=reminder_message_skipped subscriber_id=#{subscriber.id} message_id=#{orig_message.id} reason=subscriber_no_longer_in_channel" if Rails.env != 'production'
+                    end
                   else
                     StatsD.increment("subscriber.#{subscriber.id}.message.#{orig_message.id}.skip_responded")
                     Rails.logger.info "info=reminder_message_skipped subscriber_id=#{subscriber.id} message_id=#{orig_message.id} reason=subscriber_responded" if Rails.env != 'production'
@@ -118,6 +123,13 @@ class SecondaryMessagesChannel < Channel
     else
       nil
     end
+  end
+
+  # on a secondary message, if the subscriber issues a stop command, they
+  # will be removed from the channel. But, if this check isn't in place, they
+  # will still be sent a secondary message
+  def subscriber_is_still_in_channel?(subscriber, orig_message)
+    orig_message.channel.subscribers.where(:id => subscriber.id).count > 0
   end
 
   def subscriber_has_not_responded?(subscriber, orig_message, created_at)

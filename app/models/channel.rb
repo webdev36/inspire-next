@@ -165,6 +165,10 @@ class Channel < ActiveRecord::Base
     includes(:subscribers).where("subscribers.phone_number=?",phone_number).where("subscribers.deleted_at IS NULL").references(:subscribers)
   end
 
+  def self.with_subscriber_id(sub_id)
+    includes(:subscribers).where("subscribers.id=?",sub_id).where("subscribers.deleted_at IS NULL").references(:subscribers)
+  end
+
   def converted_schedule
     sch = read_attribute(:schedule)
     if sch && sch != {}
@@ -266,7 +270,7 @@ class Channel < ActiveRecord::Base
 
   def handle_subscriber_response_error(subscriber_response, error_type, action)
     StatsD.increment("channel.#{self.id}.subscriber_response.#{subscriber_response.id}.#{error_type.underscore}")
-    Rails.logger.error "error=phone_#{error_type.underscore} message='Subscriber phone #{error_type}' subscriber_response_id=#{subscriber_response.id} channel_id=#{self.id}"
+    Rails.logger.error "error=#{error_type.downcase.gsub(' ', '_')} message='Subscriber phone #{error_type}' subscriber_response_id=#{subscriber_response.id} channel_id=#{self.id}"
     subscriber_response.update_processing_log("Received #{action} command, but #{error_type}")
   end
 
@@ -302,7 +306,7 @@ class Channel < ActiveRecord::Base
     end
     subscribers << subscriber
     StatsD.increment("channel.#{self.id}.subscriber_response.#{subscriber_response.id}.start_command.ok")
-    ActionNotice.create(caption: "Subscriber issued START and was added to #{content_tag("a",self.name,href:channel_path(id))} channel.", subscriber: subscriber.id)
+    ActionNotice.create(caption: "Subscriber issued START and was added to #{content_tag("a",self.name,href:"/channels/#{self.id}")} channel.", subscriber: subscriber)
     Rails.logger.info "info=added_to_channel message='Subscriber added to channel' subscriber_response_id=#{subscriber_response.id} channel_id=#{self.id}"
     subscriber_response.update_processing_log('Received START command. Subscriber added to channel by channel action.')
     true
@@ -323,7 +327,7 @@ class Channel < ActiveRecord::Base
       subscribers.delete(subscriber)
       save!
       StatsD.increment("channel.#{self.id}.subscriber.#{subscriber.id}.remove")
-      ActionNotice.create(caption: "Subscriber issued STOP and was removed from #{content_tag("a",self.name,href:channel_path(id))} channel.", subscriber: subscriber.id)
+      ActionNotice.create(caption: "Subscriber issued STOP and was removed from #{content_tag("a",self.name,href:"/channels/#{self.id}")} channel.", subscriber: subscriber)
       Rails.logger.info "info=removed_from_channel message='Subscriber removed to channel' subscriber_response_id=#{subscriber_response.id} channel_id=#{self.id} subscriber_id=#{subscriber.id}"
       subscriber_response.update_processing_log('Received STOP command. Subscriber removed from channel by channel action.')
     rescue => e
@@ -352,17 +356,6 @@ class Channel < ActiveRecord::Base
     end
     flag
   end
-
- # def process_custom_command(subscriber_response)
- #   return true if process_custom_channel_command(subscriber_response)
- #   message = associate_response_with_last_primary_message(subscriber_response)
- #   if message
- #     return message.process_subscriber_response(subscriber_response)
- #   else
- #     handle_subscriber_response_error(subscriber_response, 'custom message not associated with message', 'custom')
- #     false
- #   end
- # end
 
   # this should be in the child channel type, so it returns false by default here
   def process_custom_channel_command(subscriber_response)

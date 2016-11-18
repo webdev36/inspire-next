@@ -20,6 +20,12 @@
       dd= print_or_dashes(@channel.description)
       dt Channel type:
       dd= print_or_dashes(@channel.type.titlecase)
+      dt Scheduling:
+      dd
+        - if @channel.relative_schedule
+          | Relative to the subscriber's added time
+        - else
+          | Absolute to: #{@channel.created_at}
       dt Suffix:
       dd= print_or_dashes(@channel.suffix)
       dt Keyword:
@@ -47,26 +53,5 @@
             span.spacer
             => link_to "Export messages", export_channel_path(@channel, format: 'csv'), class: "btn btn-default", target: "_blank"
             => link_to "Import messages", select_import_channel_messages_path(@channel), class: "btn btn-default"
-
-<!-- Split button -->
-<div class="btn-group">
-  <button type="button" class="btn btn-danger">Action</button>
-  <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    <span class="caret"></span>
-    <span class="sr-only">Toggle Dropdown</span>
-  </button>
-  <ul class="dropdown-menu">
-    <li><a href="#">Action</a></li>
-    <li><a href="#">Another action</a></li>
-    <li><a href="#">Something else here</a></li>
-    <li role="separator" class="divider"></li>
-    <li><a href="#">Separated link</a></li>
-  </ul>
-</div>
-
-
-
-
-
             span.spacer
             = link_to "Delete all messages", delete_all_messages_channel_path(@channel.id), class: 'btn btn-danger', method: :post, 'data-confirm': "This will delete all the mesasges in this channel. The data is NOT recoverable. Are you SURE?", 'data-method': "delete"
