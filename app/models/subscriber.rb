@@ -46,6 +46,11 @@ class Subscriber < ActiveRecord::Base
         key, value = item.to_s.split("=", 2)
         key.downcase!
         sa[key] = value
+        # try to convert it to a time or an integer
+        time_value = Chronic.parse(value)
+        int_value = value.to_i
+        sa[key] = time_value if time_value
+        sa[key] = int_value if sa[key].nil? && int_value != 0
       end
       sa
     end

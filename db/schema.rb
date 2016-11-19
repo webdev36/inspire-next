@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161005062015) do
+ActiveRecord::Schema.define(version: 20161119151312) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -125,6 +125,33 @@ ActiveRecord::Schema.define(version: 20161005062015) do
     t.integer  "message_id"
     t.datetime "deleted_at"
   end
+
+  create_table "rule_activities", force: :cascade do |t|
+    t.integer  "rule_id"
+    t.integer  "subscriber_id"
+    t.boolean  "success"
+    t.text     "message"
+    t.text     "data"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
+
+  create_table "rules", force: :cascade do |t|
+    t.string   "name"
+    t.text     "description"
+    t.integer  "priority"
+    t.integer  "user_id"
+    t.text     "rule_if"
+    t.text     "rule_then"
+    t.datetime "next_run_at"
+    t.boolean  "system",      default: false
+    t.boolean  "active",      default: false
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.text     "selection"
+  end
+
+  add_index "rules", ["user_id", "name"], name: "index_rules_on_user_id_and_name", using: :btree
 
   create_table "subscriber_activities", force: :cascade do |t|
     t.integer  "subscriber_id"
