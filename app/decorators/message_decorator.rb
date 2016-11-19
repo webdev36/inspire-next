@@ -41,7 +41,7 @@ class MessageDecorator < Draper::Decorator
   end
 
   def action_message_text
-    action.as_text
+    action&.as_text
   end
 
   def tag_message_text

@@ -174,7 +174,7 @@ describe MessagesController do
           # specifies that the Message created on the previous line
           # receives the :update_attributes message with whatever params are
           # submitted in the request.
-          expect_any_instance_of(Message).to receive(:save)
+          expect_any_instance_of(Message).to receive(:save).at_least(:once)
           put :update, {channel_id:channel.id,:id => message.id, :message => { "title" => "MyText" }}
         end
 

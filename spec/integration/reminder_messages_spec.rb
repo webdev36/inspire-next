@@ -127,8 +127,8 @@ describe 'Integration/Reminder messages' do
       run_worker!
     }.to_not change { DeliveryNotice.count }
 
+    # an hour later, we add a subscrxiber
     expect {
-      # an hour later, we add a subscrxiber
       travel_to_string_time('September 1, 2016 11:00')
       @channel.subscribers.push @subscriber
     }.to change { @channel.subscribers.length }.by(1)

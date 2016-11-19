@@ -24,12 +24,9 @@
 #
 
 class OnDemandMessagesChannel < Channel
-
-
   def self.system_channel?
     false
   end
-
 
   def has_schedule?
     false

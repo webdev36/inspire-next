@@ -188,11 +188,11 @@ class ChannelGroup < ActiveRecord::Base
     end
     tokens = msg.split
     if tokens.length != 1
-      handle_channel_group_subscriber_response_error(subscriber_response, 'on demand command has too many words', 'on_demand')
+      handle_channel_group_subscriber_response_error(subscriber_response, 'on demand command has more than 1 word', 'on_demand')
       return false
     end
     ch = channels.where(type:'OnDemandMessagesChannel').
-      where("lower(one_word) = ?",tokens[0].downcase).first
+      where("lower(one_word) = ? OR lower(keyword) = ?",tokens[0].downcase, tokens[0].downcase).first
     if !ch
       handle_channel_group_subscriber_response_error(subscriber_response, 'on demand command did not match channel', 'on_demand')
       return false

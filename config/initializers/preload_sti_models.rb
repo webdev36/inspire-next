@@ -1,4 +1,4 @@
-if Rails.env.development?
+if Rails.env.development? || Rails.env.production_local?
   puts "STI Tables being loaded into global variables."
   require_dependency Rails.root.join("app","models","channel.rb").to_s
   CHANNEL_TYPES = %w[ AnnouncementsChannel ScheduledMessagesChannel OrderedMessagesChannel

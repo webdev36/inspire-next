@@ -22,8 +22,8 @@ module ApplicationHelper
   end
 
   def action_types
-    at = Action.child_classes.map {|klass| klass.to_s.to_sym}
-    at = ACTION_TYPES if at.blank?
+    at = Action.child_classes.map { |klass| klass.to_s.to_sym }
+    at = ::ACTION_TYPES if at.blank?
     at
   end
 

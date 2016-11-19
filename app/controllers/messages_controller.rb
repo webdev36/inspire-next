@@ -1,5 +1,5 @@
 require 'will_paginate/array'
-require 'pry'
+
 class MessagesController < ApplicationController
   before_filter :load_channel
   before_filter  :build_channel_group_map, only: %i(new show)
@@ -47,9 +47,7 @@ class MessagesController < ApplicationController
   end
 
   def create
-    @message = MessageFactory
-                 .new(message_params, params, message: nil, channel: @channel)
-                 .message
+    @message = MessageFactory.new(params.to_hash, @channel).message
     @channels = current_user.channels
 
     respond_to do |format|
@@ -65,9 +63,7 @@ class MessagesController < ApplicationController
 
   def update
     found_message = @channel.messages.find(params[:id])
-    @message = MessageFactory
-                 .new(message_params, params, message: found_message, channel: @channel)
-                 .message
+    @message = MessageFactory.new(params, @channel, found_message).message
     @channels = current_user.channels
     respond_to do |format|
       if @message.save
@@ -90,7 +86,6 @@ class MessagesController < ApplicationController
       format.json { head :no_content }
     end
   end
-
 
   def broadcast
     message = @channel.messages.find(params[:id])

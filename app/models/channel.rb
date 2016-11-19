@@ -342,17 +342,32 @@ class Channel < ActiveRecord::Base
     sra = SubscriberResponseAssociator.new(subscriber_response)
     recommendation = sra.recommendation
     if recommendation
-      message = Message.find(recommendation[:message_id])
-      if message
-        # have the message process hte subscriber response, and see what to do
-        subscriber_response.message = message
-        subscriber_response.save
-        flag = message.process_subscriber_response(subscriber_response)
+      if recommendation[:message_id] # it matched a channel and a keyword
+        message = Message.find(recommendation[:message_id])
+        if message
+          # have the message process hte subscriber response, and see what to do
+          subscriber_response.message = message
+          subscriber_response.save
+          flag = message.process_subscriber_response(subscriber_response)
+        else
+          handle_subscriber_response_error(subscriber_response, 'mesage not found for custom command', 'custom')
+        end
+      elsif recommendation[:channel_id] # which is that it matched just keyword of the channel
+        chn = nil
+        chn = self if self.id == recommendation[:channel_id]
+        if chn.nil?
+          chn = Channel.find(recommendation[:channel_id])
+        end
+        if chn
+          flag = process_custom_channel_command(subscriber_response)
+        else
+          handle_subscriber_response_error(subscriber_response, 'could not find channel for custom commmand', 'custom')
+        end
       else
-        handle_subscriber_response_error(subscriber_response, 'mesage not found for custom command', 'custom')
+        handle_subscriber_response_error(subscriber_response, 'no custom command recommention case 1', 'custom')
       end
     else
-      handle_subscriber_response_error(subscriber_response, 'no recommendation for custom command', 'custom')
+      handle_subscriber_response_error(subscriber_response, 'no custom command recommendation case 2', 'custom')
     end
     flag
   end

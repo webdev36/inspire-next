@@ -81,13 +81,13 @@ hr
         h4.section-header Messaging Activity
         .row
           .col-md-12
-            img src="http://graphite.omamatic.com/render/?width=600&height=400&_salt=1478272837.451&title=Subscriber%20Activity&lineMode=staircase&drawNullAsZero=true&areaMode=stacked&from=-7days&colorList=418acb%2Cred&hideLegend=false&uniqueLegend=true&fontName=Sans&target=alias(summarize(stats.counters.inspire.production.subscriber.#{@subscriber.id}.subscriber_response.count%2C%221h%22)%2C%22reply%22)&target=alias(summarize(stats.counters.inspire.production.subscriber.#{@subscriber.id}.message.*.delivery_notice.count%2C%221h%22)%2C%22message%20sent%22)"
+            img src="http://#{ENV['STATSD_HOST']}/render/?width=600&height=400&_salt=1478272837.451&title=Subscriber%20Activity&lineMode=staircase&drawNullAsZero=true&areaMode=stacked&from=-7days&colorList=418acb%2Cred&hideLegend=false&uniqueLegend=true&fontName=Sans&target=alias(summarize(stats.counters.inspire.production.subscriber.#{@subscriber.id}.subscriber_response.count%2C%221h%22)%2C%22reply%22)&target=alias(summarize(stats.counters.inspire.production.subscriber.#{@subscriber.id}.message.*.delivery_notice.count%2C%221h%22)%2C%22message%20sent%22)"
         .row
           .col-md-12
-            img src="http://graphite.omamatic.com/render/?width=600&height=400&_salt=1478271805.688&title=Messages%20Sent&lineMode=staircase&drawNullAsZero=true&areaMode=stacked&from=-7days&colorList=418acb%2C418acb%2C418acb&target=summarize(stats.counters.inspire.production.subscriber.#{@subscriber.id}.message.*.delivery_notice.count%2C%221h%22)"
+            img src="http://#{ENV['STATSD_HOST']}/render/?width=600&height=400&_salt=1478271805.688&title=Messages%20Sent&lineMode=staircase&drawNullAsZero=true&areaMode=stacked&from=-7days&colorList=418acb%2C418acb%2C418acb&target=summarize(stats.counters.inspire.production.subscriber.#{@subscriber.id}.message.*.delivery_notice.count%2C%221h%22)"
         .row
           .col-md-12
-            img src="http://graphite.omamatic.com/render/?width=600&height=400&_salt=1478271999.161&title=Subscriber%20Responses&lineMode=staircase&drawNullAsZero=true&areaMode=stacked&from=-7days&colorList=418acb%2C418acb%2C418acb&target=summarize(stats.counters.inspire.production.subscriber.#{@subscriber.id}.subscriber_response.count%2C%221h%22)&hideLegend=true"
+            img src="http://#{ENV['STATSD_HOST']}/render/?width=600&height=400&_salt=1478271999.161&title=Subscriber%20Responses&lineMode=staircase&drawNullAsZero=true&areaMode=stacked&from=-7days&colorList=418acb%2C418acb%2C418acb&target=summarize(stats.counters.inspire.production.subscriber.#{@subscriber.id}.subscriber_response.count%2C%221h%22)&hideLegend=true"
 
 hr
 .row
@@ -138,7 +138,6 @@ hr
         => link_to "Subscriber Activities",
                   subscriber_activities_path(subscriber_id: @subscriber.id),
                   class: "btn btn-default"
-btn btn-default"
 
 
 

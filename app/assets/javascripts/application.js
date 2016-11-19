@@ -23,4 +23,3 @@
 //= require alert_notices_disappear
 //= require messages
 
-

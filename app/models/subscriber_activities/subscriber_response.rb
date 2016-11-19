@@ -113,6 +113,10 @@ class SubscriberResponse < SubscriberActivity
     try_processing
   end
 
+  def caption_first_word
+    self.caption&.to_s&.downcase&.split&.first
+  end
+
   def try_processing
     if target && target.process_subscriber_response(self)
       self.processed = true

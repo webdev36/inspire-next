@@ -10,8 +10,12 @@ class SubscriberResponseAssociator
   end
 
   def recommendation
+    # does it hit here?
     recommendation = nil
-    if has_expected_responses?
+    if starts_with_channel_keyword?
+      recommendation = first_keyword_channel_match
+    end
+    if recommendation.nil? && has_expected_responses?
       recommendation = most_recent_matching_message_response
     end
     if recommendation.nil? && has_response_expecting_delivery_notices?
@@ -25,6 +29,10 @@ class SubscriberResponseAssociator
 
   def caption
     subscriber_response.caption
+  end
+
+  def caption_first_word
+    subscriber_response.caption_first_word
   end
 
   # sr.content_text =~ /#{ra.response_text}/im
@@ -41,6 +49,16 @@ class SubscriberResponseAssociator
     if msg
       { message_id: msg.id, channel_id: msg.channel_id }
     end
+  end
+
+  def first_keyword_channel_match
+    message_id = nil
+    chn = potential_channel_keywords_hash[caption_first_word]
+    { message_id: nil, channel_id: chn.id }
+  end
+
+  def starts_with_channel_keyword?
+    potential_channel_keywords.any? { |pck| pck.start_with?(caption_first_word) }
   end
 
   def has_expected_responses?
@@ -78,12 +96,33 @@ class SubscriberResponseAssociator
   end
 
   def potential_channel_ids
-    @potential_channel_ids ||= begin
-      pcids = []
-      Channel.by_tparty_keyword(subscriber_response.tparty_identifier).pluck(:id).each { |id| pcids << id }
-      ChannelGroup.where(:tparty_keyword => subscriber_response.tparty_identifier)
-                  .includes(:channels).pluck('channels.id').each { |id| pcids << id }
-      pcids.uniq
+    @potential_channel_ids ||= potential_channels.map { |chn| chn.id }
+  end
+
+  def potential_channel_keywords
+    @potential_channel_keywords ||= potential_channel_keywords_hash.keys.map do |kw|
+      kw.to_s.downcase
+    end.delete_if { |kw| kw.blank? }
+  end
+
+  def potential_channel_keywords_hash
+    @potential_channel_keywords_hash ||= begin
+      pck = {}
+      potential_channels.each do |potential_channel|
+        pck[potential_channel.keyword] = potential_channel
+      end
+      pck
+    end
+  end
+
+  def potential_channels
+    @potential_channels ||= begin
+      pc = []
+      Channel.by_tparty_keyword(subscriber_response.tparty_identifier).each { |chn| pc << chn }
+      ChannelGroup.where(:tparty_keyword => subscriber_response.tparty_identifier).each do |cg|
+        cg.channels.each { |chn| pc << chn }
+      end
+      pc.uniq
     end
   end
 
