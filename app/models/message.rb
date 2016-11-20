@@ -72,6 +72,8 @@ class Message < ActiveRecord::Base
   before_validation :form_schedule
   validate          :check_relative_schedule
 
+  scope :search,   -> (search)  { where('lower(title) LIKE ? OR lower(caption) LIKE ?',"%#{search.to_s.downcase}%", "%#{search.to_s.downcase}%") }
+
   accepts_nested_attributes_for :action
   validates_associated :action
 
@@ -304,8 +306,8 @@ class Message < ActiveRecord::Base
     rescue => e
       { completed: false, message: e.message, error_rows: error_rows }
     end
-  
-  
+
+
     def handle_subscriber_response_error(subscriber_response, error_type, action)
       StatsD.increment("message.#{self.id}.subscriber_response.#{subscriber_response.id}.#{error_type.underscore}")
       Rails.logger.error "error=#{error_type.underscore} subscriber_response_id=#{subscriber_response.id} message_id=#{self.id}"

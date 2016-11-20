@@ -16,6 +16,7 @@
       .col-md-3.pull-right.text-right
         = link_to new_channel_message_path(@channel), class: "btn btn-primary btn-xs", id: 'message-new' do
           span.glyphicon.glyphicon-plus
+          | New Message
 
   .panel-body
     - if @messages && @messages.size > 0
