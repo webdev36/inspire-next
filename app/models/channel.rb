@@ -128,6 +128,11 @@ class Channel < ActiveRecord::Base
   def perform_post_send_ops(msg_no_subs_hash)
   end
 
+  def self.by_user(user)
+    group_ids = user.channel_groups.pluck(:id)
+    where('user_id = ? OR channel_group_id in (?)', user.id, Array(group_ids))
+  end
+
   def self.find_by_keyword(keyword)
     where("lower(keyword) = ?",keyword.downcase).first
   end

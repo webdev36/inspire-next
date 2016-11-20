@@ -1,0 +1,21 @@
+= simple_form_for [@rule], wrapper: :horizontal_form, html: { class: "form-horizontal" } do |f|
+  = f.input :name, placeholder: 'Change channel based on subscriber attribute'
+  = f.input :description, input_html: { rows: 3 }, placeholder: "Ex: The rule checks the subscriber quit_date attribute, and changes the channel to the quit channel when their quit date arrives."
+  = f.input :selection, placeholder: 'subscribers_all, subscriber_id_345, subscriber_in_channel_335'
+  = f.input :rule_if, input_html: { rows: 5 }, placeholder: 'date_is_today?(subscriber_quit_date)'
+  = f.input :rule_then, input_html: { rows: 5 }, placeholder: 'add_subscriber_to_channel_342 remove_subscriber_from_channel_335', hint: 'Use the tags to select the actions to perform on subscribers when the IF rule is true.'
+  span.text-align-center
+    = f.input :active, hint: 'This rule will only run if you have checked the rule as active.'
+
+  #page-actions
+    .panel.panel-default
+      .panel-body
+        => f.button :submit, class: "btn-primary"
+        => link_to "Cancel", session[:root_page] || request.referer, class: "btn btn-default"
+        - unless @rule.new_record?
+          => link_to t(".destroy", default: t("helpers.links.destroy")),
+                    rule_path(@rule),
+                    method: :delete,
+                    data: { confirm: t(".confirm", default: t("helpers.links.confirm", default: "Are you sure?")) },
+                    class: "btn btn-danger"
+

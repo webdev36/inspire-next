@@ -19,6 +19,7 @@ class Subscriber < ActiveRecord::Base
   attr_accessible :name, :phone_number, :remarks, :email, :additional_attributes
 
   belongs_to :user
+  has_many :rule_activities, as: :ruleable
   has_many :subscriptions
   has_many :channels, :through => :subscriptions
   has_many :delivery_notices
@@ -39,6 +40,18 @@ class Subscriber < ActiveRecord::Base
     where(phone_number:ref_phone_number).first
   end
 
+  def self.custom_attributes_counts
+    cac = {}
+    find_each do |subx|
+      subx.additional_attributes.to_s.split(';').each do |item|
+        key, value = item.to_s.split("=", 2)
+        cac[key] = 0 if cac[key].nil?
+        cac[key] += 1
+      end
+    end
+    cac
+  end
+
   def custom_attributes
     @supplied_attributes ||= begin
       sa = {}
@@ -46,6 +59,11 @@ class Subscriber < ActiveRecord::Base
         key, value = item.to_s.split("=", 2)
         key.downcase!
         sa[key] = value
+        # try to convert it to a time or an integer
+        time_value = Chronic.parse(value)
+        int_value = value.to_i
+        sa[key] = time_value if time_value
+        sa[key] = int_value if sa[key].nil? && int_value != 0
       end
       sa
     end

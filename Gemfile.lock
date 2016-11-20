@@ -379,7 +379,7 @@ GEM
       execjs (>= 0.3.0, < 3)
     warden (1.2.6)
       rack (>= 1.0)
-    web-console (3.3.0)
+    web-console (3.1.1)
       activemodel (>= 4.2)
       debug_inspector
       railties (>= 4.2)
@@ -464,7 +464,7 @@ DEPENDENCIES
   timecop
   twilio-ruby
   uglifier (= 3.0.2)
-  web-console
+  web-console (~> 3.1.1)
   will_paginate-bootstrap (= 0.2.5)
   yaml_db
 

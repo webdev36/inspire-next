@@ -2,7 +2,8 @@
   .panel-heading
     .row
       .col-md-4
-        = raw "#{icon('folder-open')} Channel Groups (#{@channel_groups.count})"
+        = raw "#{icon('folder-open')} Channel Groups"
+        span.badge.margin-left-10 #{@channel_groups.count}
       .col-md-5
         =form_tag request.url, method: :get do
           .input-group
@@ -12,6 +13,7 @@
       .col-md-3.text-right.pull-right
         = link_to new_channel_group_path, class: "btn btn-primary btn-xs", id: 'channel-group-new'
           span.glyphicon.glyphicon-plus
+          | New Group
 
   .panel-body
     - if @channel_groups && @channel_groups.count > 0

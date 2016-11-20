@@ -1,0 +1,18 @@
+h4 If Rules
+p In general, the rules related to if rule writing are:
+ul
+  li If rules take all the objects that match the selection, and filter it to the ones that match for action.  These can be simple or cmoplex rules.
+  li They MUST evaluate to true or false.
+p There are some pretty common patterns for if statements:
+ul
+  li
+    .title
+      | Passing everything through. You do this when you are doing actions like removing everyone from a channel.
+    .code
+      | *
+  li
+    .title
+      | Checking if a subscriber attribute date is today or soon:
+    .code
+      | date_is_today?(subscriber_quit_date)
+

@@ -65,46 +65,16 @@ Spork.prefork do
     config.include Devise::Test::ControllerHelpers, type: 'controller'
 
     config.before(:suite) do
-      DatabaseCleaner.clean_with(:truncation)
-    end
-
-    config.before(:each) do
-      DatabaseCleaner.start
-      $original_time = Time.now
-    end
-
-    config.before(:each, js: true) do
-      resize_window_to(1600,1600)
-    end
-
-    config.before(:suite) do
-      DatabaseCleaner.strategy = :transaction
-      DatabaseCleaner.clean_with(:truncation)
       ActiveRecord::Base.shared_connection = ActiveRecord::Base.connection
     end
-
-    config.after(:each) do
-      DatabaseCleaner.clean
-    end
-
-    config.before(:each) do
-      Sidekiq::Worker.clear_all
-    end
   end
-  # remove the SQL logging
-  ::ActiveRecord::Base.logger = nil
-  Rails.logger.level = Logger::INFO
-  Capybara.javascript_driver = :poltergeist
+
   include LoginMacros
   include ResponsiveHelpers
   include SelectorHelpers
 end
 
 Spork.each_run do
-  if ENV['DRB']
-    # require 'simplecov'
-    # SimpleCov.start 'rails'
-  end
   FactoryGirl.reload
   ActiveRecord::Base.shared_connection = ActiveRecord::Base.connection
 end
