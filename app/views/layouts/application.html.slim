@@ -34,6 +34,7 @@ html lang="en"
             - if user_signed_in?
               li = link_to "Channels", channels_path
               li = link_to "Subscribers", subscribers_path
+              li = link_to "Rules", rules_path
               li = link_to "Profile", edit_user_registration_path(current_user)
           ul.nav.navbar-nav.nav-right.pull-right
             - if user_signed_in?

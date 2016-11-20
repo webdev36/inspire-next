@@ -81,7 +81,7 @@ group :development, :test, :production_local do
 end
 
 group :development, :production_local do
-  gem 'web-console'
+  gem 'web-console', '~> 3.1.1'
 end
 
 group :staging, :production do

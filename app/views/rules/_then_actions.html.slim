@@ -1,0 +1,22 @@
+h4 Then Rules
+p Then rules perform actions. You can pass multiple actions to the system, and the system will perform all. The list of available actions is below.
+.row
+  .col-md-12
+    table.table.table-striped
+      thead
+        tr
+          th Name
+          th Add
+          th Remove
+      tbody
+        - @potential_channels.each do |chn|
+          tr
+            td
+              .name
+                = "#{chn.id} - #{chn.name}"
+              .description
+                = "#{chn.description}"
+            td style="font-size: 70%;"
+              = "add_subscriber_to_channel_#{chn.id}"
+            td style='font-size: 70%;'
+              = "remove_subscriber_from_channel_#{chn.id}"

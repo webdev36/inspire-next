@@ -1,0 +1,55 @@
+- rule_model_class = Rule
+
+#rules-section.panel.panel-default
+  .panel-heading
+    .row
+      .col-md-4
+        | Rules
+        span.badge.margin-left-10 #{@rules.count}
+      .col-md-5
+        = form_tag request.url, method: :get do
+          .input-group
+            = search_field_tag :rules_search, params[:rules_search], placeholder: 'Search by name or description', class: 'form-control'
+            .input-group-btn
+              = button_tag('Search', class: 'btn btn-default')
+      .col-md-3.text-right.pull-right
+        = link_to new_rule_path, class: "btn btn-primary btn-xs", id: 'rule-new'
+          span.glyphicon.glyphicon-plus
+          | New Rule
+  .panel-body
+    - if @rules && @rules.count > 0
+      table.table.table-striped#rules_table
+        thead
+          th Name
+          th.text-center Selection
+          th.text-center If
+          th.text-center Then
+          th
+        tbody
+          - @rules.each do |rule|
+            tr id="rule_#{rule.id}"
+              td
+                .name
+                  = link_to rule.name, rule_path(rule)
+                .description style="font-size: 80%; color: #ccc;"
+                  = rule.description
+              td.text-center = rule.selection
+              td.text-center = rule.rule_if
+              td.text-center = rule.rule_then
+              td.text-right
+                = link_to t(".edit", default: t("helpers.links.edit")),
+                          edit_rule_path(rule),
+                          class: "btn btn-default btn-xs"
+      .row
+        .col-md-12.text-center
+          = will_paginate @rules, param_name: "rules_page"
+
+    - else
+      .notification-well.text-center
+        .icon
+          span.glyphicon.glyphicon-road
+        .message
+          h4 No Rules Defined
+          p Rules let you perform arbitary actions, like changing a subscriber's channel, based on rules.
+          .new
+            = link_to "Add new rule", new_rule_path, class: "btn btn-primary"

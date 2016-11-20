@@ -21,12 +21,6 @@ describe InterpolationHelper do
     it 'adds additional attributes as fields' do
       expect(helper.to_hash['subscriber_quit_date'].blank?).to be_falsey
     end
-
-    # takes date and time fields and claculates from NOW how many days the
-    # delta is for them
-    it 'adds days_delta attributes for date/time fields' do
-      expect(helper.to_hash['subscriber_days_delta_quit_date'].blank?).to be_falsey
-    end
   end
 
   context 'subscriber' do
@@ -35,7 +29,7 @@ describe InterpolationHelper do
       @subscriber = create :subscriber, user: @user
       @channel.subscribers << @subscriber
       helper = InterpolationHelper.new(@subscriber, @user.id)
-      expect(helper.to_hash['subscriber_subscribed_channels'].length > 0).to be_truthy
+      expect(helper.to_hash['subscriber_subscribed_channel_ids'].length > 0).to be_truthy
     end
   end
 end

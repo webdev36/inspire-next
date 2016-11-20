@@ -28,4 +28,5 @@ class User < ActiveRecord::Base
   has_many :channel_groups, dependent: :destroy
   has_many :subscribers,    dependent: :destroy
   has_many :rules,          dependent: :destroy
+
 end

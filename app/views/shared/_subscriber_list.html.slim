@@ -4,7 +4,9 @@
   .panel-heading
     .row
       .col-md-4
-        = "Subscribers (#{@subscribers.count})"
+        span.glyphicon.glyphicon-phone.margin-right-5
+        | Subscribers
+        span.badge.margin-left-10 #{@subscribers.count}
       .col-md-5
         = form_tag request.url, method: :get do
           .input-group
@@ -14,6 +16,7 @@
       .col-md-3.text-right.pull-right
         = link_to new_subscriber_path, class: "btn btn-primary btn-xs", id: 'subscriber-new'
           span.glyphicon.glyphicon-plus
+          | New Subscriber
   .panel-body
     - if @subscribers && @subscribers.count > 0
       table.table.table-striped#subscribers_table

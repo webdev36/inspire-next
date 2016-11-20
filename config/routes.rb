@@ -34,7 +34,6 @@ Liveinspired::Application.routes.draw do
           get 'select_import'
           post 'import'
         end
-
       end
     end
   end
@@ -48,7 +47,7 @@ Liveinspired::Application.routes.draw do
   end
   post 'channel_groups/:channel_group_id/remove_channel/:id', to: 'channel_groups#remove_channel',  :as => 'channel_group_remove_channel'
 
-
+  resources :rules
   resources :users
   resources :subscribers do
     resources :subscriber_responses, only: %i(index)

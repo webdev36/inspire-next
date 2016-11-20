@@ -1,0 +1,65 @@
+- model_class = Rule
+
+#page-header.page-header
+  .row
+    .col-md-8
+      h4
+        span.glyphicon.glyphicon-road.margin-right-5
+        | New Rule
+    .col-md-4.text-right.pull-right
+
+.row
+  .col-md-12
+    .alert.alert-warning
+      | Rules are new functionality and should be considered alpha quality.
+.row
+  .col-md-6
+    = render partial: "form"
+  .col-md-6
+    h4.section-heading
+      | How to add a new rule
+    .row
+      .col-md-12
+        ul.nav.nav-tabs
+          li.active
+            a data-toggle='tab' href='#overview'
+              | Overview
+          li
+            a data-toggle='tab' href='#selection'
+              | Selectors
+          li
+            a data-toggle='tab' href='#subscriber-fields'
+              | Fields
+          li
+            a data-toggle='tab' href='#if-rules'
+              | If Rules
+          li
+            a data-toggle='tab' href='#then-rules'
+              | Then Rules
+        .tab-content
+          #overview.tab-pane.fade.in.active
+            h4 Overview
+            p Rules allow you to change channels based on subscriber attributes.  The fields are:
+            ul
+              li Name - Name the rule. Make it descriptive of the ACTION the rule intends to perform.
+              li Description - A description of the rule. Give yourself more context to understand why this is important.
+              li Selection - This is the "query" that is used to match potential objects. You can choose all, or a subset. Review the 'selection' tab for more details.
+              li Rule If - The rule you are writing must return either true or false. It will select the objects to perform action on.
+              li Rule Then - The action to perform on a selected object.
+              li Active - Is the Rule active or not? Active rules will be checked and performed every hour.
+            p
+              .alert.alert-info
+                | Rules run every hour, for now. This might be sped up or slowed down later
+          #selection.tab-pane.fade.in
+            h4 Selectors
+            p Selectors choose the raw list of objects to process the rules on.
+            ul
+              - @valid_selectors.each do |vs|
+                li #{vs}
+            p You can also select individual subscribers by adding the field subscriber_id_X where x is their ID.
+          #subscriber-fields.tab-pane.fade.in
+            = render partial: 'fields_overview'
+          #if-rules.tab-pane.fade.in
+            = render partial: 'if_actions'
+          #then-rules.tab-pane.fade.in
+            = render partial: 'then_actions'

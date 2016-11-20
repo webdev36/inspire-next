@@ -1,0 +1,12 @@
+h4 Fields
+p Fields are the attributes you can use for your if statements. The list of fields you can use for if statements is:
+p For subscribers, the fields are:
+ul
+  - @interpolation_fields.sort.each do |field|
+    - next if %w(now potential_channels).include?(field)
+    li #{field}
+p Globally, the fields are:
+ul
+  li now
+  li potential_channels
+p You can combine these with greater than, less than, if statements, and other comparisions.

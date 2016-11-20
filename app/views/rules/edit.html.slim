@@ -1,0 +1,16 @@
+- model_class = Rule
+
+.page-header
+  .row
+    .col-md-8
+      h4
+        span.glyphicon.glyphicon-road
+        | Edit Rule #{@rule.name}
+
+        span.label.label-warning style="font-size: 60%; margin-left: 10px; margin-top: -5px;"
+          | Alpha
+
+
+.row
+  .col-md-12
+    = render partial: "form"

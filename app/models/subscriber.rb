@@ -19,6 +19,7 @@ class Subscriber < ActiveRecord::Base
   attr_accessible :name, :phone_number, :remarks, :email, :additional_attributes
 
   belongs_to :user
+  has_many :rule_activities, as: :ruleable
   has_many :subscriptions
   has_many :channels, :through => :subscriptions
   has_many :delivery_notices
@@ -37,6 +38,18 @@ class Subscriber < ActiveRecord::Base
   def self.find_by_phone_number(phone_number)
     ref_phone_number = Subscriber.format_phone_number(phone_number)
     where(phone_number:ref_phone_number).first
+  end
+
+  def self.custom_attributes_counts
+    cac = {}
+    find_each do |subx|
+      subx.additional_attributes.to_s.split(';').each do |item|
+        key, value = item.to_s.split("=", 2)
+        cac[key] = 0 if cac[key].nil?
+        cac[key] += 1
+      end
+    end
+    cac
   end
 
   def custom_attributes

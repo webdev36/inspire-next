@@ -1,0 +1,12 @@
+- model_class = Rule
+
+#page-header.page-header
+  .row
+    .col-md-8
+      h4 Rule #{@rule.name}
+    .col-md-4.text-right.pull-right
+
+.row
+  .col-md-12
+    = render partial: "form"
+

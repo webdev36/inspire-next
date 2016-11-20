@@ -1,4 +1,5 @@
 class ChannelActions
+  include Rails.application.routes.url_helpers
   attr_accessor :channel, :subscriber, :originator
 
   def self.add_to_channel(channel, subscriber, originator)

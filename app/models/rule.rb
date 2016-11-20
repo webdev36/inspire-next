@@ -1,10 +1,34 @@
 class Rule < ActiveRecord::Base
+  include Mixins::RuleSelectionSubscriber
+  include Mixins::RuleDSL
   # attr_accessor :priority, :name, :description, :selection, :rule_if, :rule_then, :next_run_at, :active
 
-  scope :due, -> { where('next_run_at is NULL or next_run_at > ?', Time.now) }
   belongs_to :user
   has_many   :rule_activities, dependent: :destroy
   validates  :name, presence: true, uniqueness: { scope: [:user_id] }
+  validates  :selection, presence: true
+  validates  :rule_if, presence: true
+  validates  :rule_then, presence: true
+
+  scope :due,      ->           { where('next_run_at is NULL or next_run_at > ?', Time.now) }
+  scope :active,   ->           { where(active: true) }
+  scope :inactive, ->           { where(active: false) }
+  scope :search,   -> (search)  { where('lower(name) LIKE ? OR lower(description) LIKE ?',"%#{search.to_s.downcase}%", "%#{search.to_s.downcase}%") }
+
+  def process
+    rule_then_objects
+    log_rule_activity("Rule ran.")
+    true
+  end
+
+  def self.valid_selectors(user)
+    vs = []
+    vs << 'subscribers_all'
+    Channel.by_user(user).each do |channel|
+      vs << "subscriber_in_channel_#{channel.id}"
+    end
+    vs
+  end
 
   def selection_objects
     {
@@ -21,16 +45,45 @@ class Rule < ActiveRecord::Base
     rto
   end
 
+  def valid_then_actions
+    @valid_then_actions ||= begin
+      vta = []
+      Channel.by_user(user).pluck(:id).each do |cid|
+        vta << "add_subscriber_to_channel_#{cid}"
+        vta << "remove_subscriber_from_channel_#{cid}"
+      end
+      vta
+    end
+  end
+
+  # logs activity
+  def log_rule_activity(msg, acted_on_object = nil, success = true, opts = {})
+    ra = self.rule_activities.new
+    if acted_on_object
+      ra.ruleable_type = acted_on_object.class.name
+      ra.ruleable_id = acted_on_object.id
+    end
+    ra.success = true
+    ra.message = msg
+    ra.data = opts
+    ra.save
+    ra
+  end
+
   def perform_then_action(ra, obj)
     if ra[:channel] && ra[:action] == 'add_to_channel'
       ChannelActions.add_to_channel(ra[:channel], obj, self)
+      ra = log_rule_activity("Subscriber added to channel #{ra[:channel].id}", obj)
     elsif ra[:channel] && ra[:action] == 'remove_from_channel'
       ChannelActions.remove_from_channel(ra[:channel], obj, self)
+      ra = log_rule_activity("Subscriber removed from channel #{ra[:channel].id}", obj)
     else
+      ra = log_rule_activity("Rule perform failure: not found", obj.id, false)
       Rails.logger.info "warn=rule_perform_then_not_found rule_id=#{self.id} channel_id=#{ra[:channel].try(:id)}"
     end
   rescue => e
-    Rails.logger.info "warn=perform_then_action_raise rule_id=#{self.id} channel_id=#{ra[:channel].try(:id)} obj_id=#{obj.id} obj_class=#{ob.class.name} message='#{e.message}'"
+    ra = log_rule_activity("Rule perform failure: had error #{e.message}", obj, false)
+    Rails.logger.info "warn=perform_then_action_raise rule_id=#{self.id} channel_id=#{ra[:channel].try(:id)} obj_id=#{obj.try(:id)} obj_class=#{obj.try(:class).try(:name)} message='#{e.message}'"
     false
   end
 
@@ -60,6 +113,7 @@ class Rule < ActiveRecord::Base
 
   # this evaluates the object after iternpolating it
   def rule_if_true_for_object(obj)
+    return true if rule_if == '*'
     ir = interpolated_rule_if(obj)
     eval(ir)
   rescue => e
@@ -72,7 +126,7 @@ class Rule < ActiveRecord::Base
     rule_if.gsub(pattern) do |mtch|
       replacement = lexicon[mtch]
       if [DateTime, Time, ActiveSupport::TimeWithZone].include?(replacement.class)
-        replacement = replacement.to_i
+        replacement = "\'#{replacement}\'"
       end
       replacement
     end
@@ -85,29 +139,15 @@ class Rule < ActiveRecord::Base
     [pattern, lexicon]
   end
 
-  def subscriber_selection_objects
-    if selection == 'subscribers_all'
-      user.subscribers
-    elsif selection.include?('subscriber_id_')
-      sub_id = selection.gsub('subscriber_id_', '')
-      user.subscribers.where(id: sub_id)
-    elsif selection.include?('subscriber_in_channel_')
-      chn_id = selection.gsub('subscriber_in_channel_', '')
-      user.channels.find(chn_id).subscribers
-    else
-      []
-    end
-  end
-
   def selection_class
     if selection.start_with?('subscriber')
       'subscriber'
-    elsif selection.start_with?('user')
-      'user'
-    elsif selection.start_with?('channel_group')
-      'channel_group'
-    elsif selection.start_with?('channel')
-      'channel'
+    #  elsif selection.start_with?('user')
+    #    'user'
+    #  elsif selection.start_with?('channel_group')
+    #    'channel_group'
+    #  elsif selection.start_with?('channel')
+    #    'channel'
     else
       nil
     end

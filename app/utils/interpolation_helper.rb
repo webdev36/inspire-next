@@ -78,6 +78,10 @@ class InterpolationHelper
     def user_specific_fields
       []
     end
+
+    def user
+      @user ||= User.find(@user_id)
+    end
   end
 
   class UserPresenter
@@ -96,18 +100,18 @@ class InterpolationHelper
       orig = super
       custom_attributes.keys.each do |custom_attribute_key|
         orig["subscriber_#{custom_attribute_key}"] = custom_attributes[custom_attribute_key]
-        if [DateTime, Time, ActiveSupport::TimeWithZone].include?(custom_attributes[custom_attribute_key].class)
-          orig["subscriber_days_delta_#{custom_attribute_key}"] = days_delta(custom_attributes[custom_attribute_key])
-          orig.delete("subscxriber__days_delta_#{custom_attribute_key}") if orig["subscriber_days_delta_#{custom_attribute_key}"] == false
-        end
       end
-      orig["subscriber_days_delta_created_at"] = days_delta(@item.created_at)
+      orig['potential_channels'] = potential_channels.map(&:id)
       orig = orig.merge(subscriptions_hash)
       orig
     end
 
     def reject_fields
-      %w(additional_attributes)
+      %w(additional_attributes data deleted_at last_msg_seq_no)
+    end
+
+    def potential_channels
+      @potential_channels ||= Channel.by_user(user)
     end
 
     def days_delta(dt)
@@ -117,14 +121,31 @@ class InterpolationHelper
     def subscriptions_hash
       sh = {}
       in_channels = []
+      not_in_channels = []
       @item.subscriptions.each do |subs|
         chn = subs.channel
         in_channels << chn.id
-        sh["subscriber_subscription_channel_#{chn.id}"] = true
-        sh["subscriber_subscription_channel_#{chn.id}_at"] = subs.created_at
-        sh["subscriber_subscription_channel_days_delta_#{chn.id}"] = days_delta(subs.created_at)
+        sh["subscriber_subscription_in_channel_#{chn.id}"] = true
+        sh["subscriber_subscription_channel_subscribed_at_#{chn.id}"] = subs.created_at
       end
-      sh['subscriber_subscribed_channels'] = in_channels
+      potential_channels.each do |pc|
+        next if in_channels.include?(pc.id)
+        sh["subscriber_subscription_in_channel_#{pc.id}"] = false
+        sh["subscriber_subscription_channel_subscribed_at_#{pc.id}"] = false
+        not_in_channels << pc.id
+      end
+      sh['subscriber_subscribed_channel_ids'] = in_channels
+      sh['subscriber_not_in_channel_ids'] = not_in_channels
+      last_subscriber_reply = @item.subscriber_responses.order(created_at: :desc).limit(1).first
+      if last_subscriber_reply
+        sh['subscriber_has_replies'] = true
+        sh['subscriber_replied_at'] = last_subscriber_reply.created_at
+        sh['subscriber_total_replies'] = @item.subscriber_responses.count
+      else
+        sh['subscriber_has_replies'] = false
+        sh['subscriber_replied_at'] = false
+        sh['subscriber_total_replies'] = 0
+      end
       sh
     end
 

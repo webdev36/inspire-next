@@ -1,0 +1,21 @@
+- model_class = Rule
+
+.page-header
+  .row
+    .col-md-8
+      h4
+        span.glyphicon.glyphicon-road
+        |  Rules
+
+        span.label.label-warning style="font-size: 60%; margin-left: 10px; margin-top: -5px;"
+          | Alpha
+
+    .col-md-4.text-right.pull-right
+      = link_to new_rule_path, class: "btn btn-primary btn-xs"
+        span.glyphicon.glyphicon-plus
+        | New Rule
+
+
+.row
+  .col-md-12
+    = render partial: 'shared/rules_list'
