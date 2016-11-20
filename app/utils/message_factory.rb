@@ -76,6 +76,7 @@ class MessageFactory
       if mparams && mparams.keys.length > 0
         mparams.delete('action_attributes') unless mparams['type'] == 'ActionMessage'
         mparams.delete('message_options_attributes') unless mparams['type'] == 'TagMessage'
+        mparams['recurring_schedule'] = {} if mparams['recurring_schedule'] == 'null' || mparams['recurring_schedule'].nil?
       end
       mparams
     end
