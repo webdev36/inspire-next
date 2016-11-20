@@ -59,7 +59,7 @@ hr
           .col-md-12
             table.table.table-striped#subscribers-subscriptions-table
               tbody
-                - @available_channels.each do |channel|
+                - Array(@available_channels).each do |channel|
                   - if @subscribed_channel_ids.include?(channel.id)
                     tr id="channel_#{channel.id}" data-subscribed="true"
                       td

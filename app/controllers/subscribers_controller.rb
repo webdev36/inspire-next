@@ -24,7 +24,7 @@ class SubscribersController < ApplicationController
     @actions_last_24_hours = @subscriber.action_notices.where(created_at: 24.hours.ago..Time.now).count
 
     helper = SubscriberAvailableChannels.new(params.merge(:user_id => current_user.id))
-    @available_channels =  helper.channels
+    @available_channels =  helper.channels.delete_if {|x| x.nil? }
     @subscribed_channel_ids = helper.subscribed_channel_ids
 
     respond_to do |format|
