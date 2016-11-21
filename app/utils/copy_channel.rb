@@ -43,7 +43,9 @@ class CopyChannel
       new_message = Message.new
       hash_copy = old_message.attributes
       attributes_to_delete.each { |atr| hash_copy.delete(atr) }
-      new_message.attributes = hash_copy
+      hash_copy.keys.each do |key|
+        new_message[key] = hash_copy[key]
+      end
       new_message.channel_id = new_channel.id
       new_message.created_at = Time.current
       new_message.updated_at = Time.current
@@ -80,7 +82,9 @@ class CopyChannel
     response_action = ResponseAction.new
     hash_copy = old_response_action.attributes
     attributes_to_delete.each { |atr| hash_copy.delete(atr) }
-    response_action.attributes = hash_copy
+    hash_copy.keys.each do |key|
+      response_action[key] = hash_copy[key]
+    end
     response_action.message_id = new_msg.id
     response_action.created_at = Time.current
     response_action.updated_at = Time.current

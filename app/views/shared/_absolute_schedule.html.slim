@@ -15,17 +15,28 @@
 #recurring_schedule.form-group
   label.string.control-label.col-sm-5 for="message_schedule" Schedule
   .col-sm-7
-    = f.select_recurring :recurring_schedule, nil, {}, class: "form-control"
+    = f.select_recurring :recurring_schedule, nil, {:allow_blank => true}, class: "form-control"
+
+#rs-target
 
 - content_for :head_js
   javascript:
+
     $(document).ready(function () {
+      //$('#recurring_schedule').hide();
+
       switch ($('input[name=one_time_or_recurring]:checked').val()) {
         case 'one_time':
+          $('.message_next_send_time').show();
           $('#recurring_schedule').hide();
+          $('#rs-target').hide();
+         //$("#message_recurring_schedule").val("null").change();
           break;
         case 'recurring':
           $('.message_next_send_time').hide();
+          $('#rs-target').show();
+          $('#recurring_schedule').show();
+          //$("#message_recurring_schedule").val("custom").change();
           break;
       }
 
@@ -34,12 +45,16 @@
         switch (one_time_or_recurring) {
           case 'one_time':
             $('.message_next_send_time').show();
+            $('#rs-target').hide();
             $('#recurring_schedule').hide();
+            //$("#message_recurring_schedule").val("null").change();
             break;
           case 'recurring':
-            $('#recurring_schedule').show();
+            $('#rs-target').show();
             $('.message_next_send_time').hide();
-            break;  
+            $('#recurring_schedule').show();
+            //$("#message_recurring_schedule").val("custom").change();
+            break;
         }
       });
     });

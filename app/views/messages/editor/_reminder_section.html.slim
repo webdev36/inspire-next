@@ -1,4 +1,5 @@
 #reminder_section.control-group style=(@message.requires_user_response? ? "display: run-in;" : "display: none;")
+  hr
   = f.input :reminder_message_text, label: "Reminder message", input_html: { rows: 3 }
   = f.input :reminder_delay, label: "Send reminder after(mins)"
   = f.input :repeat_reminder_message_text, label: "Repeat reminder message", input_html: { rows: 3 }

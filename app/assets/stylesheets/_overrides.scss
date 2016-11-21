@@ -53,3 +53,28 @@ body {
 
 .margin-left-10 { margin-left: 5px; }
 .margin-right-5 { margin-right: 5px; }
+
+.rs_dialog_content {
+  h1 { display: none; }
+  .rs_dialog { margin-top: 0px !important; }
+  .controls { display: none; }
+  .day_holder {
+    a {
+      @extend .btn;
+      @extend .btn-default;
+      margin: 10px;
+    }
+    a.selected {
+      @extend .btn-success;
+    }
+  }
+  .rs_calendar_day {
+    a {
+      @extend .btn;
+      @extend .btn-default;
+    }
+    a.selected {
+      @extend .btn-success;
+    }
+  }
+}

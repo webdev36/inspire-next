@@ -41,7 +41,8 @@ gem 'chronic'
 gem 'foreman'
 
 gem 'ice_cube'
-gem 'recurring_select', :git => "https://github.com/omalab/recurring_select.git", :branch => "add_hour_and_minute_to_rules"
+gem 'recurring_select', :git => "https://github.com/omalab/recurring_select.git", :branch => "wflanagan-patch-1"
+
 gem 'momentjs-rails', '>= 2.9.0'
 gem 'bootstrap3-datetimepicker-rails', '~> 4.17.42'
 gem 'select2-rails'

@@ -1,8 +1,10 @@
+require 'ice_cube'
+
 class MessageFactory
   attr_accessor :params, :supplied_message, :channel, :opts
 
   def initialize(_p, chn = nil, msg = nil, _o = {})
-    @params = _p
+    @params = HashWithIndifferentAccess.new(_p)
     @supplied_message = msg
     @channel = chn
     @opts = _o
@@ -25,26 +27,25 @@ class MessageFactory
     msg = initial_message
     msg = construct_switch_channel_message(msg) if switch_channel_action_message?
     msg = construct_send_message_message(msg)   if send_message_action_message?
-    msg = construct_one_time_or_recurring(msg)
+    msg = construct_recurring_if_present(msg)
     msg
   end
 
-  private
+  # private
 
-    def construct_one_time_or_recurring(msg)
-      if params[:one_time_or_recurring].present?
-        case params[:one_time_or_recurring]
-        when "one_time"
-          msg.recurring_schedule = nil
-        when "recurring"
-          msg.next_send_time = 1.minute.ago
-        end
+    def construct_recurring_if_present(msg)
+      if recurring_schedule?
+        msg.recurring_schedule = icecube_rule.to_hash
+        msg.next_send_time = 1.minute.ago
+      else
+        msg.recurring_schedule = nil
       end
       msg
     end
 
     def recurring_schedule?
-      recurring_schedule.is_a?(Hash)
+      params['one_time_or_recurring'].present? &&
+        params['one_time_or_recurring'] == 'recurring'
     end
 
     def recurring_schedule
@@ -76,7 +77,7 @@ class MessageFactory
       if mparams && mparams.keys.length > 0
         mparams.delete('action_attributes') unless mparams['type'] == 'ActionMessage'
         mparams.delete('message_options_attributes') unless mparams['type'] == 'TagMessage'
-        mparams['recurring_schedule'] = {} if mparams['recurring_schedule'] == 'null' || mparams['recurring_schedule'].nil?
+        mparams['recurring_schedule'] = {} # universally make sure it passed, added later in process
       end
       mparams
     end
@@ -119,6 +120,45 @@ class MessageFactory
 
     def message_type
       params.try(:[], 'message').try(:[], 'type')
+    end
+
+    def recurrence_hash
+      {
+        'rule_type': icecube_type,
+        'interval': icecube_interval,
+
+      }
+    end
+
+    # {"validations"=>{"day"=>[1], "hour_of_day"=>[9], "minute_of_hour"=>[45]}, "rule_type"=>"IceCube::WeeklyRule", "interval"=>1, "week_start"=>0}
+    def recurrence_params
+      params.select { |key, value| recurrence_params_fields.include?(key) }
+    end
+
+    def icecube_rule
+      case recurrence_params['rs_frequency']
+      when 'Daily'
+        IceCube::Rule.daily(recurrence_params['rs_daily_interval'])
+                     .hour_of_day(recurrence_parmas['rs_daily_hour_of_day'])
+                     .minute_of_hour(recurrence_params['rs_daily_minute_of_hour'])
+      when 'Weekly'
+        IceCube::Rule.weekly(recurrence_params['rs_weekly_interval'].to_i)
+                     .hour_of_day(recurrence_params['rs_weekly_hour_of_day'].to_i)
+                     .minute_of_hour(recurrence_params['rs_weekly_minute_of_hour'].to_i)
+      when 'Monthly'
+        IceCube::Rule.monthly(recurrence_params['rs_monthly_interval'])
+      when 'Yearly'
+        IceCube::Rule.yearly(recurrence_params['rs_yearly_interval'])
+      else
+        nil
+      end
+    end
+
+    def recurrence_params_fields
+      %w( rs_frequency rs_daily_interval rs_daily_hour_of_day
+          rs_daily_minute_of_hour rs_weekly_interval rs_weekly_hour_of_day
+          rs_weekly_minute_of_hour rs_monthly_interval rs_monthly_hour_of_day
+          rs_monthly_minute_of_hour rs_yearly_interval )
     end
 
     def message_action

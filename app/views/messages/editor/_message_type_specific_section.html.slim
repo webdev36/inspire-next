@@ -1,8 +1,11 @@
 #action_message_fields
+  hr
   = render partial: "messages/editor/action_message_fields", locals: { f: f }
 #response_message_fields
+  hr
   = render partial: "messages/editor/response_message_fields", locals: { f: f }
 #tag_message_fields
+  hr
   = render partial: "messages/editor/message_option_parent_fields", locals: { f: f }
 
 - content_for :head_js

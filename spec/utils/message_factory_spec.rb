@@ -83,4 +83,51 @@ describe MessageFactory do
     expect(msg2.save).to be_truthy
     expect(msg2.action.data['to_channel_out_group'].include?(1)).to be_truthy
   end
+
+  context 'recurring schedules'
+    context 'daily' do
+      context 'at 8am' do
+        xit 'created'
+        xit 'updated'
+      end
+      context 'every other day' do
+        xit 'created'
+        xit 'updated'
+      end
+    end
+    context 'weekly' do
+      context 'mondays at 945a' do
+        it 'is created' do
+          @channel = create :channel
+          params = Files.json_read_from_fixture_path('utils/message_factory/new_recurring_simple_message_params.json')
+          params['channel_id'] = @channel.id
+          factory = MessageFactory.new(params, @channel)
+          msg = factory.message
+          expect(msg.save).to be_truthy
+          expect(msg.recurring_schedule[:rule_type] == 'IceCube::WeeklyRule').to be_truthy
+          expect(msg.recurring_schedule[:interval] == 1).to be_truthy
+          expect(msg.recurring_schedule[:validations][:hour_of_day] == [9]).to be_truthy
+          expect(msg.recurring_schedule[:validations][:minute_of_hour] == [45]).to be_truthy
+        end
+        xit 'is updated'
+      context 'every other monday at 945am' do
+        xit 'created'
+        xit 'updated'
+      end
+      context 'every monday and friday at 8am' do
+        xit 'created'
+        xit 'updated'
+      end
+    end
+    context 'monthly' do
+      context '1st of the month at 8am' do
+        xit 'created'
+        xit 'updated'
+      end
+      context '1st and 15 of the month at 8am' do
+        xit 'created'
+        xit 'updated'
+      end
+    end
+  end
 end

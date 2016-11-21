@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/omalab/recurring_select.git
-  revision: 41f3329d327d9e64d1d837e5c06ed04abdf84680
-  branch: add_hour_and_minute_to_rules
+  revision: ce27b8618e7dc79ebfea9cde3ff6289196089490
+  branch: wflanagan-patch-1
   specs:
     recurring_select (1.2.1.rc3)
       coffee-rails (>= 3.1)
@@ -233,7 +233,7 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
-    rack (1.6.4)
+    rack (1.6.5)
     rack-contrib (1.4.0)
       git-version-bump (~> 0.15)
       rack (~> 1.4)
