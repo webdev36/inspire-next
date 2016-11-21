@@ -7,6 +7,7 @@
         = "Welcome #{@user.email}"
     .col-md-4
       = help_tag(help_user_show_path)
+      = link_to 'Keywords List', keywords_path, class: 'btn pull-right'
 
 #channel-and-group-list.row
   .col-md-6

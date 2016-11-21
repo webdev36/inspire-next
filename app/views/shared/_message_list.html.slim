@@ -1,12 +1,13 @@
 - message_model_class = Message
 
-#messages-section.panel.panel-default
+#messages-section.panel.panel-default.shared-table
   .panel-heading
     .row
       .col-md-4
         .panel-title Messages
-        - @message_counts_by_type.each do |type, count|
-          = link_to "#{type.gsub(/Message$/, '')}(#{count})", channel_path(@channel, message_type: type)
+        .counts
+          - @message_counts_by_type.each do |type, count|
+            = link_to "#{type.gsub(/Message$/, '')}(#{count})", channel_path(@channel, message_type: type)
       .col-md-5
         =form_tag request.url, method: :get do
           .input-group
@@ -30,7 +31,7 @@
             tbody
               - @messages.each_with_index do |message, index|
                 - message = message.decorate
-                tr id="message_#{message.id}"
+                tr id="message_#{message.id}" class="message-row-#{message.active == true ? 'active' : 'not-active'}"
                   td.col-md-8
                     = link_to message.decorate.title_text, channel_message_path(@channel, message)
                     .small = message.type.gsub(/Message$/, "")
@@ -60,4 +61,6 @@
           h4 No Messages
           p Add some messages to send to subscribers
           .add
-            = link_to "Add new message", new_channel_message_path(@channel), class: "btn btn-primary"
+            = link_to new_channel_message_path(@channel), class: "btn btn-primary"
+              span.glyphicon.glyphicon-plus
+              | Add new message

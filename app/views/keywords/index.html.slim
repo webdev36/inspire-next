@@ -1,0 +1,44 @@
+.page-header.clearfix
+  .row
+    .col-md-8
+      h4
+        | Keywords
+    .col-md-4
+
+.row
+  .col-md-12
+    .alert.alert-info
+      | This page provides quick access to the phone number and keywords that can be used by your subscribers.
+.row
+  .col-md-8
+    table.table.table-striped#channel-keywords-table
+      thead
+        tr
+          th Group
+          th Id
+          th Name
+          th Phone
+          th Keyword
+      tbody
+        - @user.channel_groups.each do |group|
+          tr.channel-group-row
+            td = link_to group.name, channel_group_path(group.id)
+            td
+            td
+            td = group.tparty_keyword
+            td = group.keyword
+        - @channels.each do |channel|
+          tr.channel-row
+            td
+              - if channel.channel_group
+                = channel.channel_group.name
+            td = channel.id
+            td = link_to channel.name, channel_path(channel.id)
+            td = channel.tparty_keyword
+            td = channel.keyword
+  .col-md-4
+    h4 Commands
+    ul
+      li start
+      li stop
+

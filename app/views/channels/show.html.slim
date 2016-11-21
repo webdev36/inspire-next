@@ -23,9 +23,13 @@
       dt Scheduling:
       dd
         - if @channel.relative_schedule
-          | Relative to the subscriber's added time
+          .label.label-info
+            | Relative
+          |   to subscriber's channel added time
         - else
-          | Absolute to: #{@channel.created_at}
+          .label.label-primary
+            | Absolute
+          |   from #{@channel.created_at}
       dt Suffix:
       dd= print_or_dashes(@channel.suffix)
       dt Keyword:

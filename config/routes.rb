@@ -10,6 +10,7 @@ Liveinspired::Application.routes.draw do
     resources :home, only: %i(index)
   end
   get 'admin', to: 'admin/home#index'
+  resources :keywords, only: [:index]
   resources :channels do
     member do
       get  'list_subscribers'

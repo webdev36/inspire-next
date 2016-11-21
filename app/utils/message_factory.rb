@@ -138,9 +138,9 @@ class MessageFactory
     def icecube_rule
       case recurrence_params['rs_frequency']
       when 'Daily'
-        IceCube::Rule.daily(recurrence_params['rs_daily_interval'])
-                     .hour_of_day(recurrence_params['rs_daily_hour_of_day'])
-                     .minute_of_hour(recurrence_params['rs_daily_minute_of_hour'])
+        IceCube::Rule.daily(recurrence_params['rs_daily_interval'].to_i)
+                     .hour_of_day(recurrence_params['rs_daily_hour_of_day'].to_i)
+                     .minute_of_hour(recurrence_params['rs_daily_minute_of_hour'].to_i)
       when 'Weekly'
         IceCube::Rule.weekly(recurrence_params['rs_weekly_interval'].to_i)
                      .hour_of_day(recurrence_params['rs_weekly_hour_of_day'].to_i)

@@ -1,6 +1,6 @@
 - subscriber_model_class = Subscriber
 
-#subscribers-section.panel.panel-default
+#subscribers-section.panel.panel-default.shared-table
   .panel-heading
     .row
       .col-md-4
@@ -47,4 +47,6 @@
           h4 No Subscribers
           p No subscribers have been added
           .new
-            = link_to "Add new subscriber", new_subscriber_path, class: "btn btn-primary"
+            = link_to new_subscriber_path, class: "btn btn-primary" do
+              span.glyphicon.glyphicon-plus
+              | Add new subscriber
