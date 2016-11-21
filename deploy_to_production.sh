@@ -32,10 +32,10 @@ deploy(){
   echo 'bundle install'
   bundle install
 
-  echo 'DEPLOY: exec rake assets:clean RAILS_ENV=production'
+  echo 'DEPLOY: rake assets:clean RAILS_ENV=production'
   RAILS_ENV=production bundle exec rake assets:clean
 
-  echo 'DEPLOY: exec rake assets:precompile RAILS_ENV=production'
+  echo 'DEPLOY: rake assets:precompile RAILS_ENV=production'
   bundle exec rake assets:precompile RAILS_ENV=production
 
   echo 'DEPLOY: set the Procfile to the production procfile'
