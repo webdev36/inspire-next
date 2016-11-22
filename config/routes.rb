@@ -8,6 +8,7 @@ Liveinspired::Application.routes.draw do
   devise_for :users
   namespace :admin do
     resources :home, only: %i(index)
+    resources :channels, only: %i(index)
   end
   get 'admin', to: 'admin/home#index'
   resources :keywords, only: [:index]
@@ -18,6 +19,7 @@ Liveinspired::Application.routes.draw do
       post 'delete_all_messages'
       get  'timeline'
       get  'export'
+      get  'all'
     end
     resources :messages do
       member do
@@ -29,6 +31,7 @@ Liveinspired::Application.routes.draw do
       collection do
         get 'select_import'
         post 'import'
+        post 'update_seq_no'
       end
       resources :response_actions do
         collection do

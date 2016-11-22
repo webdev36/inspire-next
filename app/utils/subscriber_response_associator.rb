@@ -89,7 +89,7 @@ class SubscriberResponseAssociator
 
   def delivery_notices
     @delivery_notices ||= subscriber.delivery_notices
-                                    .where(created_at: 23.hours.ago..Time.now)
+                                    .where(created_at: 24.hours.ago..Time.now)
                                     .where(channel_id: potential_channel_ids)
                                     .order(created_at: :desc)
                                     .includes(:message)

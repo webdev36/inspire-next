@@ -20,18 +20,39 @@
 require 'spec_helper'
 
 describe SubscriberResponse do
-  it "has a valid factory" do
-    expect(build(:subscriber_response)).to be_valid
+  context 'setup' do
+    it "has a valid factory" do
+      expect(build(:subscriber_response)).to be_valid
+    end
+
+    it "downcases the message before save" do
+      sr = create(:subscriber_response,title:'A mixed Case STRING',caption:"Another Mixed Case STRING")
+      sr.reload
+      expect(sr.title).to eq('a mixed case string')
+      expect(sr.caption).to eq('another mixed case string')
+    end
   end
 
-  it "downcases the message before save" do
-    sr = create(:subscriber_response,title:'A mixed Case STRING',caption:"Another Mixed Case STRING")
-    sr.reload
-    expect(sr.title).to eq('a mixed case string')
-    expect(sr.caption).to eq('another mixed case string')
+  context '#channel_keyword_match' do
+    it 'can match a message when it has a space' do
+      allow(SubscriberResponse).to receive(:potential_matching_keywords).and_return(["slip", "crave", "quit2", "notready", "motivate", "quit", "prepare", "prepare2"])
+      test_cases = [
+                     { message: ["+14012141426", "not", "ready"],                               channel_keyword: 'notready', array_length: 2 },
+                     { message: ["+14012141426", "notready", "i", 'am', 'tired', 'of', 'this'], channel_keyword: 'notready', array_length: 7 },
+                     { message: [nil, 'subscribe', 'me'],                                       channel_keyword: nil,        array_length: 3 },
+                     { message: ["+14012141426", 'craveit', 'me'],                              channel_keyword: 'crave',    array_length: 4 },
+                     { message: ["+14012141426", 'yes'],                                        channel_keyword: nil,        array_length: 2 },
+                   ]
+      test_cases.each do |tc|
+        response = SubscriberResponse.channel_keyword_match(tc[:message])
+        expect(response[0] == tc[:channel_keyword]).to be_truthy
+        expect(response[1].length == tc[:array_length]).to be_truthy
+        puts "#{response}"
+      end
+    end
   end
 
-  describe 'parse_message' do
+  context '#parse_message' do
     before do
       @tparty_primary = ENV['TPARTY_PRIMARY_KEYWORD'] || "INSPIRE"
       @tparty_custom = Faker::Lorem.word
@@ -39,38 +60,42 @@ describe SubscriberResponse do
       @message = Faker::Lorem.sentence
 
       @ch_pri = create(:channel,tparty_keyword:@tparty_primary)
-      @ch_pri_key = create(:channel,tparty_keyword:@tparty_primary,
+      @ch_pri_key = create(:channel, tparty_keyword:@tparty_primary,
         keyword:@keyword)
-      @ch_custom = create(:channel,tparty_keyword:@tparty_custom)
-      @ch_custom_key = create(:channel,tparty_keyword:@tparty_custom,
+      @ch_custom = create(:channel, tparty_keyword:@tparty_custom)
+      @ch_custom_key = create(:channel, tparty_keyword:@tparty_custom,
         keyword:@keyword)
     end
     it "returns nil when message is empty" do
       expect(SubscriberResponse.parse_message('')).to eq([nil,nil,nil,''])
     end
+
     it "identifies channel with primary tparty_keyword and keyword" do
-      target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
-        "#{@tparty_primary.swapcase}  #{@keyword.swapcase}    #{@message}")
+      message_to_send = "#{@tparty_primary.swapcase}  #{@keyword.swapcase}    #{@message}"
+      target, tparty_keyword, keyword, message = SubscriberResponse.parse_message(message_to_send)
+      potential_matching_keywords = SubscriberResponse.potential_matching_keywords(tparty_keyword)
       expect(target).to eq(Channel.find(@ch_pri_key.id))
       expect(tparty_keyword).to match(/^#{@tparty_primary}$/i)
       expect(keyword).to match(/^#{@keyword}$/i)
-      expect(message).to eq(@message)
+      expect(message).to eq(@message.downcase.split.join(' '))
     end
+
     it "identifies channel with primary tparty_keyword and keyword when tparty_keyword is outside the message" do
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
         "#{@keyword.swapcase}    #{@message}",@tparty_primary.swapcase  )
       expect(target).to eq(Channel.find(@ch_pri_key.id))
       expect(tparty_keyword).to match(/^#{@tparty_primary}$/i)
       expect(keyword).to match(/^#{@keyword}$/i)
-      expect(message).to eq(@message)
+      expect(message).to eq(@message.downcase.split.join(' '))
     end
+
     it "identifies channel with custom tparty_keyword and keyword" do
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
         "#{@tparty_custom.swapcase} #{@keyword.swapcase} #{@message}")
       expect(target).to eq(Channel.find(@ch_custom_key.id))
       expect(tparty_keyword).to match(/^#{@tparty_custom}$/i)
       expect(keyword).to match(/^#{@keyword}$/i)
-      expect(message).to eq(@message)
+      expect(message).to eq(@message.downcase.split.join(' '))
     end
 
     it "identifies channel with custom tparty_keyword and keyword when tparty_keyword is passed in outside message" do
@@ -79,25 +104,25 @@ describe SubscriberResponse do
       expect(target).to eq(Channel.find(@ch_custom_key.id))
       expect(tparty_keyword).to match(/^#{@tparty_custom}$/i)
       expect(keyword).to match(/^#{@keyword}$/i)
-      expect(message).to eq(@message)
+      expect(message).to eq(@message.downcase.split.join(' '))
     end
-
 
     it "identifies channel with only tparty_keyword if there is a single match" do
       @ch_pri_key.destroy
-      target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
-        "#{@tparty_primary.swapcase} #{@message}")
+      message_to_parse = "#{@tparty_primary.swapcase} #{@message}"
+      target, tparty_keyword, keyword, message = SubscriberResponse.parse_message(message_to_parse)
+      potential_matching_keywords = SubscriberResponse.potential_matching_keywords(tparty_keyword)
       expect(target).to eq(Channel.find(@ch_pri.id))
       expect(tparty_keyword).to match(/^#{@tparty_primary}$/i)
       expect(keyword).to be_nil
-      expect(message).to eq(@message)
+      expect(message).to eq(@message.downcase.split.join(' '))
       @ch_custom_key.destroy
-      target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
-        "#{@tparty_custom.swapcase} #{@message}")
+      next_message_to_parse = "#{@tparty_custom.swapcase} #{@message}"
+      target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(next_message_to_parse)
       expect(target).to eq(Channel.find(@ch_custom.id))
       expect(tparty_keyword).to match(/^#{@tparty_custom}$/i)
       expect(keyword).to be_nil
-      expect(message).to eq(@message)
+      expect(message).to eq(@message.downcase.split.join(' '))
     end
 
     it "identifies channel with only tparty_keyword if there is a single match when message does not contain it" do
@@ -107,14 +132,14 @@ describe SubscriberResponse do
       expect(target).to eq(Channel.find(@ch_pri.id))
       expect(tparty_keyword).to match(/^#{@tparty_primary}$/i)
       expect(keyword).to be_nil
-      expect(message).to eq(@message)
+      expect(message).to eq(@message.downcase.split.join(' '))
       @ch_custom_key.destroy
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
         "#{@message}",@tparty_custom.swapcase )
       expect(target).to eq(Channel.find(@ch_custom.id))
       expect(tparty_keyword).to match(/^#{@tparty_custom}$/i)
       expect(keyword).to be_nil
-      expect(message).to eq(@message)
+      expect(message).to eq(@message.downcase.split.join(' '))
     end
 
     it "identifies channel with only tparty_keyword and no message if there is a single match" do
@@ -152,12 +177,12 @@ describe SubscriberResponse do
     end
 
     it "does not identify channel if there are multiple matches" do
-      target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
-        "#{@tparty_primary.swapcase} #{@message}")
+      msg_to_parse = "#{@tparty_primary.swapcase} #{@message}"
+      target, tparty_keyword, keyword, message = SubscriberResponse.parse_message(msg_to_parse)
       expect(target).to be_nil
       expect(tparty_keyword).to be_nil
       expect(keyword).to be_nil
-      expect(message).to eq("#{@tparty_primary.swapcase} #{@message}")
+      expect(message).to eq(msg_to_parse.downcase)
     end
   end
 
@@ -186,7 +211,7 @@ describe SubscriberResponse do
       expect(target).to eq(ChannelGroup.find(@ch_grp_pri_key.id))
       expect(tparty_keyword).to match(/^#{@tparty_primary}$/i)
       expect(keyword).to match(/^#{@keyword}$/i)
-      expect(message).to eq(@message)
+      expect(message).to eq(@message.downcase.split.join(' '))
     end
     it "identifies channel group with custom tparty_keyword and keyword" do
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
@@ -194,7 +219,7 @@ describe SubscriberResponse do
       expect(target).to eq(ChannelGroup.find(@ch_grp_custom_key.id))
       expect(tparty_keyword).to match(/^#{@tparty_custom}$/i)
       expect(keyword).to match(/^#{@keyword}$/i)
-      expect(message).to eq(@message)
+      expect(message).to eq(@message.downcase.split.join(' '))
     end
 
     it "identifies channel group with only tparty_keyword if there is a single match" do
@@ -204,14 +229,14 @@ describe SubscriberResponse do
       expect(target).to eq(ChannelGroup.find(@ch_grp_pri.id))
       expect(tparty_keyword).to match(/^#{@tparty_primary}$/i)
       expect(keyword).to be_nil
-      expect(message).to eq(@message)
+      expect(message).to eq(@message.downcase.split.join(' '))
       @ch_grp_custom_key.destroy
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
         "#{@tparty_custom.swapcase} #{@message}")
       expect(target).to eq(ChannelGroup.find(@ch_grp_custom.id))
       expect(tparty_keyword).to match(/^#{@tparty_custom}$/i)
       expect(keyword).to be_nil
-      expect(message).to eq(@message)
+      expect(message).to eq(@message.downcase.split.join(' '))
     end
 
     it "identifies channel group with only tparty_keyword and no message if there is a single match" do
@@ -232,12 +257,12 @@ describe SubscriberResponse do
     end
 
     it "does not identify channel group if there are multiple matches" do
-      target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(
-        "#{@tparty_primary.swapcase} #{@message}")
+      msg_to_parse = "#{@tparty_primary.swapcase} #{@message}"
+      target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(msg_to_parse)
       expect(target).to be_nil
       expect(tparty_keyword).to be_nil
       expect(keyword).to be_nil
-      expect(message).to eq("#{@tparty_primary.swapcase} #{@message}")
+      expect(message).to eq(msg_to_parse.downcase)
     end
 
     it "returns channel group when both channel and channel group of a given primary tparty keyword are present" do
@@ -247,7 +272,7 @@ describe SubscriberResponse do
       expect(target).to eq(ChannelGroup.find(@ch_grp_pri_key.id))
       expect(tparty_keyword).to match(/^#{@tparty_primary}$/i)
       expect(keyword).to match(/^#{@keyword}$/i)
-      expect(message).to eq(@message)
+      expect(message).to eq(@message.downcase.split.join(' '))
     end
 
     it "returns channel group when both channel and channel group of a given custom tparty keyword are present" do
@@ -258,7 +283,7 @@ describe SubscriberResponse do
       expect(target).to eq(ChannelGroup.find(@ch_grp_custom.id))
       expect(tparty_keyword).to match(/^#{@tparty_custom}$/i)
       expect(keyword).to be_nil
-      expect(message).to eq(@message)
+      expect(message).to eq(@message.downcase.split.join(' '))
     end
 
     it "returns channel group when both channel and channel group of a given custom tparty keyword and keyword are present" do
@@ -268,7 +293,7 @@ describe SubscriberResponse do
       expect(target).to eq(ChannelGroup.find(@ch_grp_custom_key.id))
       expect(tparty_keyword).to match(/^#{@tparty_custom}$/i)
       expect(keyword).to match(/^#{@keyword}$/i)
-      expect(message).to eq(@message)
+      expect(message).to eq(@message.downcase.split.join(' '))
     end
   end
 

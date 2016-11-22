@@ -70,6 +70,39 @@ class ChannelsController < ApplicationController
     end
   end
 
+  def all
+    if @channel
+      @messages = @channel.messages
+      @messages = @messages.search(params[:message_search]) if params[:message_search]
+
+      @message_counts_by_type = { "All" => @messages.size }
+      %w(ActionMessage PollMessage ResponseMessage SimpleMessage TagMessage).each do |message_type|
+        count = @messages.where(type: message_type).size
+        @message_counts_by_type[message_type] = count if count > 0
+      end
+
+      if params[:message_type].present? && params[:message_type] != "All"
+        @messages = @messages.where(type: params[:message_type])
+      end
+
+      @messages = if @channel.sequenced?
+        @messages.order(:seq_no)
+      elsif @channel.individual_messages_have_schedule?
+        @messages.order(:created_at)
+      else
+        @messages.order(created_at: :desc)
+      end
+
+      @messages = @messages
+        .sort { |x, y| x.seq_no <=> y.seq_no }
+    end
+
+    respond_to do |format|
+      format.html
+      format.json { render json: @channel }
+    end
+  end
+
   def edit; end
 
   def create

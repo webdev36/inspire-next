@@ -72,7 +72,7 @@ class Message < ActiveRecord::Base
   before_validation :form_schedule
   validate          :check_relative_schedule
 
-  scope :search,   -> (search)  { where('lower(title) LIKE ? OR lower(caption) LIKE ?',"%#{search.to_s.downcase}%", "%#{search.to_s.downcase}%") }
+  scope :search,   -> (search)  { where('lower(title) LIKE ? OR lower(caption) LIKE ? OR lower(reminder_message_text) LIKE ? OR lower(repeat_reminder_message_text) like ?',"%#{search.to_s.downcase}%", "%#{search.to_s.downcase}%", "%#{search.to_s.downcase}%", "%#{search.to_s.downcase}%") }
 
   accepts_nested_attributes_for :action
   validates_associated :action
@@ -125,6 +125,20 @@ class Message < ActiveRecord::Base
   def broadcast
     MessagingManagerWorker.perform_async('broadcast_message',
       {'message_id'=>id})
+  end
+
+  def set_seq_position(new_position)
+    new_position = new_position.to_i
+    potential_move_maximum = self.channel.messages.count
+    count_moves = 0
+    return false if potential_move_maximum > 300
+    until (seq_no == new_position) || (count_moves >= potential_move_maximum)
+      puts "seq_no #{seq_no} new_position: #{new_position}"
+      move_down if seq_no < new_position
+      move_up if seq_no > new_position
+      count_moves += 1
+      self.reload
+    end
   end
 
   def move_up

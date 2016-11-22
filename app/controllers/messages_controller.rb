@@ -4,6 +4,7 @@ class MessagesController < ApplicationController
   before_filter :load_channel
   before_filter  :build_channel_group_map, only: %i(new show)
   before_action :load_to_channel_options, only: %i(new edit show create update)
+  before_action :load_message, only: %i(show)
 
   def index
     @messages = @channel.messages
@@ -147,6 +148,14 @@ class MessagesController < ApplicationController
     end
   end
 
+  def update_seq_no
+    @message = @channel.messages.find(message_params[:id])
+    puts "setting position to #{message_params[:seq_no_position]}"
+    @message.set_seq_position(message_params[:seq_no_position])
+    @message.save
+    render nothing: true
+  end
+
   private
 
     def message_params(p = params)
@@ -164,8 +173,8 @@ class MessagesController < ApplicationController
                 :repeat_reminder_message_text, :repeat_reminder_delay,
                 :number_of_repeat_reminders, :action_attributes, :schedule,
                 :relative_schedule_type, :relative_schedule_number,
-                :relative_schedule_day, :relative_schedule_hour,
-                :relative_schedule_minute, :active, :_destroy,
+                :relative_schedule_day, :relative_schedule_hour, :id,
+                :relative_schedule_minute, :active, :_destroy, :seq_no_position,
                 :message_options_attributes, :recurring_schedule,
                 message_options_attributes: %i(key message_id value),
                 action_attributes: %i(
@@ -203,5 +212,11 @@ class MessagesController < ApplicationController
       end
     end
 
+    def load_message
+      @message = @channel.messages.find(params[:id])
+      if @message.requires_user_response?
+        @grouped_responses = @message.grouped_responses || []
+      end
+    end
 
 end

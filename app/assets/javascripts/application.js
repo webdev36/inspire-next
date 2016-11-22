@@ -13,6 +13,8 @@
 //= require_self
 //= require jquery
 //= require jquery_ujs
+//= require jquery-ui/sortable
+//= require jquery-ui/effect-highlight
 //= require bootstrap-sprockets
 //= require recurring_select
 //= require moment
@@ -21,5 +23,6 @@
 //= require cocoon
 //= require_tree .
 //= require alert_notices_disappear
+//= require html.sortable.src
 //= require messages
 

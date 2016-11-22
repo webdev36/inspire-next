@@ -1,0 +1,42 @@
+#page-heaer.page-header.clearfix
+  .row
+    .col-md-8
+      h4 Channels & Channel Groups
+    .col-md-4
+
+.row
+  .col-md-12
+    .panel.panel-default
+      .panel-heading
+        h4 Channels
+      .panel-body
+        table.table.table-striped
+          tbody
+            - @channels.each do |channel|
+              tr
+                td
+                  - if channel.channel_group
+                    = channel.channel_group.name
+                td = channel.id
+                td = channel.name
+                td = channel.keyword
+                td = channel.tparty_keyword
+                td = channel.created_at
+
+.row
+  .col-md-12
+    .panel.panel-default
+      .panel-heading
+        h4 Channel Groups
+      .panel-body
+        table.table.table-striped
+          tbody
+            - @channel_groups.each do |group|
+              tr
+                td
+                td = group.id
+                td = group.name
+                td = group.user.id
+                td = group.keyword
+                td = group.tparty_keyword
+                td = group.created_at

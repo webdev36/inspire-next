@@ -6,6 +6,7 @@ gem 'rails', '4.2.7.1'
 gem 'activeresource' # active_resource/reailtie (http://stackoverflow.com/questions/16782198/cannot-load-railtie-after-upgrade-to-rails-4-per-ruby-railstutorial-org)
 gem 'pg'
 gem 'jquery-rails'
+gem 'jquery-ui-rails'
 gem 'simple_form'
 gem 'devise'
 gem 'figaro'
@@ -24,6 +25,7 @@ gem 'aws-sdk'
 
 gem 'twilio-ruby'
 gem 'will_paginate-bootstrap', '0.2.5'
+gem 'ranked-model'
 
 gem 'sidekiq'
 gem 'sidekiq-failures'

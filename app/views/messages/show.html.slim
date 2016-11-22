@@ -18,15 +18,17 @@
       .col-md-12
         dl.dl-horizontal
           dt: strong Type:
-          dd= print_or_dashes @message.type.titlecase
+          dd = print_or_dashes @message.type.titlecase
           - if @message.type == 'ActionMessage'
             dt Action:
             dd = @message.action.as_text
           - else
             dt: strong Text:
-            dd= print_or_dashes @message.caption
+            dd = print_or_dashes @message.caption
+          dt: strong SeqNo:
+          dd = print_or_dashes @message.seq_no
           dt: strong Active:
-          dd= print_or_dashes @message.active
+          dd = print_or_dashes @message.active
 
           - if @channel.individual_messages_have_schedule?
             - if @channel.relative_schedule

@@ -11,7 +11,9 @@
         - if @channel.tparty_keyword
           = " TpartyKeyword: #{@channel.tparty_keyword}"
     .col-md-4.pull-right
-      // Add channel help here
+      .btn-group.pull-right role='group' aria-label='channel page view'
+        =link_to 'Paged', channel_path(@channel.id), class: 'btn btn-primary', type: 'button'
+        =link_to 'All', all_channel_path(@channel.id), class: 'btn btn-default', type: 'button'
 
 .row
   .col-md-12

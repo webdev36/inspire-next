@@ -63,8 +63,6 @@ class Channel < ActiveRecord::Base
   scope :search, -> (search)  { where('lower(name) LIKE ?',"%#{search.to_s.downcase}%") }
   scope :not_in_any_group, -> { where('channel_group_id is NULL') }
 
-
-
   after_initialize do |channel|
     if channel.new_record?
       begin

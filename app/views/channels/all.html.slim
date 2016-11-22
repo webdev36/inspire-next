@@ -1,0 +1,124 @@
+- model_class = Channel
+- content_for :title, @channel.name.titleize
+
+#page-header.clearfix
+  .row
+    .col-md-8
+      h4 = "Channel #{@channel.name}"
+      p
+        - if @channel.channel_group_id
+          | Group: #{@channel.channel_group.name}
+        - if @channel.tparty_keyword
+          = " TpartyKeyword: #{@channel.tparty_keyword}"
+    .col-md-4.pull-right
+      .btn-group.pull-right role='group' aria-label='channel page view'
+        =link_to 'Paged', channel_path(@channel.id), class: 'btn btn-default', type: 'button'
+        =link_to 'All', all_channel_path(@channel.id), class: 'btn btn-primary', type: 'button'
+
+      // Add channel help here
+
+.row
+  .col-md-12
+    dl#channel-details.dl-horizontal
+      dt Description:
+      dd= print_or_dashes(@channel.description)
+      dt Channel type:
+      dd= print_or_dashes(@channel.type.titlecase)
+      dt Scheduling:
+      dd
+        - if @channel.relative_schedule
+          .label.label-info
+            | Relative
+          |   to subscriber's channel added time
+        - else
+          .label.label-primary
+            | Absolute
+          |   from #{@channel.created_at}
+      dt Suffix:
+      dd= print_or_dashes(@channel.suffix)
+      dt Keyword:
+      dd= print_or_dashes(@channel.keyword)
+      dt Allows mobile originated subscription?
+      dd= @channel.allow_mo_subscription
+
+.row
+  #message-list.col-md-12
+    #messages-section.panel.panel-default.shared-table
+      .panel-heading
+        .row
+          .col-md-4
+            .panel-title Messages
+            .counts
+              - @message_counts_by_type.each do |type, count|
+                = link_to "#{type.gsub(/Message$/, '')}(#{count})", channel_path(@channel, message_type: type)
+          .col-md-5
+            =form_tag request.url, method: :get do
+              .input-group
+                = search_field_tag :message_search, params[:message_search], placeholder: 'Message text',class: 'form-control'
+                .input-group-btn
+                  = button_tag('Search', class: 'btn btn-default')
+          .col-md-3.pull-right.text-right
+            = link_to new_channel_message_path(@channel), class: "btn btn-primary btn-xs", id: 'message-new' do
+              span.glyphicon.glyphicon-plus
+              | New Message
+
+      .panel-body
+        - if @messages && @messages.size > 0
+          .row
+            .col-md-12
+              table.table.table-striped#messages_table
+                thead
+                  tr
+                    th Text
+                    th
+                tbody#sortable
+                  - @messages.each_with_index do |message, index|
+                    - message = message.decorate
+                    tr.item id="message_#{message.id}" class="message-row-#{message.active == true ? 'active' : 'not-active'}" data-item-id="#{message.id}" data-pos="#{message.seq_no}" data-channel-id="#{@channel.id}"
+                      td.col-md-8
+                        = link_to message.decorate.title_text, channel_message_path(@channel, message)
+                        .small = message.type.gsub(/Message$/, "")
+                        = message_subtext(@channel, message, index)
+                      td.text-right.col-md-4
+                        - if message.is_a?(ResponseMessage)
+                          => link_to 'Response Actions', channel_message_response_actions_path(@channel, message), class: 'btn btn-default btn-xs'
+                        - if @channel.broadcastable?
+                            => link_to "Broadcast", broadcast_channel_message_path(@channel, message), method: :post, class: "btn btn-default btn-xs"
+                        - if @channel.sequenced?
+                            => link_to "Up", move_up_channel_message_path(@channel, message), method: :post, class: "btn btn-default btn-xs"
+                            => link_to "Down", move_down_channel_message_path(@channel, message), method: :post, class: "btn btn-default btn-xs"
+                        => link_to "Edit", edit_channel_message_path(@channel, message), class: "btn btn-default btn-xs"
+                        => link_to t(".destroy", default: t("helpers.links.destroy")),
+                                  channel_message_path(@channel,message),
+                                  method: :delete,
+                                  data: { confirm: t(".confirm", default: t("helpers.links.confirm", default: "Are you sure?")) },
+                                  class: "btn btn-xs btn-danger"
+
+        - else
+          .notification-well
+            .icon
+              span.glyphicon.glyphicon-envelope
+            .message
+              h4 No Messages
+              p Add some messages to send to subscribers
+              .add
+                = link_to new_channel_message_path(@channel), class: "btn btn-primary"
+                  span.glyphicon.glyphicon-plus
+                  | Add new message
+
+#page-actions.row
+  .col-md-12
+    .panel.panel-default
+      .panel-body
+        .row
+          .col-md-12.text-center
+            => link_to "Back", session[:root_page] || channels_path, class: "btn btn-default"
+            => link_to "Edit", edit_channel_path(@channel), class: "btn btn-default"
+            span.spacer
+            => link_to "Subscriber Activities", subscriber_activities_path(channel_id: @channel.id), class: "btn btn-default"
+            => link_to "Messages Report", messages_report_channel_path(@channel.id, format: :csv), class: "btn btn-default"
+            span.spacer
+            => link_to "Export messages", export_channel_path(@channel, format: 'csv'), class: "btn btn-default", target: "_blank"
+            => link_to "Import messages", select_import_channel_messages_path(@channel), class: "btn btn-default"
+            span.spacer
+            = link_to "Delete all messages", delete_all_messages_channel_path(@channel.id), class: 'btn btn-danger', method: :post, 'data-confirm': "This will delete all the mesasges in this channel. The data is NOT recoverable. Are you SURE?", 'data-method': "delete"
