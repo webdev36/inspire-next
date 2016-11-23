@@ -204,15 +204,19 @@ class SubscriberResponse < SubscriberActivity
   end
 
   def assign_subscriber_from_phone_number
-    subscriber = Subscriber.where(phone_number: origin).order(updated_at: :desc).try(:first)
-    if subscriber
-      subscriber.subscriber_responses << self
-      self.reload
-      true
-    else
-      update_processing_log('Unable to find subscriber for SRA processing.')
-      false
+    return true if self.subscriber_id
+    flag = false
+    if Subscriber.where(phone_number: origin).order(created_at: :desc).count == 1
+      subscriber = Subscriber.where(phone_number: origin).order(created_at: :desc).first
+      if subscriber
+        subscriber.subscriber_responses << self
+        self.reload
+        flag = true
+      else
+        update_processing_log('Unable to find subscriber for SRA processing.')
+      end
     end
+    flag
   end
 
   def target
@@ -261,6 +265,7 @@ class SubscriberResponse < SubscriberActivity
     flag
   end
 
+  # this is UGGGGLY
   def try_processing_with_sra
     flag = false
     resp = assign_subscriber_from_phone_number
@@ -272,6 +277,12 @@ class SubscriberResponse < SubscriberActivity
         self.channel_id = sra_recs[:channel_id] unless self.channel_id
         self.message_id = sra_recs[:message_id] unless self.message_id
       end
+    end
+    self.save
+    self.reload
+    if self.channel_id
+      channel = Channel.find(self.channel_id)
+      flag =  channel.process_subscriber_response(self)
     end
     flag = true if self.channel_id
     flag
