@@ -4,7 +4,7 @@
   .row
     .col-md-8
       h4
-        | Message #{@message.id}
+        | Channel: #{@message.channel.id}-#{@message.channel.name} > Message #{@message.id}
       p
         | #{@message.type}: #{@message.decorate.title_text}
     .col-md-4

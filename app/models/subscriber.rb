@@ -77,6 +77,10 @@ class Subscriber < ActiveRecord::Base
     end
   end
 
+  def has_replied_to_message?(message)
+    DeliveryNotice.where(subscriber_id: self.id, message_id: message.id).count > 0
+  end
+
   private
 
   def normalize_phone_number

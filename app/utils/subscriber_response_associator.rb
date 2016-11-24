@@ -76,10 +76,20 @@ class SubscriberResponseAssociator
     resp
   end
 
+  # the first delivery notice where you have not already matched a subscriber
+  # response to the delivery notice
   def first_delivery_notice
     resp = nil
-    dn = delivery_notices&.first
-    resp = { message_id: dn.message_id, channel_id: dn.channel_id } if dn
+    notice = nil
+    delivery_notices.each do |dn|
+      if subscriber.has_replied_to_message?(dn.message)
+        next
+      else
+        notice = dn
+        break
+      end
+    end
+    resp = { message_id: notice.message_id, channel_id: notice.channel_id } if notice
     resp
   end
 
@@ -88,11 +98,16 @@ class SubscriberResponseAssociator
   end
 
   def delivery_notices
-    @delivery_notices ||= subscriber.delivery_notices
-                                    .where(created_at: 24.hours.ago..Time.now)
-                                    .where(channel_id: potential_channel_ids)
-                                    .order(created_at: :desc)
-                                    .includes(:message)
+    @delivery_notices ||=  begin
+      start_time = subscriber_response.created_at - 12.hours
+      end_time   = subscriber_response.created_at
+      subscriber.delivery_notices
+                .where(created_at: start_time..end_time)
+                .where(channel_id: potential_channel_ids)
+                .limit(100)
+                .order(created_at: :desc)
+                .includes(:message)
+    end
   end
 
   def potential_channel_ids

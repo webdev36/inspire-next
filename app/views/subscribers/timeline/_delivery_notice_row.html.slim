@@ -1,7 +1,7 @@
 tr id="delivery_notice_#{entry.id}" data-type='delivery_notice' data-id="#{entry.id}" class='timeline-entry'
   td.text-center = icon('envelope', title: 'A message was sent to the subscriber', class: 'color-info fa-2x')
   td
-    .type title="Delivery of Message #{entry.original_message.id}"
+    .type title="Delivery of Message #{entry&.original_message&.id}"
       | Delivery
     .description
       - if entry.options[:message_id] && entry.options[:repeat_reminder_message]

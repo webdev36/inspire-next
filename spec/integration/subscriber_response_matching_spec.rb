@@ -39,11 +39,17 @@ describe 'Integration/SubscriberResponses' do
           travel_to_same_day_at(12,30)
           send_a_subscriber_response(@subscriber, @channel_group.tparty_keyword, Faker::Lorem.sentence)
         }.to change { SubscriberResponse.count }.by(1)
-        travel_to_same_day_at(13,00)
-        expect { run_worker! }.to_not change { DeliveryNotice.count }
 
-        travel_to_same_day_at(14,00)
-        expect { run_worker! }.to_not change { DeliveryNotice.count }
+        expect {
+          travel_to_same_day_at(13,00)
+          run_worker!
+          binding.pry
+        }.to_not change { DeliveryNotice.count }
+
+        expect {
+          travel_to_same_day_at(14,00)
+          run_worker!
+        }.to_not change { DeliveryNotice.count }
       end
 
       # the next day we don't send a response, and should get reminders
@@ -113,6 +119,37 @@ describe 'Integration/SubscriberResponses' do
         controller = TwilioController.new.send(:handle_request, incoming_message)
       }.to change { SubscriberResponse.count }.by(1)
       expect(subs.channels.map(&:id).include?(channel_3.id)).to be_truthy
+    end
+  end
+  context 'matching over timeline' do
+    it 'matches to most resent UNSENT delivery notice' do
+      travel_to_string_time('January 1, 2017 10:00')
+      setup_user_and_individually_scheduled_messages_relative_schedule
+      channel_2 = create :individually_scheduled_messages_channel, user: @user, relative_schedule: true, tparty_keyword: @channel.tparty_keyword
+      rm1 = create :response_message, channel: @channel, schedule: 'Day 1 13:0'
+      rm2 = create :response_message, channel: channel_2, schedule: 'Day 1 13:30'
+      expect { @channel.subscribers << @subscriber }.to change { Subscription.count }.by(1)
+      expect { channel_2.subscribers << @subscriber }.to change { Subscription.count }.by(1)
+      travel_to_string_time('January 2, 2017 13:00')
+      expect { run_worker! }.to change { DeliveryNotice.count }.by(1)
+      travel_to_string_time('January 2, 2017 13:31')
+      expect { run_worker! }.to change { DeliveryNotice.count }.by(1)
+      expect {
+        travel_to_string_time('January 2, 2017 13:34')
+        send_inbound_message_from_subscriber(@subscriber, @channel.tparty_keyword, 'first response')
+      }.to change {
+        SubscriberResponse.count
+      }.by(1)
+      expect {
+        travel_to_string_time('January 2, 2017 13:35')
+        send_inbound_message_from_subscriber(@subscriber, @channel.tparty_keyword, 'second response')
+      }.to change {
+        SubscriberResponse.count
+      }.by(1)
+      first_subscriber_response = SubscriberResponse.order(created_at: :asc)[0]
+      second_subscriber_response = SubscriberResponse.order(created_at: :asc)[1]
+      expect(first_subscriber_response.message.id == rm2.id).to be_truthy
+      expect(second_subscriber_response.message.id == rm1.id).to be_truthy
     end
   end
 end

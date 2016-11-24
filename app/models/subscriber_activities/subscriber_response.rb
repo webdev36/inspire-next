@@ -210,13 +210,23 @@ class SubscriberResponse < SubscriberActivity
       subscriber = Subscriber.where(phone_number: origin).order(created_at: :desc).first
       if subscriber
         subscriber.subscriber_responses << self
-        self.reload
+        update_processing_log("#assign_subscriber_from_phone_number - Matched #{subscriber.id}")
         flag = true
-      else
-        update_processing_log('Unable to find subscriber for SRA processing.')
+      elsif Subscriber.where(phone_number: origin).order(created_at: :desc).count > 1
+        update_processing_log('#assign_subscriber_from_phone_number - Multiple subscriber matches')
+      elsif Subscriber.where(phone_number: origin).order(created_at: :desc).count == 0
+        update_processing_log('#assign_subscriber_from_phone_number - No subscriber match')
       end
     end
+    save_if_changed!
     flag
+  end
+
+  def save_if_changed!
+    if self.changed?
+      self.save
+      self.reload
+    end
   end
 
   def target
@@ -257,10 +267,10 @@ class SubscriberResponse < SubscriberActivity
       if target.process_subscriber_response(self)
         flag = true
       else
-        update_processing_log('Processing subscriber response by channel returned false')
+        update_processing_log('TC - #process_subscriber_response is false')
       end
     else
-      update_processing_log('Target channel not found.')
+      update_processing_log('TC - Target channel not found')
     end
     flag
   end
@@ -270,21 +280,32 @@ class SubscriberResponse < SubscriberActivity
     flag = false
     resp = assign_subscriber_from_phone_number
     if resp
-      self.save
-      self.reload
+      save_if_changed!
       sra_recs = sra_recommendation
+      update_processing_log("SRA - Recommendation: #{sra_recs}")
       if sra_recs
         self.channel_id = sra_recs[:channel_id] unless self.channel_id
         self.message_id = sra_recs[:message_id] unless self.message_id
+      else
+        update_processing_log('SRA - Unable to produce recommendation')
       end
+    else
+      update_processing_log('SRA - No subscriber phone number match')
     end
-    self.save
-    self.reload
+    save_if_changed!
     if self.channel_id
       channel = Channel.find(self.channel_id)
-      flag =  channel.process_subscriber_response(self)
+      if channel
+        flag =  channel.process_subscriber_response(self)
+        update_processing_log ('SRA - #process_subscriber_response is false') if flag == false
+      else
+        update_processing_log "SRA - Recommended channel not found"
+        flag = false
+      end
+    else
+      update_processing_log('SRA - No channel matched')
     end
-    flag = true if self.channel_id
+    save_if_changed!
     flag
   end
 
@@ -305,6 +326,17 @@ class SubscriberResponse < SubscriberActivity
 
   def send_stats_d_update
     StatsD.increment("subscriber.#{subscriber_id}.subscriber_response")
+  end
+
+  def print_processing_log
+    options['log'].sort_by {|x| -x['at'].to_i }.each do |le|
+      puts "At: #{le['at']}\t#{le['msg']}"
+    end
+  end
+
+  def clear_processing_log!
+    options['log'] = []
+    save
   end
 
   private

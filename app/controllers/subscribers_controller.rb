@@ -4,7 +4,7 @@ class SubscribersController < ApplicationController
   include Mixins::ChannelGroupSearch
   before_filter :load_subscriber
   skip_before_filter :load_subscriber, :only => [:new,:create,:index]
-  before_filter :load_user, :only =>[:new,:create,:index]
+  before_filter :load_user, :only =>[:new, :create, :index, :show, :download_activity]
 
   def index
     session[:root_page] = subscribers_path
@@ -30,6 +30,20 @@ class SubscribersController < ApplicationController
     respond_to do |format|
       format.html # show.html.erb
       format.json { render json: @subscriber }
+    end
+  end
+
+  def download_activity
+    @timeline = Timeline.timeline_export(params.merge(:user_id => current_user.id))
+    download_data = CSV.generate({}) do |csv|
+      csv << @timeline.first.keys
+      @timeline.each do |row_array|
+        csv << row_array.values
+      end
+    end
+    respond_to do |format|
+      format.csv { send_data download_data, filename: "subscriber-activity-#{@subscriber.id}-#{Date.today}.csv" }
+      format.json { send_data @timeline.to_json, filename: "subscriber-activity-#{@subscriber.id}-#{Date.today}.json" }
     end
   end
 

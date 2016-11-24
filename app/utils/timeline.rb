@@ -8,6 +8,11 @@ class Timeline
     helper.timeline
   end
 
+  def self.timeline_export(params)
+    helper = new(params)
+    helper.timeline_export
+  end
+
   def initialize(params)
     @params = params
     @added = {}
@@ -42,6 +47,17 @@ class Timeline
     unless @added[item.class.name].include?(item.id)
       timeline_array << item
       @added[item.class.name] << item.id
+    end
+  end
+
+  def timeline_export
+    @timeline_export ||= begin
+      timeline_map
+      te = []
+      timeline_array.each do |tmi|
+        te << tmi.attributes.to_hash
+      end
+      te
     end
   end
 

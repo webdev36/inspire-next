@@ -55,6 +55,9 @@ Liveinspired::Application.routes.draw do
   resources :users
   resources :subscribers do
     resources :subscriber_responses, only: %i(index)
+    member do
+      get :download_activity
+    end
   end
   resources :subscriber_activities, :except=>[:new,:create,:destroy] do
     member do

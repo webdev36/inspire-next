@@ -2,6 +2,14 @@ require 'spec_helper'
 require 'date'
 require 'chronic'
 
+def send_inbound_message_from_subscriber(subscriber, to, message)
+  incoming_message = build :inbound_twilio_message
+  incoming_message['From'] = subscriber.phone_number
+  incoming_message['To'] = to
+  incoming_message['Body'] = message
+  controller = TwilioController.new.send(:handle_request, incoming_message)
+end
+
 def send_an_inbound_message_from_a_nonsubscriber(from_phone, to, message)
   incoming_message = build :inbound_twilio_message
   incoming_message['From'] = Subscriber.format_phone_number(from_phone)

@@ -135,9 +135,18 @@ hr
                   data: { confirm: t(".confirm", default: t("helpers.links.confirm", default: "Are you sure?")) },
                   class: "btn btn-danger"
         span.spacer
-        => link_to "Subscriber Activities",
-                  subscriber_activities_path(subscriber_id: @subscriber.id),
-                  class: "btn btn-default"
+        div.btn-group
+          button.btn.btn-default href="#{subscriber_activities_path(subscriber_id: @subscriber.id)}" type="button" Subscriber Activities
+          button.btn.btn-default.dropdown-toggle type="button" data-toggle="dropdown"
+            span.caret
+            span.sr-only Toggle Dropdown
+          ul.dropdown-menu.pull-right role="menu"
+            li
+              a target="_blank" href="#{download_activity_subscriber_path(@subscriber.id)}.csv" Download CSV
+            li
+              a target="_blank" href="#{download_activity_subscriber_path(@subscriber.id)}.json" Download JSON
+
+
 
 
 
