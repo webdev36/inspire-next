@@ -71,24 +71,34 @@ class SubscriberResponseAssociator
 
   def first_response_expecting_dn
     resp = nil
-    dn = response_expecting_delivery_notices&.first
-    resp = { message_id: dn.message_id, channel_id: dn.channel_id } if dn
+    notice = first_unreplied_notice(response_expecting_delivery_notices)
+    resp = { message_id: notice.message_id, channel_id: notice.channel_id } if notice
     resp
+  end
+
+  # loops through a set of delivery notices, and checks if they have already
+  # been replied to. If so, then it skips it.
+  def first_unreplied_notice(notices_array)
+    notice = nil
+    notices_array.each do |dn|
+      puts "Checking NOtice: #{dn.id} to see if it has a reply."
+      if subscriber.has_replied_to_message?(dn.message)
+        puts "#{dn.id} has a reply. Skipping"
+        next
+      else
+        puts "#{dn.id} assigned to notice"
+        notice = dn
+        break
+      end
+    end
+    notice
   end
 
   # the first delivery notice where you have not already matched a subscriber
   # response to the delivery notice
   def first_delivery_notice
     resp = nil
-    notice = nil
-    delivery_notices.each do |dn|
-      if subscriber.has_replied_to_message?(dn.message)
-        next
-      else
-        notice = dn
-        break
-      end
-    end
+    notice = first_unreplied_notice(delivery_notices)
     resp = { message_id: notice.message_id, channel_id: notice.channel_id } if notice
     resp
   end

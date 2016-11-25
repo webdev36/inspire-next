@@ -1,0 +1,13 @@
+h4 New Response Action Help
+p Create/edit a response action with a response text and an action to be taken on that response. Some of the fields in the form are:
+dl
+  dt Response text
+  dd The text in this column will be matched with the subscriber sent response to our message.
+  dt Action Type
+  dd The kind of action to be taken. For different action types there will be different fields further in this form.
+.examples
+  h4 Examples of matching strings
+  ul#response-actions-examples
+    li ="(y.+) matches [yes, yep, yavol, yepper, YES, YeS!!!!]"
+    li ="(n.+) matches [no, nope, NO, nO, No way, No i did not]"
+    li ="(.+\\,.+\\,) matches a respnose with 2 commas in it"

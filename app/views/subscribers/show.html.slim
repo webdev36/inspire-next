@@ -136,11 +136,14 @@ hr
                   class: "btn btn-danger"
         span.spacer
         div.btn-group
-          button.btn.btn-default href="#{subscriber_activities_path(subscriber_id: @subscriber.id)}" type="button" Subscriber Activities
+          a.btn.btn-default#show-subscriber-activities href="#{subscriber_activities_path(subscriber_id: @subscriber.id)}" Subscriber Activities
           button.btn.btn-default.dropdown-toggle type="button" data-toggle="dropdown"
             span.caret
             span.sr-only Toggle Dropdown
           ul.dropdown-menu.pull-right role="menu"
+            li
+              a href="#{subscriber_activities_path(subscriber_id: @subscriber.id)}" View Subscriber Activities
+            li.divider
             li
               a target="_blank" href="#{download_activity_subscriber_path(@subscriber.id)}.csv" Download CSV
             li

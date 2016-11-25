@@ -203,6 +203,8 @@ class SubscriberResponse < SubscriberActivity
     end
   end
 
+  # needs a check to see if the subscriber subscribes to somthing with the the
+  # inbound mesasge id.
   def assign_subscriber_from_phone_number
     return true if self.subscriber_id
     flag = false
@@ -282,28 +284,20 @@ class SubscriberResponse < SubscriberActivity
     if resp
       save_if_changed!
       sra_recs = sra_recommendation
-      update_processing_log("SRA - Recommendation: #{sra_recs}")
-      if sra_recs
-        self.channel_id = sra_recs[:channel_id] unless self.channel_id
-        self.message_id = sra_recs[:message_id] unless self.message_id
+      if sra_recs && !sra_recs.try(:[], :channel_id).blank?
+        channel = Channel.find(sra_recs[:channel_id])
+        if channel
+          flag =  channel.process_subscriber_response(self)
+          update_processing_log 'SRA - #process_subscriber_response is false' if flag == false
+        else
+          update_processing_log "SRA - Recommended channel not found"
+          flag = false
+        end
       else
-        update_processing_log('SRA - Unable to produce recommendation')
+        update_processing_log 'SRA - Unable to find channel for subscriber_response processing'
       end
     else
-      update_processing_log('SRA - No subscriber phone number match')
-    end
-    save_if_changed!
-    if self.channel_id
-      channel = Channel.find(self.channel_id)
-      if channel
-        flag =  channel.process_subscriber_response(self)
-        update_processing_log ('SRA - #process_subscriber_response is false') if flag == false
-      else
-        update_processing_log "SRA - Recommended channel not found"
-        flag = false
-      end
-    else
-      update_processing_log('SRA - No channel matched')
+      update_processing_log('SRA - No subscriber matched in #assign')
     end
     save_if_changed!
     flag
@@ -313,10 +307,8 @@ class SubscriberResponse < SubscriberActivity
     flag = false
     flag = try_processing_with_target_channel
     flag = try_processing_with_sra if flag == false
-    if flag == true
-      self.processed = true
-    end
-    save
+    self.processed = true if flag == true
+    save_if_changed!
     flag
   rescue => e
     StatsD.increment("subscriber_response.#{self.id}.subscriber_response_raise")

@@ -138,3 +138,9 @@ def create_multi_switching_channel_message(from_channel, to_channels, channel_gr
   @switching_channel_message
 end
 
+def create_response_message_with_match_hint(chn, sch, match_text)
+  rm = create :response_message, channel: chn, schedule: sch
+  ra = create :response_action, message: rm, response_text: match_text
+  rm
+end
+
