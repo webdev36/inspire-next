@@ -3,7 +3,7 @@
 #page-header.page-header
   .row
     .col-md-4
-      h4 #{@subscriber.name}
+      h4 Subscriber #{@subscriber.name}
       p = "#{@subscriber.phone_number}"
       - if !@subscriber.remarks.blank?
         p Remarks
@@ -55,8 +55,9 @@
          .panel-heading
            h4.section-header
              | Available Channels
-             span style="font-size: 80%;"
-               = " (click "
+             br
+             span style="font-size: 85%;"
+               = "Click "
                span.label.label-success
                  | Sub
                = " to add, or "
