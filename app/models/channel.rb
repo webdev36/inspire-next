@@ -106,7 +106,7 @@ class Channel < ActiveRecord::Base
             # puts "Skipping there are no subscribers to be sent this message"
             next
           end
-          MessagingManager.new_instance.broadcast_message(message,subscribers)
+          MessagingManager.new_instance.broadcast_message(message, subscribers)
         end
       end
       perform_post_send_ops(msg_no_subs_hash)

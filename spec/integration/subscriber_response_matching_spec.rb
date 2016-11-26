@@ -4,78 +4,80 @@ require 'support/integration_setups.rb'
 describe 'Integration/SubscriberResponses' do
   context 'matches channels outside channel group' do
     it 'works' do
-      original_time = Time.now.midnight
-      travel_to_time(original_time - (32.days))
-      setup_user_channel_group_and_channel
-      create_30_days_of_daily_simple_messages(@channel)
-      @outside_channel = build :individually_scheduled_messages_channel, user: @user, tparty_keyword: @channel_group.tparty_keyword
-      @outside_channel.relative_schedule = true
-      @outside_channel.name = "Outside channel"
-      @outside_channel.save
-      @channel.name = 'Inside channel'
-      @channel.save
-      create_30_days_of_daily_response_messages(@outside_channel)
+      ClimateControl.modify 'SKIP_RATE_LIMITING': 'true' do
+        original_time = Time.now.midnight
+        travel_to_time(original_time - (32.days))
+        setup_user_channel_group_and_channel
+        create_30_days_of_daily_simple_messages(@channel)
+        @outside_channel = build :individually_scheduled_messages_channel, user: @user, tparty_keyword: @channel_group.tparty_keyword
+        @outside_channel.relative_schedule = true
+        @outside_channel.name = "Outside channel"
+        @outside_channel.save
+        @channel.name = 'Inside channel'
+        @channel.save
+        create_30_days_of_daily_response_messages(@outside_channel)
 
-      # the next day, a subscriber registers and gets in channel and out of channel messages setup
-      travel_to_time(original_time - 31.days)
-      @subscriber = create :subscriber, user: @user
-      @channel.subscribers << @subscriber
-      @outside_channel.subscribers << @subscriber
+        # the next day, a subscriber registers and gets in channel and out of channel messages setup
+        travel_to_time(original_time - 31.days)
+        @subscriber = create :subscriber, user: @user
+        @channel.subscribers << @subscriber
+        @outside_channel.subscribers << @subscriber
 
-      # it should not have sent a message at midnight
-      expect { run_worker! }.to_not change { DeliveryNotice.count }
-      base_add_time = Time.now
-
-      [1].to_a.each do |dayz|
-        travel_to_time(base_add_time + dayz.days)
-        travel_to_same_day_at(11,0)
+        # it should not have sent a message at midnight
         expect { run_worker! }.to_not change { DeliveryNotice.count }
+        base_add_time = Time.now
 
-        expect {
-          travel_to_same_day_at(12,00)
-          run_worker!
-        }.to change { DeliveryNotice.count }.by(2)
+        [1].to_a.each do |dayz|
+          travel_to_time(base_add_time + dayz.days)
+          travel_to_same_day_at(11,0)
+          expect { run_worker! }.to_not change { DeliveryNotice.count }
 
-        expect {
-          travel_to_same_day_at(12,30)
-          send_a_subscriber_response(@subscriber, @channel_group.tparty_keyword, Faker::Lorem.sentence)
-        }.to change { SubscriberResponse.count }.by(1)
+          expect {
+            travel_to_same_day_at(12,00)
+            run_worker!
+          }.to change { DeliveryNotice.count }.by(2)
 
-        expect {
+          expect {
+            travel_to_same_day_at(12,30)
+            send_a_subscriber_response(@subscriber, @channel_group.tparty_keyword, Faker::Lorem.sentence)
+          }.to change { SubscriberResponse.count }.by(1)
+
+          expect {
+            travel_to_same_day_at(13,00)
+            run_worker!
+          }.to_not change { DeliveryNotice.count }
+
+          expect {
+            travel_to_same_day_at(14,00)
+            run_worker!
+          }.to_not change { DeliveryNotice.count }
+        end
+
+        # the next day we don't send a response, and should get reminders
+        [2].each do |dayz|
+          travel_to_time(base_add_time + dayz.days)
+          travel_to_same_day_at(11,0)
+          expect { run_worker! }.to_not change { DeliveryNotice.count }
+          expect {
+            travel_to_same_day_at(12,00)
+            run_worker!
+          }.to change { DeliveryNotice.count }.by(2)
           travel_to_same_day_at(13,00)
-          run_worker!
-        }.to_not change { DeliveryNotice.count }
-
-        expect {
+          expect {
+            run_worker!
+            travel_to_same_day_at(13,03)
+            run_worker!
+          }.to change { DeliveryNotice.count }.by(1)
           travel_to_same_day_at(14,00)
-          run_worker!
-        }.to_not change { DeliveryNotice.count }
-      end
-
-      # the next day we don't send a response, and should get reminders
-      [2].each do |dayz|
-        travel_to_time(base_add_time + dayz.days)
-        travel_to_same_day_at(11,0)
-        expect { run_worker! }.to_not change { DeliveryNotice.count }
-        expect {
-          travel_to_same_day_at(12,00)
-          run_worker!
-        }.to change { DeliveryNotice.count }.by(2)
-        travel_to_same_day_at(13,00)
-        expect {
-          run_worker!
-          travel_to_same_day_at(13,03)
-          run_worker!
-        }.to change { DeliveryNotice.count }.by(1)
-        travel_to_same_day_at(14,00)
-        expect {
-          run_worker!
-          travel_to_same_day_at(14,03)
-          run_worker!
-        }.to change { DeliveryNotice.count }.by(1)
-        # its all done, it doesn't send any more reminder messages
-        travel_to_same_day_at(15,20)
-        expect { run_worker! }.to_not change { DeliveryNotice.count }
+          expect {
+            run_worker!
+            travel_to_same_day_at(14,03)
+            run_worker!
+          }.to change { DeliveryNotice.count }.by(1)
+          # its all done, it doesn't send any more reminder messages
+          travel_to_same_day_at(15,20)
+          expect { run_worker! }.to_not change { DeliveryNotice.count }
+        end
       end
     end
   end
