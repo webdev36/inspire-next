@@ -11,9 +11,12 @@
         - if @channel.tparty_keyword
           = " TpartyKeyword: #{@channel.tparty_keyword}"
     .col-md-4.pull-right
-      .btn-group.pull-right role='group' aria-label='channel page view'
-        =link_to 'Paged', channel_path(@channel.id), class: 'btn btn-primary', type: 'button'
-        =link_to 'All', all_channel_path(@channel.id), class: 'btn btn-default', type: 'button'
+      - if @channel.sequenced?
+        .btn-group.pull-right role='group' aria-label='channel page view'
+          =link_to channel_path(@channel.id), class: 'btn btn-primary', type: 'button' do
+            = icon('book')
+          =link_to all_channel_path(@channel.id), class: 'btn btn-default', type: 'button' do
+            = icon('list-alt')
 
 .row
   .col-md-12
@@ -21,7 +24,7 @@
       dt Description:
       dd= print_or_dashes(@channel.description)
       dt Channel type:
-      dd= print_or_dashes(@channel.type.titlecase)
+      dd = print_or_dashes(@channel.type.titlecase)
       dt Scheduling:
       dd
         - if @channel.relative_schedule
@@ -31,7 +34,7 @@
         - else
           .label.label-primary
             | Absolute
-          |   from #{@channel.created_at}
+          |  from #{@channel.created_at}
       dt Suffix:
       dd= print_or_dashes(@channel.suffix)
       dt Keyword:

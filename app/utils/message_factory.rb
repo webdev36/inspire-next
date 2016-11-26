@@ -102,6 +102,7 @@ class MessageFactory
     def construct_switch_channel_message(msg)
       msg.action.data['to_channel_in_group']    = Array(params['to_channel_in_group']).map(&:to_i)
       msg.action.data['to_channel_out_group']   = Array(params['to_channel_out_group']).map(&:to_i)
+      msg.action.data['ensure_not_in_channels'] = Array(params['ensure_not_in_channels']).map(&:to_i)
       # msg.action.data[:resume_from_last_state] = data[:resume_from_last_state]
       if more_than_one_channel? && in_channel_group?
         msg.action.to_channel = params['to_channel_in_group'].sort.first

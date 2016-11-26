@@ -5,10 +5,10 @@ ruby:
                     .map { |_k, v| v }
                     .flatten(1) + @to_channel_options[:out_group]
 
-  action_data = @action&.data
-  to_channel_in_group = action_data.try(:[], "to_channel_in_group")
-  to_channel_out_group = action_data.try(:[], "to_channel_out_group")
-
+  action_data            = @action&.data
+  to_channel_in_group    = action_data.try(:[], "to_channel_in_group")
+  to_channel_out_group   = action_data.try(:[], "to_channel_out_group")
+  ensure_not_in_channels = action_data.try(:[], 'ensure_not_in_channels')
   resume_from_last_state = action_data.try(:[], "resume_from_last_state")
   resume_from_last_state = if resume_from_last_state.nil?
     false
@@ -27,10 +27,15 @@ ruby:
                     class: "select2",
                     multiple: true
 
-    label.col-sm-12.control-label.text-align-left.font-normal Other channels:
+    label.col-sm-12.control-label.text-align-left.font-normal Other channel(s):
     .col-sm-12
       = select_tag :to_channel_out_group, options_for_select(other_channels.sort, to_channel_out_group), multiple: true, class: "select2"
 
+  = f.label :not_in_channel, class: 'col-sm-5 control-label'
+  .col-sm-7.row
+    label.col-sm-12.control-label.text-align-left.font-normal Ensure not in channel(s):
+    .col-sm-12
+      = select_tag :ensure_not_in_channels, options_for_select(other_channels.sort, ensure_not_in_channels), multiple: true, class: "select2"
 
 javascript:
   $('.select2').select2();

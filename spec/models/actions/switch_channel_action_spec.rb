@@ -75,13 +75,13 @@ describe SwitchChannelAction do
         expect(cmd.execute({subscribers:[subs],from_channel:nil})).to eq(false)
       end
 
-      it "returns false if subscriber is not in from_channel" do
+      it "does not error if the subscriber is NOT in the channel on remove" do
         ch1.subscribers.delete(subs)
         expect {
           cmd.execute({subscribers:[subs],from_channel:ch1})
-        }.to change {
+        }.to_not change {
           ActionErrorNotice.count
-        }.by(1)
+        }
       end
 
       it "returns true if subscriber is already in to_channel and removes him from from_channel" do

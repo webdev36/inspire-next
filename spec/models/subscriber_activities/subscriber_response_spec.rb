@@ -211,7 +211,7 @@ describe SubscriberResponse do
       expect(target).to eq(ChannelGroup.find(@ch_grp_pri_key.id))
       expect(tparty_keyword).to match(/^#{@tparty_primary}$/i)
       expect(keyword).to match(/^#{@keyword}$/i)
-      expect(message).to eq(@message.downcase.split.join(' '))
+      expect(message).to eq(@message.to_s.downcase.split.join(' '))
     end
     it "identifies channel group with custom tparty_keyword and keyword" do
       target,tparty_keyword,keyword,message = SubscriberResponse.parse_message(

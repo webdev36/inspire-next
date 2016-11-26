@@ -23,6 +23,7 @@
         - if channel_group
           = link_to new_channel_path(channel_group_id: channel_group.id), class: "btn btn-primary btn-xs", id: 'channel-new' do
             span.glyphicon.glyphicon-plus
+            | New Channel
         - else
           = link_to new_channel_path, class: "btn btn-primary btn-xs", id: 'channel-new' do
             span.glyphicon.glyphicon-plus
@@ -42,7 +43,7 @@
             th
         tbody
           - @channels.each do |channel|
-            tr id="channel_#{channel.id}"
+            tr id="channel_#{channel.id}" class="channel-row-#{channel.active == true ? 'active' : 'not-active'}"
               td
                 .name
                   = link_to channel.name, channel_path(channel)

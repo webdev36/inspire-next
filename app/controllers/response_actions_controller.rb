@@ -35,6 +35,7 @@ class ResponseActionsController < ApplicationController
       .new(response_action_params, params, response_action: nil, message: @message)
       .response_action
 
+    binding.pry
     respond_to do |format|
       if @response_action.save
         format.html { redirect_to channel_message_response_actions_path(@channel, @message), notice: 'Response Action was successfully created.' }

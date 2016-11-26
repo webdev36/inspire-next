@@ -17,6 +17,8 @@
       dd= print_or_dashes @channel_group.description
       dt: strong Default Channel:
       dd= @channel_group.default_channel&.name
+      dt: strong Keyword:
+      dd= @channel_group.keyword
 
 .row
   .col-md-6#channel-list
