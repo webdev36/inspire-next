@@ -9,6 +9,7 @@
       = f.input :response_text, hint: "Use regular expression format"
       = f.simple_fields_for :action do |af|
         = render partial: "actions/fields", locals: { f: af }
+
   #page-actions.row
     .col-md-12
       .panel.panel-default

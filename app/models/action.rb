@@ -23,7 +23,7 @@ class Action < ActiveRecord::Base
   attr_accessible :type,:as_text,:to_channel,:message_to_send, :data
   belongs_to :actionable, polymorphic:true
 
-  validates :type,:presence=>true,:inclusion=>{:in=>['SwitchChannelAction','SendMessageAction']}
+  validates :type, presence: true, inclusion: { in: %w(SwitchChannelAction SendMessageAction Hint) }
   #validates :as_text,:presence=>true
 
   @child_classes = []

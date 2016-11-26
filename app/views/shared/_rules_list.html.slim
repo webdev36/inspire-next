@@ -27,7 +27,7 @@
           th
         tbody
           - @rules.each do |rule|
-            tr id="rule_#{rule.id}"
+            tr id="rule_#{rule.id}" class="rule-row-#{rule.active == true ? 'active' : 'not-active'}"
               td
                 .name
                   = link_to rule.name, rule_path(rule)

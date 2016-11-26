@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-feature 'UI/Ordered Messages Channel', :js=>true do
+feature 'UI/Ordered Messages Channel', js: true do
   background do
     @user = create(:user)
     sign_in_using_form(@user)
@@ -42,7 +42,6 @@ feature 'UI/Ordered Messages Channel', :js=>true do
     scenario "does not have button to trigger message broadcast" do
       expect(page).to_not have_link('Broadcast')
     end
-
 
     scenario "it lists the up and down button alongside messages" do
       @messages.each do |message|

@@ -39,10 +39,16 @@ class SwitchChannelAction < Action
     (opts[:subscribers].nil? || opts[:subscribers].empty? || (opts[:from_channel].nil? && opts[:channel].nil?))
   end
 
-  def from_channel(opts)
-    fc = nil
-    fc = opts[:from_channel] if opts[:from_channel]
-    fc = opts[:channel] if opts[:channel] && fc.nil?
+  def from_channels(opts)
+    fc = []
+    fc << opts[:from_channel] if opts[:from_channel]
+    fc << opts[:channel] if opts[:channel] && fc.blank?
+    Array(data['ensure_not_in_channels']).each do |ensure_remove_id|
+      remove_chn = Channel.where(id: ensure_remove_id).limit(1).try(:first)
+      if remove_chn
+        fc << remove_chn unless fc.include?(remove_chn)
+      end
+    end
     fc
   end
 
@@ -69,24 +75,18 @@ class SwitchChannelAction < Action
       Rails.logger.info "info=no_subscribers class=switch_channel_action action_id=#{self.id} message_id=#{opts[:message].try(:[], 'id')}"
       return false
     end
+    # who and what are we working on
     subscribers = opts[:subscribers]
-    # where are we going to, channelwise
     tc = to_channels(opts)
-    if tc.length == 0
-      Rails.logger.info "info=to_channels_not_identified class=switch_channel_action action_id=#{self.id} message_id=#{opts[:message].try(:[], 'id')}"
-      return false
-    end
+    fc = from_channels(opts)
+    # let us know if there are 0, so we have a reference
+    # if tc.length == 0 || fc.length == 0
+    #  Rails.logger.info "info=nil_channel_on_switch_channel_action class=switch_channel_action action_id=#{self.id} to_count=#{tc.length} from_length=#{fc.length}"
+    # end
 
-    fc = from_channel(opts)
     subscribers.each do |subx|
-      remove_channel = get_from_channel_for_subscriber(subx, fc)
-      if remove_channel
-        if remove_from_channel(remove_channel, subx)
-          tc.each do |tc|
-            add_to_channel(tc, subx)
-          end
-        end
-      end
+      execute_remove_subscriber_from_channels(fc, subx)
+      execute_add_subscriber_to_channels(tc, subx)
     end
     return true
   rescue => e
@@ -94,27 +94,39 @@ class SwitchChannelAction < Action
     return false
   end
 
+  def execute_remove_subscriber_from_channels(from_channels, subx)
+    from_channels.each do |remove_channel|
+      remove_from_channel(remove_channel, subx)
+    end
+  end
+
+  def execute_add_subscriber_to_channels(to_channels, subx)
+    to_channels.each do |add_channel|
+      add_to_channel(add_channel, subx)
+    end
+  end
+
   # removes a subscriber from a channel, writing an acgtion notice for this specific action
   def remove_from_channel(ch, subx)
     ch.subscribers.delete(subx)
     an = ActionNotice.create(caption: "Subscriber removed from #{content_tag("a",ch.name,href:channel_path(ch))}", subscriber: subx)
-    Rails.logger.info "info=remove_subscriber_from_channel class=switch_channel_action action_id=#{self.id} subscriber_id=#{subx.id} channel_id=#{ch.id} action_notice_id=#{an.id}"
+    Rails.logger.info "info=remove_subscriber_from_channel severity=info class=switch_channel_action action_id=#{self.id} subscriber_id=#{subx.id} channel_id=#{ch.id} action_notice_id=#{an.id}"
     true
   rescue => e
     an = ActionErrorNotice.create(caption:'Error removing subscriber from #{content_tag("a",ch.name,href:channel_path(ch))}', subscriber:subx)
-    Rails.logger.info "info=raise_when_removing_from_channel class=switch_channel_action action_id=#{self.id} channel_id=#{ch.id} subscriber_id=#{subx.id} action_error_notice_id=#{an.id} message='#{e.message}'"
+    Rails.logger.info "error=raise_when_removing_from_channel severity=error class=switch_channel_action action_id=#{self.id} channel_id=#{ch.id} subscriber_id=#{subx.id} action_error_notice_id=#{an.id} message='#{e.message}'"
     false
   end
 
   # adds a subscriber to a channel, writing a action notice for this specific action
-  def add_to_channel(ch, sub)
-    if ch.subscribers.include?(sub)
-      an = ActionNotice.create(caption: "Subscriber verified in #{content_tag("a",ch.name,href:channel_path(ch))} skipped, already in channel", subscriber: sub)
-      Rails.logger.info "info=skip_add_subscriber_to_channel class=switch_channel_action subscriber_id=#{sub.id} channel_id=#{ch.id} action_notice_id=#{an.id} message='Already in channel'"
+  def add_to_channel(ch, subx)
+    if ch.subscribers.include?(subx)
+      an = ActionNotice.create(caption: "Subscriber verified in #{content_tag("a",ch.name,href:channel_path(ch))} skipped, already in channel", subscriber: subx)
+      Rails.logger.info "info=skip_add_subscriber_to_channel severity=info class=switch_channel_action subscriber_id=#{subx.id} channel_id=#{ch.id} action_notice_id=#{an.id} message='Already in channel'"
     else
-      ch.subscribers << sub
-      an = ActionNotice.create(caption: "Subscriber added to #{content_tag("a",ch.name,href:channel_path(ch))}", subscriber: sub)
-      Rails.logger.info "info=add_subscriber_to_channel class=switch_channel_action subscriber_id=#{sub.id} channel_id=#{ch.id} action_notice_id=#{an.id}"
+      ch.subscribers << subx
+      an = ActionNotice.create(caption: "Subscriber added to #{content_tag("a",ch.name,href:channel_path(ch))}", subscriber: subx)
+      Rails.logger.info "error=add_subscriber_to_channel severity=error class=switch_channel_action subscriber_id=#{subx.id} channel_id=#{ch.id} action_notice_id=#{an.id}"
     end
   end
 

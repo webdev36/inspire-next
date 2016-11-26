@@ -5,89 +5,109 @@
     .col-md-4
       h4 #{@subscriber.name}
       p = "#{@subscriber.phone_number}"
-    .col-md-4
       - if !@subscriber.remarks.blank?
         p Remarks
         p = @subscriber.remarks
+    .col-md-8
+      .row
+        .col-md-12
+          h4.section-header.text-right
+            | Last 24 Hours
+          .row
+            .col-md-3
+              .well.background-color-gallery
+                .row
+                  .col-md-6.text-left
+                    .icon = icon('envelope', title: 'A message was sent to the subscriber', class: 'color-info fa-2x')
+                  .col-md-6.text-right
+                    .value = @sent_last_24_hours
+                    .title.text-uppercase Sent
+            .col-md-3
+              .well.background-color-gallery
+                .row
+                  .col-md-6.text-left
+                    .icon = icon('reply', title: 'The subscriber replied.', class: 'color-success fa-2x')
+                  .col-md-6.text-right
+                    .value = @replies_last_24_hours
+                    .title.text-uppercase Replies
+            .col-md-3
+              .well.background-color-gallery
+                .row
+                  .col-md-6.text-left
+                    .icon = icon('bolt', title: 'Action taken on subscriber account', class: 'color-info fa-2x')
+                  .col-md-6.text-right
+                    .value = @actions_last_24_hours
+                    .title.text-uppercase Actions
+            .col-md-3
+              .well.background-color-gallery
+                .row
+                  .col-md-6.text-left
+                    .icon = icon('exclamation', title: 'There was a problem', class: 'color-danger fa-2x')
+                  .col-md-6.text-right
+                    .value = @errors_last_24_hours
+                    .title Errors
 
-.row
-  h4.section-header.text-center
-    | Last 24 Hours
-  .col-md-3
-    .well.background-color-gallery
-      .row
-        .col-md-6.text-left
-          .icon = icon('envelope', title: 'A message was sent to the subscriber', class: 'color-info fa-2x')
-        .col-md-6.text-right
-          .value = @sent_last_24_hours
-          .title.text-uppercase Sent
-  .col-md-3
-    .well.background-color-gallery
-      .row
-        .col-md-6.text-left
-          .icon = icon('reply', title: 'The subscriber replied.', class: 'color-success fa-2x')
-        .col-md-6.text-right
-          .value = @replies_last_24_hours
-          .title.text-uppercase Replies
-  .col-md-3
-    .well.background-color-gallery
-      .row
-        .col-md-6.text-left
-          .icon = icon('bolt', title: 'Action taken on subscriber account', class: 'color-info fa-2x')
-        .col-md-6.text-right
-          .value = @actions_last_24_hours
-          .title.text-uppercase Actions
-  .col-md-3
-    .well.background-color-gallery
-      .row
-        .col-md-6.text-left
-          .icon = icon('exclamation', title: 'There was a problem', class: 'color-danger fa-2x')
-        .col-md-6.text-right
-          .value = @errors_last_24_hours
-          .title Errors
-
-hr
 .row
   .col-md-12
     .row
       .col-md-6
-        h4.section-header.text-center
-          | Availlable Channels
-        .alert.alert-info
-          | Subscribed channels show a sub tag. Click the 'rem' button to remove a subscriber from a channel, and the 'add' button to add a user to a channel.
-        .row
-          .col-md-12
-            table.table.table-striped#subscribers-subscriptions-table
-              tbody
-                - Array(@available_channels).each do |channel|
-                  - if @subscribed_channel_ids.include?(channel.id)
-                    tr id="channel_#{channel.id}" data-subscribed="true"
-                      td
-                        span.label.label-success
-                          | Sub
-                      td = link_to "#{channel.id}-#{channel.name}", channel_path(channel.id)
-                      td = link_to "Rem", channel_remove_subscriber_path(channel.id, @subscriber.id), method: :post, class: 'btn btn-danger btn-xs'
-                  - else
-                    tr id="channel_#{channel.id}" data-subscribed='false'
-                      td
-                        span
-                      td = link_to "#{channel.id}-#{channel.name}", channel_path(channel.id)
-                      td = link_to 'Add', channel_add_subscriber_path(channel.id, @subscriber.id), method: :post, class: 'btn btn-default btn-xs'
-        .row
-          .col-md-12.text-center
-            = will_paginate @available_channels, param_name: "available_channels_page"
+       .panel.with-nav-tabs.panel-default
+         .panel-heading
+           h4.section-header
+             | Available Channels
+             span style="font-size: 80%;"
+               = " (click "
+               span.label.label-success
+                 | Sub
+               = " to add, or "
+               span.label.label-danger
+                 | Rem
+               = " to remove channel)"
+         .panel-body
+           .row
+             .col-md-12
+               table.table.table-striped#subscribers-subscriptions-table
+                 tbody
+                   - Array(@available_channels).each do |channel|
+                     - if @subscribed_channel_ids.include?(channel.id)
+                       tr id="channel_#{channel.id}" data-subscribed="true"
+                         td
+                           span.label.label-success
+                             | Sub
+                         td = link_to "#{channel.id}-#{channel.name}", channel_path(channel.id)
+                         td = link_to "Rem", channel_remove_subscriber_path(channel.id, @subscriber.id), method: :post, class: 'btn btn-danger btn-xs'
+                     - else
+                       tr id="channel_#{channel.id}" data-subscribed='false'
+                         td
+                           span
+                         td = link_to "#{channel.id}-#{channel.name}", channel_path(channel.id)
+                         td = link_to 'Add', channel_add_subscriber_path(channel.id, @subscriber.id), method: :post, class: 'btn btn-default btn-xs'
+           .row
+             .col-md-12.text-center
+               = will_paginate @available_channels, param_name: "available_channels_page"
 
       .col-md-6.text-center
-        h4.section-header Messaging Activity
-        .row
-          .col-md-12
-            img src="http://#{ENV['STATSD_HOST']}/render/?width=600&height=400&_salt=1478272837.451&title=Subscriber%20Activity&lineMode=staircase&drawNullAsZero=true&areaMode=stacked&from=-7days&colorList=418acb%2Cred&hideLegend=false&uniqueLegend=true&fontName=Sans&target=alias(summarize(stats.counters.inspire.production.subscriber.#{@subscriber.id}.subscriber_response.count%2C%221h%22)%2C%22reply%22)&target=alias(summarize(stats.counters.inspire.production.subscriber.#{@subscriber.id}.message.*.delivery_notice.count%2C%221h%22)%2C%22message%20sent%22)"
-        .row
-          .col-md-12
-            img src="http://#{ENV['STATSD_HOST']}/render/?width=600&height=400&_salt=1478271805.688&title=Messages%20Sent&lineMode=staircase&drawNullAsZero=true&areaMode=stacked&from=-7days&colorList=418acb%2C418acb%2C418acb&target=summarize(stats.counters.inspire.production.subscriber.#{@subscriber.id}.message.*.delivery_notice.count%2C%221h%22)"
-        .row
-          .col-md-12
-            img src="http://#{ENV['STATSD_HOST']}/render/?width=600&height=400&_salt=1478271999.161&title=Subscriber%20Responses&lineMode=staircase&drawNullAsZero=true&areaMode=stacked&from=-7days&colorList=418acb%2C418acb%2C418acb&target=summarize(stats.counters.inspire.production.subscriber.#{@subscriber.id}.subscriber_response.count%2C%221h%22)&hideLegend=true"
+        .panel.with-nav-tabs.panel-default
+          .panel-heading
+            .row
+              .col-md-4
+                h4.section-header Messaging Activity
+              .col-md-8
+                ul.nav.nav-tabs.pull-right
+                  li.active
+                    a href="#combined" data-toggle='tab' Activity
+                  li
+                    a href="#send" data-toggle='tab' Send
+                  li
+                    a href="#receive" data-toggle='tab' Receive
+          .panel-body
+            .tab-content
+              .tab-pane.fae.in.active#combined
+                img src="http://#{ENV['STATSD_HOST']}/render/?width=500&height=400&_salt=1478272837.451&title=Subscriber%20Activity&lineMode=staircase&drawNullAsZero=true&areaMode=stacked&from=-7days&colorList=418acb%2Cred&hideLegend=false&uniqueLegend=true&fontName=Sans&target=alias(summarize(stats.counters.inspire.production.subscriber.#{@subscriber.id}.subscriber_response.count%2C%221h%22)%2C%22reply%22)&target=alias(summarize(stats.counters.inspire.production.subscriber.#{@subscriber.id}.message.*.delivery_notice.count%2C%221h%22)%2C%22message%20sent%22)"
+              .tab-pane.fade.in#send
+                img src="http://#{ENV['STATSD_HOST']}/render/?width=500&height=400&_salt=1478271805.688&title=Messages%20Sent&lineMode=staircase&drawNullAsZero=true&areaMode=stacked&from=-7days&colorList=418acb%2C418acb%2C418acb&target=summarize(stats.counters.inspire.production.subscriber.#{@subscriber.id}.message.*.delivery_notice.count%2C%221h%22)"
+              .tab-pane.fade.in#receive
+                img src="http://#{ENV['STATSD_HOST']}/render/?width=500&height=400&_salt=1478271999.161&title=Subscriber%20Responses&lineMode=staircase&drawNullAsZero=true&areaMode=stacked&from=-7days&colorList=418acb%2C418acb%2C418acb&target=summarize(stats.counters.inspire.production.subscriber.#{@subscriber.id}.subscriber_response.count%2C%221h%22)&hideLegend=true"
 
 hr
 .row

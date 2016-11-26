@@ -1,0 +1,14 @@
+tr.message-row-active, tr.channel-row-active, tr.channel-group-row-active, tr.subscriber-row-active, tr.rule-row-active {
+  border-left: 2px solid $success;
+}
+tr.message-row-not-active, tr.channel-row-not-active, tr.channel-group-row-not-active, tr.subscriber-row-not-active, tr.rule-row-not-active {
+  border-left: 2px solid $warning;
+}
+
+.shared-table {
+  .panel-heading {
+    .counts {
+      a { font-size: 85%; font-weight: 200; margin-right: 5px; }
+    }
+  }
+}

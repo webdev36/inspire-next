@@ -21,7 +21,7 @@ if Rails.env.development? || Rails.env.production_local?
   end
 
   require_dependency Rails.root.join("app","models","action.rb").to_s
-  ACTION_TYPES = %w[SwitchChannelAction SendMessageAction]
+  ACTION_TYPES = %w[SwitchChannelAction SendMessageAction Hint]
   ACTION_TYPES.each do |c|
     require_dependency Rails.root.join("app","models","actions","#{c.underscore}.rb").to_s
   end

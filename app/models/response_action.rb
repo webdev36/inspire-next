@@ -1,15 +1,15 @@
 class ResponseAction < ActiveRecord::Base
   acts_as_paranoid
-  
-  attr_accessible :response_text,:action_attributes
-  
-  has_one :action, as: :actionable  
-  accepts_nested_attributes_for :action, allow_destroy:true
+
+  attr_accessible :response_text, :action_attributes
+
+  has_one :action, as: :actionable
+  accepts_nested_attributes_for :action, allow_destroy: true
   validates_associated :action
 
   belongs_to :message
 
-  validates :response_text,:presence=>true
+  validates :response_text, :presence=>true
 
   def self.my_csv(poptions={})
     action_columns = Action.column_names.map{|cn|"action_"+cn}
@@ -28,7 +28,7 @@ class ResponseAction < ActiveRecord::Base
       action_part={}
       row.to_hash.each do |k,v|
         if k=~/^action_/
-          attr_name = k.sub(/^action_/,'') 
+          attr_name = k.sub(/^action_/,'')
           action_part[attr_name]=v
         else
           response_action_part[k]=v
@@ -40,6 +40,6 @@ class ResponseAction < ActiveRecord::Base
       response_action.save!
       action.save!
     end
-  end  
+  end
 
 end

@@ -15,10 +15,12 @@
       .panel-heading
         .row
           .col-md-8
-            | Configured Response Actions
+            = icon('bolt')
+            |  Response Actions
           .col-md-4.text-right
             => link_to new_channel_message_response_action_path(@channel, @message), class: "btn btn-primary btn-xs" do
               = icon('plus')
+              | New Response Action
       .panel-body
         - if @response_actions.length > 0
           table.table.table-striped#response-actions-list
@@ -47,8 +49,12 @@
                               class: "btn btn-xs btn-danger"
         - else
           .notification-well
-            .icon =icon('question')
+            .icon =icon('bolt')
             .headline No Response Actions configured for this message yet.
+            .help style="padding-top: 20px;"
+              = link_to new_channel_message_response_action_path(@channel, @message), class: "btn btn-primary" do
+                =icon('plus')
+                | Add Response Action
 #page-actions.row
   .col-md-12
     .panel.panel-default

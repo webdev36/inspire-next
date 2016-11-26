@@ -106,7 +106,7 @@ class ChannelsController < ApplicationController
   def edit; end
 
   def create
-    @channel = @user.channels.new(params[:channel])
+    @channel = ChannelFactory.new(params, nil, @user, @channel_group).channel
     respond_to do |format|
       if @channel.save
         format.html { redirect_to [@channel], notice: 'Channel was successfully created.' }
@@ -119,8 +119,10 @@ class ChannelsController < ApplicationController
   end
 
   def update
+    original_channel = Channel.find(params[:id])
+    @channel = ChannelFactory.new(params, original_channel, @user, @channel_group).channel
     respond_to do |format|
-      if @channel.update_attributes(params[:channel])
+      if @channel.save
         format.html { redirect_to @channel, notice: 'Channel was successfully updated.' }
         format.json { head :no_content }
       else
