@@ -53,11 +53,47 @@ describe MessagingManager do
     expect(subject.substitute_placeholders("Hello %%Salutations%% %%Name%%. You are %%Salutations%% %%Name%%, right?",
         "Salutations=Mr.;Name=John Doe")).to eq('Hello Mr. John Doe. You are Mr. John Doe, right?')
     end
+  end
 
+  describe 'ratelimit' do
+    let(:mm)    { MessagingManager.new }
+    let(:phone) { Faker::PhoneNumber.us_phone_number }
+    context 'does rate limiting math correctly' do
+      it 'counts times correctly' do
+        # the bucket_span and budket_interval settings have ot be correct
+        # for us to get the right counts.. ify ou set the tracked time interval
+        # to more than 1 hour, then things get messy.
+        6.times do
+          mm.rate_limiter.add(phone)
+        end
+        expect(mm.rate_limiter.count(phone, 3600) == 6).to be_truthy
+      end
+    end
+    context 'rate limiting' do
+      it 'limits on an hourly schedule' do
+        ClimateControl.modify 'RATE_LIMIT_THRESHOLD': '1', 'SKIP_RATE_LIMITING': 'false' do
+          travel_to_string_time('January 1, 2017 12:00')
+          setup_user_and_system
+          6.times do
+            create_simple_message(@channel, "Day 1 12:00")
+          end
+          expect(Message.count == 6).to be_truthy
+          @channel.subscribers << @subscriber
+          travel_to_string_time("January 2, 2017 12:00")
+          [0, 3, 6, 9, 12, 15].each do |time_increment|
+            travel_to_same_day_at(12, time_increment)
+            run_worker!
+          end
+          expect(DeliveryNotice.count == 1).to be_truthy
+          expect(DeliveryErrorNotice.count == 5).to be_truthy
+          expect(DeliveryErrorNotice.first.options['error'].include?('Phone number (across')).to be_truthy
+        end
+      end
+    end
   end
 
   describe '#' do
-    subject {MessagingManager.new}
+    subject { MessagingManager.new }
     describe "broadcast_message" do
       it "calls send_message method" do
         mw = double
@@ -89,7 +125,7 @@ describe MessagingManager do
           expect(content_url).to eq(my_content_url)
         }
         allow(DeliveryNotice).to receive(:create){}
-        subject.broadcast_message(message,subscribers)
+        subject.broadcast_message(message, subscribers)
         expect(ret_phone_numbers).to match(phone_numbers)
       end
 

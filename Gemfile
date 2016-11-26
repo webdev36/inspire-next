@@ -25,17 +25,21 @@ gem 'aws-sdk'
 
 gem 'twilio-ruby'
 gem 'will_paginate-bootstrap', '0.2.5'
-gem 'ranked-model'
 
 gem 'sidekiq'
 gem 'sidekiq-failures'
 
 # clean up logs from Heroku
 gem 'lograge'
-
 gem 'statsd-instrument'
 
+# rate limits outbound messages so we don't EVER repeatedly flood someone,
+# redis-backed
+gem 'ratelimit'
+
 gem 'sinatra'
+
+# replaces our cron
 gem 'clockwork'
 
 gem 'cocoon'

@@ -1,3 +1,5 @@
+require 'ratelimit'
+
 class MessagingManager
 
   def self.new_instance
@@ -13,15 +15,43 @@ class MessagingManager
     end
   end
 
-  def broadcast_message(message, subscribers)
+  def rate_limiter_config
+    {
+      redis:           REDIS,
+      bucket_span:     interval,
+      bucket_interval: 1
+    }
+  end
 
+  def rate_limiter
+    @rate_limiter ||= Ratelimit.new('rlimit_message_manager_day', rate_limiter_config)
+  end
+
+  def threshold
+    (ENV['RATE_LIMIT_THRESHOLD'] || 5).to_i
+  end
+
+  def interval
+    (ENV['RATE_LIMIT_INTERVAL'] || 3600).to_i # one day
+  end
+
+  # uses phone number as this gets mapped in the subscriber message below
+  def rate_limit_ok?(phone_number)
+    return true if [true, 'true'].include?(ENV['SKIP_RATE_LIMITING'])
+    rate_limiter.within_bounds?(phone_number, threshold: threshold, interval: interval)
+  end
+
+  def track_for_rate_limit(phone_number)
+    rate_limiter.add(phone_number)
+  end
+
+  def broadcast_message(message, subscribers)
     phone_numbers = subscribers.map(&:phone_number)
     content_url = message.content.exists? ? message.content.url : nil
     from_num = nil
 
     if message.options && message.options[:tparty_keyword].present?
       from_num = message.options[:tparty_keyword]
-
     elsif message.channel && message.channel.tparty_keyword.present?
       from_num = message.channel.tparty_keyword
     end
@@ -43,23 +73,31 @@ class MessagingManager
         DeliveryErrorNotice.create(message: message, title: title_text, caption: message_text,
                                    subscriber: subscriber, options: message.options.merge('error' => 'Has been sent too many messages recently. Rate limiting.'))
         next
-       end
-      if send_message(subscriber.phone_number, title_text, message_text, content_url, from_num)
-        if message.primary?
-          StatsD.increment("subscriber.#{subscriber.id}.message.#{message.id}.sent_primary")
-          dn = DeliveryNotice.create(message: message,      title: title_text,
-                                     caption: message_text, subscriber: subscriber,
-                                     options: message.options )
+      end
+      if rate_limit_ok?(subscriber.phone_number)
+        if send_message(subscriber.phone_number, title_text, message_text, content_url, from_num)
+          track_for_rate_limit(subscriber.phone_number)
+          if message.primary?
+            StatsD.increment("subscriber.#{subscriber.id}.message.#{message.id}.sent_primary")
+            dn = DeliveryNotice.create(message: message,      title: title_text,
+                                       caption: message_text, subscriber: subscriber,
+                                       options: message.options )
+          else
+            StatsD.increment("subscriber.#{subscriber.id}.message.#{message.options[:message_id]}.sent_reminder")
+            dn = DeliveryNotice.create(message: Message.find(message.options[:message_id]),
+                                       title: title_text,     caption: message_text,
+                                       subscriber:subscriber, options: message.options)
+          end
+          Rails.logger.info "action=send_message status=ok delivery_notice_id=#{dn.nil? ? 'nil' : dn.id} message_id=#{message.options[:message_id] ? message.options[:message_id] : message.id} primary_message=#{message.primary?} subscriber_id=#{subscriber.id} method=broadcast_message caption='#{message_text}' reminder_message=#{message.options[:reminder_message] ? 'y' : 'n'} repeat_reminder_message=#{message.options[:repeat_reminder_message] ? 'y' : 'n'}"
         else
-          StatsD.increment("subscriber.#{subscriber.id}.message.#{message.options[:message_id]}.sent_reminder")
-          dn = DeliveryNotice.create(message: Message.find(message.options[:message_id]),
-                                     title: title_text,     caption: message_text,
-                                     subscriber:subscriber, options: message.options)
+          StatsD.increment("subscriber.#{subscriber.id}.message.#{message.id}.send_message_error")
+          Rails.logger.error "action=send_message status=error subscriber_id=#{subscriber.id} message_id=#{message.id} caption='#{message.caption}'"
         end
-        Rails.logger.info "action=send_message status=ok delivery_notice_id=#{dn.nil? ? 'nil' : dn.id} message_id=#{message.options[:message_id] ? message.options[:message_id] : message.id} primary_message=#{message.primary?} subscriber_id=#{subscriber.id} method=broadcast_message caption='#{message_text}' reminder_message=#{message.options[:reminder_message] ? 'y' : 'n'} repeat_reminder_message=#{message.options[:repeat_reminder_message] ? 'y' : 'n'}"
       else
-        StatsD.increment("subscriber.#{subscriber.id}.message.#{message.id}.send_message_error")
-        Rails.logger.error "action=send_message status=error subscriber_id=#{subscriber.id} message_id=#{message.id} caption='#{message.caption}'"
+        StatsD.increment("subscriber.#{subscriber.id}.skip_rate_limit")
+        Rails.logger.error "action=send_message status=error error=phone_number_rate_limit subscriber_id=#{subscriber.id} message_id=#{message.id} caption='#{message.caption}'"
+        DeliveryErrorNotice.create(message: message, title: title_text, caption: message_text,
+                                   subscriber: subscriber, options: message.options.merge('error' => 'Phone number (across subscribers) has received too many messages. Rate limited.'))
       end
     end
   end

@@ -13,6 +13,7 @@ machine:
     DATABASE_URL: postgres://ubuntu:@127.0.0.1:5432/circle_test
     STATSD_HOST: 127.0.0.1
     STATSD_PORT: 8125
+    SKIP_RATE_LIMITING: true
   hosts:
     liveinspired.herokuapp.com: 127.0.0.1
 

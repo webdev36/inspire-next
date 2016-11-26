@@ -56,7 +56,7 @@ class TwilioWrapper
       end
       return true
     else
-      Rails.logger.info "action=send_blocked_message from=twiliow_wrapper status=ok phone_number='#{phone_number}' title='#{title}' caption='#{caption}' content_url='#{content_url}' from_num='#{from_num}'"
+      Rails.logger.info "action=send_blocked_message from=twilio_wrapper status=ok phone_number='#{phone_number}' title='#{title}' caption='#{caption}' content_url='#{content_url}' from_num='#{from_num}'"
       log "SENDBLOCKED: send_message(#{phone_number},#{title},#{caption},#{content_url},#{from_num})"
       return true
     end
