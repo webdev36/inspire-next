@@ -23,12 +23,12 @@ describe Subscriber do
   it "requires phone_number" do
     expect(build(:subscriber,phone_number:'')).to_not be_valid
   end
-  
+
   it "requires phone_number to be unique for the same user" do
     subscriber = create(:subscriber)
     expect(build(:subscriber,user:subscriber.user,phone_number:subscriber.phone_number)).to_not be_valid
   end
-  
+
   it "does not require phone_number to be unique across users" do
     subscriber = create(:subscriber)
     another_user = create(:user)
@@ -45,7 +45,7 @@ describe Subscriber do
     expect(build(:subscriber,email:'abc')).to_not be_valid
     expect(build(:subscriber,email:'abc@def.com')).to be_valid
   end
-  
+
   it "converts phone number to international format upon save" do
     subscriber = create(:subscriber,phone_number:'408-234-3434')
     expect(subscriber.phone_number).to eq('+14082343434')
@@ -81,7 +81,7 @@ describe Subscriber do
       expect(Subscriber.format_phone_number('2322324')).to be_nil
       expect(Subscriber.format_phone_number('(408) 232 2324 6754')).to be_nil
     end
-  end  
+  end
 
   describe "#" do
     let(:user) {create(:user)}
@@ -93,7 +93,27 @@ describe Subscriber do
       expect {
         create(:subscriber_response,origin:phone_number,caption:"#{channel.tparty_keyword} #{Faker::Lorem.sentence}")
         }.to change {subject.subscriber_responses.count}.by 1
-    end 
+    end
   end
-      
+
+  describe 'custom attributes' do
+    let(:user)         { create(:user) }
+    let(:channel)      { create(:channel,user:user) }
+    let(:phone_number) { Faker::PhoneNumber.us_phone_number }
+    let(:subscriber)   { create(:subscriber,user:user,phone_number:phone_number) }
+    it 'can read an empty custom_attributes hash' do
+      expect(subscriber.custom_attributes == {}).to be_truthy
+    end
+    it 'can add additional attributes' do
+      subscriber.update_custom_attribute('key1', 'value1')
+      expect(subscriber.custom_attributes.keys.include?('key1')).to be_truthy
+      expect(subscriber.additional_attributes == "key1=value1;").to be_truthy
+    end
+    it 'that are dates work' do
+      subscriber.update_custom_attribute('quit_date', Chronic.parse('January 1, 2017, 12:00'))
+      expect(subscriber.custom_attributes.keys.include?('quit_date')).to be_truthy
+      expect(subscriber.additional_attributes == "quit_date=2017-01-01 12:00:00 -0500;").to be_truthy
+    end
+  end
+
 end

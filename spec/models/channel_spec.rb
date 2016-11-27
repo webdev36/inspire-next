@@ -200,6 +200,38 @@ describe Channel do
 
   end
 
+  describe 'command' do
+    it '#subscriptions returns list of subscriptions' do
+      setup_user_and_system
+      @channel.subscribers << @subscriber
+      expect {
+        send_inbound_message_from_subscriber(@subscriber, @channel.tparty_keyword, 'subscriptions')
+      }.to change {
+        DeliveryNotice.count
+      }.by(1)
+    end
+    it '#set command sets attribute on the subscriber attributes' do
+      setup_user_and_system
+      @channel.subscribers << @subscriber
+      expect {
+        send_inbound_message_from_subscriber(@subscriber, @channel.tparty_keyword, 'set quit=2017-01-01')
+      }.to change {
+        DeliveryNotice.count
+      }.by(1)
+      expect(@subscriber.reload.custom_attributes.keys.include?('quit')).to be_truthy
+    end
+    it '#get command gets attribute from subscriber' do
+      setup_user_and_system
+      @subscriber.update_custom_attribute('happy', 'sad')
+      @channel.subscribers << @subscriber
+      expect {
+        send_inbound_message_from_subscriber(@subscriber, @channel.tparty_keyword, 'get happy')
+      }.to change {
+        DeliveryNotice.count
+      }.by(1)
+    end
+  end
+
   describe "find_by_keyword" do
     it "is case insensitive" do
       channel = create(:channel,keyword:'SampleKeyword')

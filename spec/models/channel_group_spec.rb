@@ -109,6 +109,38 @@ describe ChannelGroup do
     expect(channel_group.default_channel).to eq(ch2)
   end
 
+  describe 'command' do
+    it '#subscriptions returns subscriptions list' do
+      setup_user_channel_group_and_channel
+      @channel.subscribers << @subscriber
+      expect {
+        send_inbound_message_from_subscriber(@subscriber, @channel_group.tparty_keyword, 'subscriptions')
+      }.to change {
+        DeliveryNotice.count
+      }.by(1)
+    end
+    it '#set command sets attribute on the subscriber attributes' do
+      setup_user_channel_group_and_channel
+      @channel.subscribers << @subscriber
+      expect {
+        send_inbound_message_from_subscriber(@subscriber, @channel_group.tparty_keyword, 'set quit=2017-01-01')
+      }.to change {
+        DeliveryNotice.count
+      }.by(1)
+      expect(@subscriber.reload.custom_attributes.keys.include?('quit')).to be_truthy
+    end
+    it '#get command gets attribute from subscriber' do
+      setup_user_channel_group_and_channel
+      @subscriber.update_custom_attribute('happy', 'sad')
+      @channel.subscribers << @subscriber
+      expect {
+        send_inbound_message_from_subscriber(@subscriber, @channel_group.tparty_keyword, 'get happy')
+      }.to change {
+        DeliveryNotice.count
+      }.by(1)
+    end
+  end
+
   describe "all_channel_subscribers" do
     before do
       @user = create(:user)
