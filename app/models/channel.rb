@@ -25,6 +25,7 @@
 
 class Channel < ActiveRecord::Base
   include ActionView::Helpers
+  include Mixins::ChannelCommands
   acts_as_paranoid
   include IceCube
   attr_accessible :description, :name, :type, :keyword, :tparty_keyword,
@@ -256,33 +257,6 @@ class Channel < ActiveRecord::Base
     end
   end
 
-  def process_subscriber_response(subscriber_response)
-    command = Channel.identify_command(subscriber_response.content_text)
-    case command
-    when :start
-      process_start_command(subscriber_response)
-    when :stop
-      process_stop_command(subscriber_response)
-    when :custom
-      process_custom_command(subscriber_response)
-    else
-      handle_subscriber_response_error(subscriber_response, 'command not identitied', 'channel_root')
-      false
-    end
-  end
-
-  def handle_subscriber_response_error(subscriber_response, error_type, action)
-    StatsD.increment("channel.#{self.id}.subscriber_response.#{subscriber_response.id}.#{error_type.underscore}")
-    Rails.logger.error "error=#{error_type.downcase.gsub(' ', '_')} message='Subscriber phone #{error_type}' subscriber_response_id=#{subscriber_response.id} channel_id=#{self.id}"
-    subscriber_response.update_processing_log("Received #{action} command, but #{error_type}")
-  end
-
-  def handle_subscriber_response_success(subscriber_response, info_type, action)
-    StatsD.increment("channel.#{self.id}.subscriber_response.#{subscriber_response.id}.#{info_type.underscore}")
-    Rails.logger.info "info=#{info_type.underscore} subscriber_response_id=#{subscriber_response.id} channel_id=#{self.id}"
-    subscriber_response.update_processing_log("#{action.titleize} command: #{info_type}")
-  end
-
   def process_start_command(subscriber_response)
     if !allow_mo_subscription
       handle_subscriber_response_error(subscriber_response, 'no mobile subscription allowed', 'start')
@@ -396,23 +370,6 @@ class Channel < ActiveRecord::Base
     subscriber_response.message = dn.message
     subscriber_response.save
     subscriber_response.message
-  end
-
-  def self.identify_command(message_text)
-    return :custom if message_text.blank?
-    tokens = message_text.split
-    if tokens.length == 1
-      case tokens[0]
-      when /start/i
-        return :start
-      when /stop/i
-        return :stop
-      else
-        return :custom
-      end
-    elsif tokens.length > 1
-      return :custom
-    end
   end
 
   def messages_report(options={})

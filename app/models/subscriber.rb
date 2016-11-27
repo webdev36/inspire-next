@@ -53,7 +53,7 @@ class Subscriber < ActiveRecord::Base
   end
 
   def custom_attributes
-    @supplied_attributes ||= begin
+    @custom_attributes ||= begin
       sa = {}
       additional_attributes.to_s.split(";").each do |item|
         key, value = item.to_s.split("=", 2)
@@ -79,6 +79,21 @@ class Subscriber < ActiveRecord::Base
 
   def has_replied_to_message?(message)
     SubscriberResponse.where(subscriber_id: self.id, message_id: message.id).count > 0
+  end
+
+  def update_custom_attribute(key, val)
+    custom_attributes[key.downcase] = val
+    save_custom_attributes
+  end
+
+  def save_custom_attributes
+    self.additional_attributes = ''
+    custom_attributes.each_pair do |key, value|
+      save_key = key.to_s.downcase
+      self.additional_attributes << "#{save_key}=#{value.to_s};"
+    end
+    self.additional_attributes
+    self.save if self.changed?
   end
 
   private

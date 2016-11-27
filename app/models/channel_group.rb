@@ -17,6 +17,7 @@
 #
 
 class ChannelGroup < ActiveRecord::Base
+  include Mixins::ChannelCommands
   acts_as_paranoid
   attr_accessible :description, :name, :keyword, :tparty_keyword,
                   :default_channel_id, :moderator_emails, :real_time_update,
@@ -66,54 +67,22 @@ class ChannelGroup < ActiveRecord::Base
     where("lower(tparty_keyword) = ?",tparty_keyword.downcase)
   end
 
-  def self.identify_command(message_text)
-    return :custom if message_text.blank?
-    tokens = message_text.split
-    if tokens.length == 1
-      case tokens[0]
-      when /start/i
-        return :start
-      when /stop/i
-        return :stop
-      else
-        return :custom
-      end
-    elsif tokens.length > 1
-      return :custom
-    end
-  end
-
   def all_channel_subscribers
     channels.includes(:subscribers).map(&:subscribers).flatten
-  end
-
-  def process_subscriber_response(subscriber_response)
-    command = ChannelGroup.identify_command(subscriber_response.content_text)
-    case command
-    when :start
-      process_start_command(subscriber_response)
-    when :stop
-      process_stop_command(subscriber_response)
-    when :custom
-      process_custom_command(subscriber_response)
-    else
-      handle_channel_group_subscriber_response_error(subscriber_response, 'cannot find a command type', 'command_switch')
-      false
-    end
   end
 
   def process_start_command(subscriber_response)
     phone_number = subscriber_response.origin
     if !phone_number || phone_number.blank?
-      handle_channel_group_subscriber_response_error(subscriber_response, 'no phone number supplied', 'start')
+      handle_subscriber_response_error(subscriber_response, 'no phone number supplied', 'start')
       return false
     end
     if !default_channel
-      handle_channel_group_subscriber_response_error(subscriber_response, 'no default channel', 'start')
+      handle_subscriber_response_error(subscriber_response, 'no default channel', 'start')
       return false
     end
     if channels.with_subscriber(phone_number).size > 0
-      handle_channel_group_subscriber_response_error(subscriber_response, 'already in a channel group', 'start')
+      handle_subscriber_response_error(subscriber_response, 'already in channel group', 'start')
       return true
     end
     subscriber = user.subscribers.find_by_phone_number(phone_number)
@@ -122,7 +91,7 @@ class ChannelGroup < ActiveRecord::Base
       subscriber = user.subscribers.create!(phone_number:phone_number,name:phone_number)
     end
     default_channel.subscribers << subscriber
-    handle_channel_group_subscriber_response_success(subscriber_response, 'start command ok', 'start')
+    handle_subscriber_response_success(subscriber_response, 'start command ok', 'start')
     true
   end
 
