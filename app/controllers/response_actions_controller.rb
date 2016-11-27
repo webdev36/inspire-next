@@ -1,4 +1,5 @@
 class ResponseActionsController < ApplicationController
+  include Mixins::AdministrativeLogging
   before_filter :load_user
   before_filter :load_message
   before_action :load_channel
@@ -34,14 +35,14 @@ class ResponseActionsController < ApplicationController
     @response_action = ResponseActionFactory
       .new(response_action_params, params, response_action: nil, message: @message)
       .response_action
-
-    binding.pry
     respond_to do |format|
       if @response_action.save
+        log_user_activity("Created new response action for #{@message.id} message.", {message_id: @message.id})
         format.html { redirect_to channel_message_response_actions_path(@channel, @message), notice: 'Response Action was successfully created.' }
         format.json { render json: @response_action, status: :created, location: [@channel,@message,@response_action] }
       else
-        Rails.logger.info "**#{@response_action.errors.inspect}"
+        log_user_activity("Experienced error creating new response action: #{@response_action.errors.inspect}.")
+        Rails.logger.info "error=create_error controller=response_actions message='#{@response_action.errors.inspect}'"
         format.html { render action: "new", alert: @response_action.errors.full_messages.join(", ") }
         format.json { render json: @response_action.errors, status: :unprocessable_entity }
       end
@@ -56,10 +57,12 @@ class ResponseActionsController < ApplicationController
 
     respond_to do |format|
       if @response_action.update_attributes(params[:response_action])
+        log_user_activity("Updated response action #{@response_action.id}.", {message_id: @message.id})
         format.html { redirect_to channel_message_response_actions_path(@channel, @message), notice: 'Response Action was successfully updated.' }
         format.json { head :no_content }
       else
-        Rails.logger.info "**#{@response_action.errors.inspect}"
+        Rails.logger.info "error=update_error controller=response_actions message='#{@response_action.errors.inspect}'"
+        log_user_activity("Experienced error updating response action #{@response_action.id}.")
         format.html { render action: "edit", alert: @response_action.errors.full_messages.join(", ") }
         format.json { render json: @response_action.errors, status: :unprocessable_entity }
       end
@@ -69,6 +72,7 @@ class ResponseActionsController < ApplicationController
   def destroy
     @response_action = @message.response_actions.find(params[:id])
     @response_action.destroy
+    log_user_activity("Deleted response action #{@response_action.id}.")
 
     respond_to do |format|
       format.html { redirect_to channel_message_response_actions_path(@channel,@message) }
@@ -92,6 +96,7 @@ class ResponseActionsController < ApplicationController
 
   def import
     ResponseAction.import(@message,params[:import][:import_from])
+    log_user_activity("Imported response actions from #{params[:import][:import_from].to_s}")
     redirect_to session.delete(:import_requester) || request.referer, notice: 'Response Actions imported.'
   end
 

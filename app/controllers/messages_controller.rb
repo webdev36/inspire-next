@@ -1,6 +1,7 @@
 require 'will_paginate/array'
 
 class MessagesController < ApplicationController
+  include Mixins::AdministrativeLogging
   before_filter :load_channel
   before_filter  :build_channel_group_map, only: %i(new show)
   before_action :load_to_channel_options, only: %i(new edit show create update)
@@ -53,6 +54,7 @@ class MessagesController < ApplicationController
 
     respond_to do |format|
       if @message.save
+        log_user_activity("Created new message #{@message.id}-#{@message.caption}")
         format.html { redirect_to [@channel], notice: 'Message was successfully created.' }
         format.json { render json: @message, status: :created, location: [@channel,@message] }
       else
@@ -68,6 +70,7 @@ class MessagesController < ApplicationController
     @channels = current_user.channels
     respond_to do |format|
       if @message.save
+        log_user_activity("Updated message #{@message.id}-#{@message.caption}")
         format.html { redirect_to [@channel, @message], notice: 'Message was successfully updated.' }
         format.json { head :no_content }
       else
@@ -81,6 +84,7 @@ class MessagesController < ApplicationController
   def destroy
     @message = @channel.messages.find(params[:id])
     @message.destroy
+    log_user_activity("Deleted message #{@message.id}-#{@message.caption}")
 
     respond_to do |format|
       format.html { redirect_to channel_url(@channel),:page=>params[:page_no] }
@@ -91,6 +95,7 @@ class MessagesController < ApplicationController
   def broadcast
     message = @channel.messages.find(params[:id])
     message.broadcast
+    log_user_activity("Broadcast message #{message.id}-#{message.caption}")
     respond_to do |format|
       format.html { redirect_to [@channel,@message], notice: 'Message was queued for broadcast.' }
       format.json { head :no_content }
@@ -100,6 +105,7 @@ class MessagesController < ApplicationController
   def move_up
     message = @channel.messages.find(params[:id])
     message.move_up
+    log_user_activity("Moved up message #{message.id}-#{message.caption}")
     respond_to do |format|
       format.html { redirect_to [@channel,@message] }
       format.json { head :no_content }
@@ -109,6 +115,7 @@ class MessagesController < ApplicationController
   def move_down
     message = @channel.messages.find(params[:id])
     message.move_down
+    log_user_activity("Moved down message #{message.id}-#{message.caption}")
     respond_to do |format|
       format.html { redirect_to [@channel,@message] }
       format.json { head :no_content }
@@ -133,12 +140,13 @@ class MessagesController < ApplicationController
   def import
     begin
       file = params[:import][:import_from]
-      binding.pry
       helper = ImportChannel.new(@channel, file)
       if helper.import
+        log_user_activity("Imported messages from #{file.to_s} to channel #{@channel.id}-#{@channel.name}")
         notice_message = "Your channel messages were imported."
         redirect_to request.referer, notice: notice_message
       else
+        log_user_activity("Error importing messages from #{file.to_s} to channel #{@channel.id}-#{@channel.name}")
         notice_message = "There was a problem importing your messages."
         redirect_to request.referer, error: resp[:message]
       end
@@ -150,7 +158,6 @@ class MessagesController < ApplicationController
 
   def update_seq_no
     @message = @channel.messages.find(message_params[:id])
-    puts "setting position to #{message_params[:seq_no_position]}"
     @message.set_seq_position(message_params[:seq_no_position])
     @message.save
     render nothing: true

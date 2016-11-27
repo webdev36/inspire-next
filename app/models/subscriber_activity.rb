@@ -19,7 +19,7 @@
 
 class SubscriberActivity < ActiveRecord::Base
   acts_as_paranoid
-  attr_accessible :caption, :origin, :title, :type, :tparty_identifier,:options
+  attr_accessible :caption, :origin, :title, :type, :tparty_identifier, :options, :user_id
 
   serialize :options, Hash
 
@@ -27,6 +27,7 @@ class SubscriberActivity < ActiveRecord::Base
   belongs_to :channel
   belongs_to :channel_group
   belongs_to :message
+  belongs_to :user
 
   before_validation :normalize_phone_number
   before_save       :update_derived_attributes_before_save

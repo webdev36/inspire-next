@@ -1,5 +1,6 @@
 class RulesController < ApplicationController
   include Mixins::RuleSearch
+  include Mixins::AdministrativeLogging
   before_filter :load_rule
   skip_before_filter :load_rule, :only => [:new, :create, :index]
   before_filter :load_user, :only =>[:new, :create, :index]
@@ -41,6 +42,7 @@ class RulesController < ApplicationController
     @rule = @user.rules.new(rule_params)
     respond_to do |format|
       if @rule.save
+        log_user_activity("Created rule #{@rule.id}")
         format.html { redirect_to @rule, notice: 'Rule was successfully created.' }
         format.json { render json: @rule, status: :created, location: @rule }
       else
@@ -53,6 +55,7 @@ class RulesController < ApplicationController
   def update
     respond_to do |format|
       if @rule.update_attributes(rule_params)
+        log_user_activity("Updated rule #{@rule.id}")
         format.html { redirect_to @rule, notice: 'Rule was successfully updated.' }
         format.json { head :no_content }
       else
@@ -64,7 +67,7 @@ class RulesController < ApplicationController
 
   def destroy
     @rule.destroy
-
+    log_user_activity("Destroyed rule #{@rule.id}")
     respond_to do |format|
       format.html { redirect_to rules_path }
       format.json { head :no_content }

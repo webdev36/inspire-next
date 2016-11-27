@@ -2,6 +2,7 @@ class SubscribersController < ApplicationController
   include Mixins::SubscriberSearch
   include Mixins::ChannelSearch
   include Mixins::ChannelGroupSearch
+  include Mixins::AdministrativeLogging
   before_filter :load_subscriber
   skip_before_filter :load_subscriber, :only => [:new,:create,:index]
   before_filter :load_user, :only =>[:new, :create, :index, :show, :download_activity]
@@ -34,6 +35,7 @@ class SubscribersController < ApplicationController
   end
 
   def download_activity
+    log_user_activity("Downloaded subscriber activity for #{@subscriber.id}")
     @timeline = Timeline.timeline_export(params.merge(:user_id => current_user.id))
     download_data = CSV.generate({}) do |csv|
       csv << @timeline.first.keys
@@ -64,6 +66,7 @@ class SubscribersController < ApplicationController
 
     respond_to do |format|
       if @subscriber.save
+        log_user_activity("Created subscriber #{@subscriber.id}-#{@subscriber.name}", {subscriber_id: @subscriber.id })
         format.html { redirect_to @subscriber, notice: 'Subscriber was successfully created.' }
         format.json { render json: @subscriber, status: :created, location: @subscriber }
       else
@@ -76,6 +79,7 @@ class SubscribersController < ApplicationController
   def update
     respond_to do |format|
       if @subscriber.update_attributes(params[:subscriber])
+        log_user_activity("Changed subscriber #{@subscriber.id}-#{@subscriber.name}", {subscriber_id: @subscriber.id })
         format.html { redirect_to @subscriber, notice: 'Subscriber was successfully updated.' }
         format.json { head :no_content }
       else
@@ -87,6 +91,7 @@ class SubscribersController < ApplicationController
 
   def destroy
     @subscriber.destroy
+    log_user_activity("Deleted subscriber #{@subscriber.id}-#{@subscriber.name}", {subscriber_id: @subscriber.id })
 
     respond_to do |format|
       format.html { redirect_to subscribers_path }

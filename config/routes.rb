@@ -52,7 +52,11 @@ Liveinspired::Application.routes.draw do
   post 'channel_groups/:channel_group_id/remove_channel/:id', to: 'channel_groups#remove_channel',  :as => 'channel_group_remove_channel'
 
   resources :rules
-  resources :users
+  resources :users do
+    member do
+      get :activity
+    end
+  end
   resources :subscribers do
     resources :subscriber_responses, only: %i(index)
     member do

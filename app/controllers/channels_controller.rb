@@ -3,11 +3,12 @@ class ChannelsController < ApplicationController
   include Mixins::ChannelSearch
   include Mixins::ChannelGroupSearch
   include Mixins::MessageSearch
+  include Mixins::AdministrativeLogging
   before_action :load_channel
   skip_before_action :load_channel, only: %i(
       new create index add_subscriber remove_subscriber
     )
-  before_action :load_user, only: %i(new create index)
+  before_action :load_user, only: %i(new create update index)
   before_action :load_subscriber, only: %i(add_subscriber remove_subscriber)
 
   decorates_assigned :messages
@@ -109,6 +110,7 @@ class ChannelsController < ApplicationController
     @channel = ChannelFactory.new(params, nil, @user, @channel_group).channel
     respond_to do |format|
       if @channel.save
+        log_user_activity("Created channel #{@channel.id}-#{@channel.name}", {channel_id: @channel.id})
         format.html { redirect_to [@channel], notice: 'Channel was successfully created.' }
         format.json { render json: @channel, status: :created, location: [@channel] }
       else
@@ -123,6 +125,7 @@ class ChannelsController < ApplicationController
     @channel = ChannelFactory.new(params, original_channel, @user, @channel_group).channel
     respond_to do |format|
       if @channel.save
+        log_user_activity("Changed channel #{@channel.id}-#{@channel.name}", {channel_id: @channel.id})
         format.html { redirect_to @channel, notice: 'Channel was successfully updated.' }
         format.json { head :no_content }
       else
@@ -133,6 +136,7 @@ class ChannelsController < ApplicationController
   end
 
   def destroy
+    log_user_activity("Destroyed channel #{@channel.id}-#{@channel.name}", {channel_id: @channel.id})
     @channel.destroy
 
     respond_to do |format|
@@ -171,6 +175,7 @@ class ChannelsController < ApplicationController
 
     unless already_subscribed
       if @channel.subscribers.push @subscriber
+        log_user_activity("Added subscriber #{@subscriber.id}-#{@subscriber.name} to #{@channel.id}-#{@channel.name}", {'subscriber_id' => @subscriber.id, channel_id: @channel.id})
         notice = "Subscriber added to channel."
       else
         error = "Subscriber is already a member of a channel in the channel group. Cannot add."
@@ -189,6 +194,7 @@ class ChannelsController < ApplicationController
 
     if already_subscribed
       @channel.subscribers.destroy @subscriber
+      log_user_activity("Removed subscriber #{@subscriber.id}-#{@subscriber.name} from #{@channel.id}-#{@channel.name}", {'subscriber_id' => @subscriber.id, channel_id: @channel.id})
       notice = "Subscriber removed from channel."
     end
 
@@ -210,11 +216,13 @@ class ChannelsController < ApplicationController
 
   def delete_all_messages
     @channel.messages.delete_all
+    log_user_activity("Deleted all messages in #{@channel.id}-#{@channel.name}", {channel_id: @channel.id})
     redirect_to :back, notice: "All messages were deleted."
   end
 
   def export
     helper = ExportChannel.new(@channel.id)
+    log_user_activity("Exported messages in #{@channel.id}-#{@channel.name}", {channel_id: @channel.id})
     respond_to do |format|
       format.csv { send_data helper.to_csv, filename: "channel-#{@channel.id}-messages-#{Date.today}.csv" }
     end

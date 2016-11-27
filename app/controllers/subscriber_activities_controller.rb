@@ -1,5 +1,7 @@
 class SubscriberActivitiesController < ApplicationController
   include SubscriberActivitiesHelper
+  include Mixins::AdministrativeLogging
+
   # before_filter      :load_activity
   before_filter      :load_activity,   except: [:index]
   before_filter      :load_activities, only: [:index]
@@ -29,6 +31,7 @@ class SubscriberActivitiesController < ApplicationController
   def update
     respond_to do |format|
       if @subscriber_activity.update_attributes(params[:subscriber_activity])
+        log_user_activity("Updated subscriber_activity #{@subscriber_activity.id}")
         format.html { redirect_to sa_path(@subscriber_activity).merge({action:'show'}), notice: 'Subscriber Activity was successfully updated.' }
         format.json { head :no_content }
       else
@@ -40,6 +43,7 @@ class SubscriberActivitiesController < ApplicationController
 
   def reprocess
     respond_to do |format|
+      log_user_activity("Requested reproess of subscriber_activity #{@subscriber_activity.id}")
       if @subscriber_activity.process
         format.html { redirect_to sa_path(@subscriber_activity).merge({action:'show'}), notice: 'Reprocess successful' }
         format.json { head :no_content }

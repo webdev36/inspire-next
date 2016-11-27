@@ -43,8 +43,7 @@ feature 'UI/Scheduled Messages Channel' do
       expect(page).to_not have_link('Broadcast')
     end
 
-
-    scenario "it lists the up and down button alongside messages" do
+    scenario "lists the up and down button alongside messages" do
       @messages.each do |message|
         within("div#message-list tr#message_#{message.id}") do
           expect(page).to have_link('Up')

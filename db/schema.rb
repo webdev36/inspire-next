@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161120135642) do
+ActiveRecord::Schema.define(version: 20161127125230) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -171,6 +171,7 @@ ActiveRecord::Schema.define(version: 20161120135642) do
     t.datetime "deleted_at"
     t.string   "tparty_identifier"
     t.text     "options"
+    t.integer  "user_id"
   end
 
   add_index "subscriber_activities", ["channel_id"], name: "index_subscriber_activities_on_channel_id", using: :btree

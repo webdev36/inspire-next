@@ -1,0 +1,28 @@
+- model_class = User
+
+.page-header
+  .row
+    .col-md-8
+      h4.pull-left#user_email
+        = "#{@user.email} Activity"
+    .col-md-4
+
+.row
+  .col-md-12
+    #user-activity-list
+      .row
+        .col-md-12
+          table.table#user-activity-table
+            thead
+              th Activity
+              th Action
+            tbody
+              - @activities.each do |activity|
+                tr
+                  td =activity.caption
+                  td = "#{time_ago_in_words(activity.created_at)} ago"
+      .row
+        .col-md-12.text-center
+          = will_paginate @activities, param_name: "activities_page"
+
+

@@ -16,6 +16,10 @@ module SelectorHelpers
     '.page-header'
   end
 
+  def table_id_selector(id_name)
+    [:xpath, "//table[@id='#{id_name}']"]
+  end
+
   def div_id_selector(id_name)
     [:xpath, "//div[@id='#{id_name}']"]
   end
