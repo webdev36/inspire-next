@@ -15,28 +15,28 @@
 #recurring_schedule.form-group
   label.string.control-label.col-sm-5 for="message_schedule" Schedule
   .col-sm-7
-    = f.select_recurring :recurring_schedule, nil, {:allow_blank => true}, class: "form-control"
+    = f.select_recurring :recurring_schedule, message.recurring_schedule, {:allow_blank => true }, class: "form-control"
 
-#rs-target
+#rs-target data-initial-value="#{message.recurring_schedule}"
 
 - content_for :head_js
   javascript:
 
     $(document).ready(function () {
-      //$('#recurring_schedule').hide();
+      var initializing_rule = $('#rs-target').data('initial-value');
+      console.log('initializing rule is ' + initializing_rule);
 
       switch ($('input[name=one_time_or_recurring]:checked').val()) {
         case 'one_time':
           $('.message_next_send_time').show();
           $('#recurring_schedule').hide();
           $('#rs-target').hide();
-         //$("#message_recurring_schedule").val("null").change();
           break;
         case 'recurring':
           $('.message_next_send_time').hide();
           $('#rs-target').show();
+
           $('#recurring_schedule').show();
-          //$("#message_recurring_schedule").val("custom").change();
           break;
       }
 
@@ -47,13 +47,41 @@
             $('.message_next_send_time').show();
             $('#rs-target').hide();
             $('#recurring_schedule').hide();
-            //$("#message_recurring_schedule").val("null").change();
             break;
           case 'recurring':
             $('#rs-target').show();
             $('.message_next_send_time').hide();
             $('#recurring_schedule').show();
-            //$("#message_recurring_schedule").val("custom").change();
+            break;
+        }
+      });
+
+      $('#rs_frequency:visible').livequery(function() {
+        var rs_frequency = $(this).val();
+        switch (rs_frequency) {
+          case 'Daily':
+            $('.daily_options').css('display', 'inline');
+            $('.weekly_options').css('display', 'none');
+            $('.monthly_options').css('display', 'none');
+            $('.yearly_options').css('display', 'none');
+            break;
+          case 'Weekly':
+            $('.daily_options').css('display', 'none');
+            $('.weekly_options').css('display', 'inline');
+            $('.monthly_options').css('display', 'none');
+            $('.yearly_options').css('display', 'none');
+            break;
+          case 'Monthly':
+            $('.daily_options').css('display', 'none');
+            $('.weekly_options').css('display', 'none');
+            $('.monthly_options').css('display', 'inline');
+            $('.yearly_options').css('display', 'none');
+            break;
+          case 'Yearly':
+            $('.daily_options').css('display', 'none');
+            $('.weekly_options').css('display', 'none');
+            $('.monthly_options').css('display', 'none');
+            $('.yearly_options').css('display', 'inline');
             break;
         }
       });

@@ -35,21 +35,28 @@ class MessageFactory
 
     def construct_recurring_if_present(msg)
       if recurring_schedule?
-        msg.recurring_schedule = icecube_rule.to_hash
-        msg.next_send_time = 1.minute.ago
-      else
-        msg.recurring_schedule = nil
+        if icecube_rule
+          msg.recurring_schedule = icecube_rule.to_hash
+          msg.next_send_time = 1.minute.ago
+        elsif !recurring_schedule.blank? # no changes
+          msg.recurring_schedule = recurring_schedule
+        end
       end
       msg
     end
 
     def recurring_schedule?
-      params['one_time_or_recurring'].present? &&
-        params['one_time_or_recurring'] == 'recurring'
+      (params['one_time_or_recurring'].present? &&
+        params['one_time_or_recurring'] == 'recurring') ||
+          (!recurring_schedule.blank? && is_update?)
     end
 
     def recurring_schedule
-      @recurring_schedule ||= JSON.parse(params['recurring_schedule']) if params['recurring_schedule']
+      @recurring_schedule ||= begin
+        raw = params['message'].try(:[], 'recurring_schedule')
+        raw = nil if ['custom'].include?(raw)
+        raw
+      end
     end
 
     def new_message?
@@ -77,9 +84,19 @@ class MessageFactory
       if mparams && mparams.keys.length > 0
         mparams.delete('action_attributes') unless mparams['type'] == 'ActionMessage'
         mparams.delete('message_options_attributes') unless mparams['type'] == 'TagMessage'
-        mparams['recurring_schedule'] = {} # universally make sure it passed, added later in process
+        mparams['recurring_schedule'] = {} if mparams['recurring_schedule'] == 'custom' # universally make sure it passed, added later in process
+        mparams['recurring_schedule'] = JSON.parse(mparams['recurring_schedule']) if mparams['recurring_schedule'].is_a?(String)
       end
       mparams
+    end
+
+    def message_recurring_params
+      raw_txt = params['message'].try(:[], 'recurring_schedule')
+      if raw_txt && !['custom'].include?(raw_txt)
+        JSON.parse(raw_txt)
+      else
+        {}
+      end
     end
 
     def message_action_params
@@ -172,5 +189,17 @@ class MessageFactory
 
     def send_message_action_message?
       message_type == "ActionMessage" && message_action == "SendMessageAction"
+    end
+
+    def is_create?
+      action == 'create'
+    end
+
+    def is_update?
+      action == 'update'
+    end
+
+    def action
+      params['action']
     end
 end

@@ -1,7 +1,5 @@
-GIT
-  remote: https://github.com/omalab/recurring_select.git
-  revision: ce27b8618e7dc79ebfea9cde3ff6289196089490
-  branch: wflanagan-patch-1
+PATH
+  remote: ./../recurring_select
   specs:
     recurring_select (1.2.1.rc3)
       coffee-rails (>= 3.1)

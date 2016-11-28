@@ -12,13 +12,20 @@
       @extend .btn-success;
     }
   }
-  .rs_calendar_day {
+  .rs_calendar_day, .rs_calendar_week {
     a {
       @extend .btn;
       @extend .btn-default;
     }
     a.selected {
       @extend .btn-success;
+    }
+  }
+  .rs_calendar_week {
+    span {
+      display: block;
+      margin-top: 10px;
+      font-weight: 400;
     }
   }
 }

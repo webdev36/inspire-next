@@ -11,10 +11,9 @@
       = f.input :content
 
       hr
-
       - if @channel.individual_messages_have_schedule?
         - if @channel.relative_schedule
-          = render partial: "shared/relative_schedule", locals: { f: f }
+          = render partial: "shared/relative_schedule", locals: { f: f, message: @message }
         - else
           = render partial: "shared/absolute_schedule", locals: { f: f, message: @message }
       .rs_dialog_holder.ui-page-active
