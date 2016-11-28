@@ -15,6 +15,7 @@
 #
 
 class Subscriber < ActiveRecord::Base
+  include Mixins::ChatNames
   acts_as_paranoid
   attr_accessible :name, :phone_number, :remarks, :email, :additional_attributes
 

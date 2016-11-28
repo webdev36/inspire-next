@@ -19,6 +19,7 @@
 #
 
 class User < ActiveRecord::Base
+  include Mixins::ChatNames
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
 
