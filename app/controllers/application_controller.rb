@@ -11,4 +11,11 @@ class ApplicationController < ActionController::Base
     devise_parameter_sanitizer.permit(:sign_up, keys: [:email, :password, :password_confirmation])
   end
 
+  private
+
+    def load_user
+      authenticate_user!
+      @user = current_user
+    end
+
 end

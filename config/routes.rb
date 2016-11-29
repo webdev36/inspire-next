@@ -2,6 +2,7 @@ require 'sidekiq/web'
 
 Liveinspired::Application.routes.draw do
 
+  resources :chatrooms
   mount Sidekiq::Web => '/sidekiq'
 
   root :to => "home#index"
@@ -12,6 +13,15 @@ Liveinspired::Application.routes.draw do
   end
   get 'admin', to: 'admin/home#index'
   resources :keywords, only: [:index]
+  resources :chatrooms do
+    resources :chatters, only: [:index] do
+      collection do
+        post :add_to_chatroom
+        post :remove_from_chatroom
+      end
+    end
+    resources :chats
+  end
   resources :channels do
     member do
       get  'list_subscribers'

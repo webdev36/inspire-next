@@ -13,39 +13,47 @@
         .col-md-12
           h4.section-header.text-right
             | Last 24 Hours
-          .row
-            .col-md-3
-              .well.background-color-gallery
+          .row.text-right
+            .col-md-2.pull-right
+              .well.background-color-gallery.subscriber-info-widget
                 .row
-                  .col-md-6.text-left
+                  .col-md-4.text-left
                     .icon = icon('envelope', title: 'A message was sent to the subscriber', class: 'color-info fa-2x')
-                  .col-md-6.text-right
+                  .col-md-8.text-right
                     .value = @sent_last_24_hours
                     .title.text-uppercase Sent
-            .col-md-3
-              .well.background-color-gallery
+            .col-md-2.pull-right
+              .well.background-color-gallery.subscriber-info-widget
                 .row
-                  .col-md-6.text-left
+                  .col-md-4.text-left
                     .icon = icon('reply', title: 'The subscriber replied.', class: 'color-success fa-2x')
-                  .col-md-6.text-right
+                  .col-md-8.text-right
                     .value = @replies_last_24_hours
                     .title.text-uppercase Replies
-            .col-md-3
-              .well.background-color-gallery
+            .col-md-2.pull-right
+              .well.background-color-gallery.subscriber-info-widget
                 .row
-                  .col-md-6.text-left
+                  .col-md-4.text-left
                     .icon = icon('bolt', title: 'Action taken on subscriber account', class: 'color-info fa-2x')
-                  .col-md-6.text-right
+                  .col-md-8.text-right
                     .value = @actions_last_24_hours
                     .title.text-uppercase Actions
-            .col-md-3
-              .well.background-color-gallery
+            .col-md-2.pull-right
+              .well.background-color-gallery.subscriber-info-widget
                 .row
-                  .col-md-6.text-left
+                  .col-md-4.text-left
+                    .icon = icon('commenting', title: 'Chatrooms', class: 'color-info fa-2x')
+                  .col-md-8.text-right
+                    .value = @subscriber.chatrooms.count
+                    .title.text-uppercase Chats
+            .col-md-2.pull-right
+              .well.background-color-gallery.subscriber-info-widget
+                .row
+                  .col-md-4.text-left
                     .icon = icon('exclamation', title: 'There was a problem', class: 'color-danger fa-2x')
-                  .col-md-6.text-right
+                  .col-md-8.text-right
                     .value = @errors_last_24_hours
-                    .title Errors
+                    .title.text-uppercase Errors
 
 .row
   .col-md-12

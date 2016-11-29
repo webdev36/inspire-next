@@ -337,7 +337,6 @@ class Message < ActiveRecord::Base
 private
 
   def update_seq_no
-    puts "calling update sequence nubmer"
     cur_max = channel.messages.maximum(:seq_no) rescue 0
     cur_max = 0 if cur_max.nil?
     self.seq_no = cur_max+1

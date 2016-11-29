@@ -1,0 +1,9 @@
+= simple_form_for(@chatroom) do |f|
+  = f.error_notification
+
+  .form-inputs
+    = f.input :name
+    = f.input :tparty_keyword
+
+  .form-actions
+    = f.button :submit

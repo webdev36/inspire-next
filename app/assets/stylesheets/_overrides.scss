@@ -54,6 +54,16 @@ body {
 .margin-left-10 { margin-left: 5px; }
 .margin-right-5 { margin-right: 5px; }
 
+.element {
+    padding:20px;
+    margin-bottom: -99999px;
+    padding-bottom: 99999px;
+}
+
+.equal {
+    overflow: hidden;
+}
+
 
 
 

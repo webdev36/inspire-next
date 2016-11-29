@@ -17,7 +17,7 @@ html lang="en"
     = yield :head_js
 
   body data-controller="#{controller.controller_name}" data-action="#{controller.action_name}"
-    nav#top-menu.navbar.navbar-default.navbar-fixed-top
+    nav#top-menu.navbar.navbar-default.navbar-fixed-top.navbar-custom
       .container
         .navbar-header
           button.navbar-toggle.collapsed type="button" data-target="#app-navbar" data-toggle="collapse"
@@ -36,9 +36,10 @@ html lang="en"
               li = link_to "Channels", channels_path
               li = link_to "Subscribers", subscribers_path
               li = link_to "Rules", rules_path
-              li = link_to "Profile", edit_user_registration_path(current_user)
+              li = link_to "Chatrooms", chatrooms_path
           ul.nav.navbar-nav.nav-right.pull-right
             - if user_signed_in?
+              li = link_to "Profile", edit_user_registration_path(current_user)
               li = link_to "Sign out", destroy_user_session_path, method: :delete
             - else
               li = link_to "Sign in", new_user_session_path
@@ -70,4 +71,5 @@ html lang="en"
                 .support-hours
                   span.color-silver
                     | from 9am to 8pm Eastern Time USA Monday to Friday
+    = render partial: 'shared/modal_window'
 
