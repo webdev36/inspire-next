@@ -14,6 +14,12 @@ Liveinspired::Application.routes.draw do
   get 'admin', to: 'admin/home#index'
   resources :keywords, only: [:index]
   resources :chatrooms do
+    resources :chatters, only: [:index] do
+      collection do
+        post :add_to_chatroom
+        post :remove_from_chatroom
+      end
+    end
     resources :chats
   end
   resources :channels do

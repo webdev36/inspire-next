@@ -27,7 +27,7 @@
                 tr.chatroom-row id="chatroom_#{chatroom.id}"
                   td = link_to(chatroom.name, chatroom_path(chatroom))
                   td = chatroom.created_at
-                  td
+                  td = chatroom.subscribers.count
                   td.text-right.col-md-3
                     => link_to 'Edit', edit_chatroom_path(chatroom), class: 'btn btn-default btn-xs'
       .row

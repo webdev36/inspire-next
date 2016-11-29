@@ -36,9 +36,10 @@ html lang="en"
               li = link_to "Channels", channels_path
               li = link_to "Subscribers", subscribers_path
               li = link_to "Rules", rules_path
-              li = link_to "Profile", edit_user_registration_path(current_user)
+              li = link_to "Chatrooms", chatrooms_path
           ul.nav.navbar-nav.nav-right.pull-right
             - if user_signed_in?
+              li = link_to "Profile", edit_user_registration_path(current_user)
               li = link_to "Sign out", destroy_user_session_path, method: :delete
             - else
               li = link_to "Sign in", new_user_session_path

@@ -4,11 +4,9 @@ class ChatsController < ApplicationController
   before_action :set_chatroom
 
   def create
-    chat = @chatroom.chats.new(chat_params)
-    chat.chatter = current_user
-    if chat.save
-      redirect_to @chatroom
-    end
+    chat = current_user.chats.new(chat_params)
+    @chatroom.chats << chat
+    redirect_to @chatroom
   end
 
   private

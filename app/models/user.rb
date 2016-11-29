@@ -25,11 +25,11 @@ class User < ActiveRecord::Base
 
   attr_accessible :email, :password, :password_confirmation, :remember_me
 
-  has_many :channels,       dependent: :destroy
-  has_many :channel_groups, dependent: :destroy
-  has_many :subscribers,    dependent: :destroy
-  has_many :rules,          dependent: :destroy
-  has_many :chatrooms
-  has_many :chats
+  has_many :channels,            dependent: :destroy
+  has_many :channel_groups,      dependent: :destroy
+  has_many :subscribers,         dependent: :destroy
+  has_many :rules,               dependent: :destroy
+  has_many :chatrooms,           dependent: :destroy
+  has_many :chats, as: :chatter, dependent: :destroy
 
 end

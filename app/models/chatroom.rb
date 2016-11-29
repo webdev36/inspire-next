@@ -1,17 +1,7 @@
 class Chatroom < ActiveRecord::Base
-  has_many :chatroom_chatters
   belongs_to :user
-  has_many :chats
+  has_many :chatroom_chatters, dependent: :destroy
+  has_many :chats,             dependent: :destroy
+  has_many :subscribers, through: :chatroom_chatters, source: :chatter, source_type: 'Subscriber'
 
-  def add_subscriber(subscriber)
-    crc = self.chatroom_chatters.new
-    crc.chatter_id = subscriber.id
-    crc.chatter_type = 'Subscriber'
-    crc.save
-    crc
-  end
-
-  def subscribers
-    self.chatroom_chatters
-  end
 end

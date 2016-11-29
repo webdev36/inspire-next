@@ -116,4 +116,20 @@ describe Subscriber do
     end
   end
 
+  describe 'chatrooms' do
+    let(:user)         { create(:user) }
+    let(:chatroom)     { create :chatroom, user: user }
+    let(:phone_number) { Faker::PhoneNumber.us_phone_number }
+    let(:subscriber)   { create :subscriber, user:user, phone_number:phone_number  }
+    let(:subscriber2)  { create :subscriber, user:user, phone_number: Faker::PhoneNumber.us_phone_number  }
+
+    context 'scopes' do
+      it 'queries subscribers in chat rooms' do
+        chatroom.subscribers << subscriber
+        expect(Subscriber.in_chatroom(chatroom).include?(subscriber)).to be_truthy
+        expect(Subscriber.in_chatroom(chatroom).include?(subscriber2)).to be_falsey
+      end
+    end
+  end
+
 end

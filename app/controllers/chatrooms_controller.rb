@@ -11,6 +11,7 @@ class ChatroomsController < ApplicationController
 
   # GET /chatrooms/1
   def show
+    @subscribers = @chatroom.subscribers
   end
 
   # GET /chatrooms/new

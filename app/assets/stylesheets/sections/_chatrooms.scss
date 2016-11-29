@@ -2,18 +2,18 @@
     background: #f5f3f3 none repeat scroll 0 0;
     float: left;
     padding: 15px;
-    padding: 40px;
+    padding: 20px;
     width: 100%;
 }
 
 .write-message-area textarea.form-control {
-  height: 70px;
+  height: 60px;
   padding: 10px;
 }
 
 .chat_area {
   float: left;
-  height: 300px;
+  height: 500px;
   overflow-x: hidden;
   overflow-y: auto;
   width: 100%;
@@ -38,4 +38,25 @@
 }
 .chat_area li:last-child {
   padding-bottom: 10px;
+}
+
+.chat-chatter, .chat-message {
+  .media-left { padding-top: 5px; }
+  .media-body {
+    padding-top: 5px;
+    h4 {
+      margin-top: 0px;
+      margin-bottom: 0px;
+      .smaller {
+        font-size: 70%;
+        color: $silver;
+      }
+    }
+  }
+}
+
+.chat-message {
+  .media-body {
+    h4 { font-size: 90%; }
+  }
 }
