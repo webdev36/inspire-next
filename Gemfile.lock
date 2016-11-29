@@ -1,5 +1,6 @@
-PATH
-  remote: ./../recurring_select
+GIT
+  remote: https://github.com/omalab/recurring_select.git
+  revision: 4175ea3777790db49609b3ab5606b38cb1644fa2
   specs:
     recurring_select (1.2.1.rc3)
       coffee-rails (>= 3.1)
