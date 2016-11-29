@@ -27,7 +27,7 @@ class Subscriber < ActiveRecord::Base
   has_many   :delivery_error_notices
   has_many   :subscriber_responses
   has_many   :action_notices
-  has_many   :chatrooms
+  has_many   :chatrooms, through: :chatroom_chatters
   has_many   :chats
 
   scope :search, -> (search) { where('lower(name) LIKE ? OR phone_number LIKE ?',"%#{search.to_s.downcase}%","%#{search.to_s.downcase}%") }
