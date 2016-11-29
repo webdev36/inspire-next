@@ -21,6 +21,7 @@ Spork.prefork do
   require 'sidekiq/testing'
   abort("The Rails environment is not test!") unless Rails.env.test?
   abort("You are using an Amazon database in the database URL. Datarisk!") if ENV['DATABASE_URL'].to_s.include?('amazonaws')
+  abort("Twilio is set to live calls") if TwilioWrapper.new.allowed_to_send?
 
   Capybara.javascript_driver = :poltergeist
   Capybara.register_driver :poltergeist do |app|

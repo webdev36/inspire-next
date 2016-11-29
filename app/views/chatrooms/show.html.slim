@@ -1,0 +1,76 @@
+#page-header.clearfix
+  .row
+    .col-md-8
+      h4
+        = icon('commenting')
+        |  Chatroom #{@chatroom.name}
+      p
+        | Phone#: #{@chatroom.tparty_keyword}
+    .col-md-4
+      = link_to 'Manage Subscribers', chatroom_chatters_path(@chatroom), class: 'pull-right'
+
+.row style="background-color: #ccc; height: 60px; padding:10px;"
+  .col-md-9.header style='border-left: 1px solid #ccc;'
+    .row
+      .col-md-12
+        .pull-right
+  .col-md-3.subscriber-header
+    .row
+      .custom-search-input
+        //= form_tag request.url, method: :get do
+          .input-group
+            = search_field_tag :subscriber_search, params[:subscriber_search], placeholder: 'Sub id or name',class: 'form-control'
+            .input-group-btn
+              = button_tag('Search', class: 'btn btn-default')
+.row
+  .col-md-9 style="padding-top: 20px; border-left: 1px solid #ccc; border-right: 1px solid #ccc;"
+    .chat_area
+      - @chatroom.chats.each do |chat|
+        .media.chat-message class="chat-#{cycle('even', 'odd')}" data-chat-id="#{chat.id}"
+          .media-left
+            img.img-circle alt=("User Avatar") src="https://api.adorable.io/avatars/45/#{chat.chatter.class.name.downcase}_#{chat.chatter.id}@liveinspired.io.png"
+          .media-body style="background-color: #fbf9fa;"
+            .row
+              .col-md-11
+                h4
+                  - if chat.chatter.is_a?(Subscriber)
+                    = link_to chat.chatter.chatname, subscriber_path(chat.chatter.id)
+                  - else
+                    = chat.chatter.chatname
+                = chat.body
+              .col-md-1.text-right
+                = fu_time_helper(chat.created_at)
+    .row
+      .col-md-12.write-message-area
+        = form_for [@chatroom, Chat.new] do |f|
+            = f.text_area :body, rows: 1, autofocus: true, class: 'col-md-12 form-control'
+
+  .col-md-3.subscribers-section style="border-right: 1px solid #ccc;"
+    .row
+      .col-md-12 style="padding-top: 20px;"
+        - if @subscribers && @subscribers.length > 0
+          ul.list-unstyled#subscribers-list
+            - @subscribers.each do |chatter|
+              li.chat-room-chatter
+                .media.chat-chatter id="chat-chatter-#{chatter.id}"
+                  .media-left
+                    img.img-circle alt=("User Avatar") src="https://api.adorable.io/avatars/45/#{chatter.class.name.downcase}_#{chatter.id}@liveinspired.io.png"
+                  .media-body
+                    h4
+                      = chatter.name
+                      .smaller
+                        = " (#{chatter.phone_number})"
+        - else
+          .notification-well
+            .icon
+              =icon('phone')
+            .title
+              | No chatters
+            .help
+              | Get the chat going by adding some subscribers.
+              br
+              br
+              = link_to 'Manage Subscribers', chatroom_chatters_path(@chatroom), class: 'btn btn-primary'
+
+
+

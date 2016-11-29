@@ -1,0 +1,44 @@
+- model_class = Subscriber
+
+.page-header
+  .row
+    .col-md-8
+      h4
+        span.glyphicon.glyphicon-phone.margin-right-5
+        = link_to @chatroom.name, @chatroom
+        |  Subscribers
+
+.row
+  .col-md-6
+    h4 In Channel (click >> to remove)
+    table.table.table-striped
+      thead
+        tr
+          th id
+          th name
+          th phone
+          th >>
+      tbody
+        - @subscribers.each do |in_chat|
+          tr
+            td = in_chat.id
+            td = in_chat.name
+            td = in_chat.phone_number
+            td = link_to('Remove >>', remove_from_chatroom_chatroom_chatters_path(@chatroom.id, :subscriber_id => in_chat.id), method: :post)
+  .col-md-6
+    h4 Not In Channel (click << to add)
+    table.table.table-striped
+      thead
+        tr
+          th <<
+          th id
+          th name
+          th phone
+      tbody
+        - @subscribers_not_in_chat.each do |not_in_chat|
+          tr
+            td = link_to('<< Add', add_to_chatroom_chatroom_chatters_path(@chatroom.id, :subscriber_id => not_in_chat.id), method: :post)
+            td = not_in_chat.id
+            td = not_in_chat.name
+            td = not_in_chat.phone_number
+

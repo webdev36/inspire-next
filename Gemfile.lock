@@ -164,6 +164,7 @@ GEM
       guard (~> 2.0)
       guard-compat (~> 1.0)
       spork (>= 0.8.4)
+    haikunator (1.1.0)
     hash_dot (2.0.3)
     i18n (0.7.0)
     ice_cube (0.14.0)
@@ -430,6 +431,7 @@ DEPENDENCIES
   foreman
   guard-rspec
   guard-spork
+  haikunator
   hash_dot
   ice_cube
   jquery-rails

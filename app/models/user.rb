@@ -19,14 +19,17 @@
 #
 
 class User < ActiveRecord::Base
+  include Mixins::ChatNames
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
 
   attr_accessible :email, :password, :password_confirmation, :remember_me
 
-  has_many :channels,       dependent: :destroy
-  has_many :channel_groups, dependent: :destroy
-  has_many :subscribers,    dependent: :destroy
-  has_many :rules,          dependent: :destroy
+  has_many :channels,            dependent: :destroy
+  has_many :channel_groups,      dependent: :destroy
+  has_many :subscribers,         dependent: :destroy
+  has_many :rules,               dependent: :destroy
+  has_many :chatrooms,           dependent: :destroy
+  has_many :chats, as: :chatter, dependent: :destroy
 
 end

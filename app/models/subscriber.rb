@@ -15,25 +15,35 @@
 #
 
 class Subscriber < ActiveRecord::Base
+  include Mixins::ChatNames
   acts_as_paranoid
   attr_accessible :name, :phone_number, :remarks, :email, :additional_attributes
 
   belongs_to :user
-  has_many :rule_activities, as: :ruleable
-  has_many :subscriptions
-  has_many :channels, :through => :subscriptions
-  has_many :delivery_notices
-  has_many :delivery_error_notices
-  has_many :subscriber_responses
-  has_many :action_notices
+  has_many   :rule_activities, as: :ruleable
+  has_many   :subscriptions
+  has_many   :channels, :through => :subscriptions
+  has_many   :delivery_notices
+  has_many   :delivery_error_notices
+  has_many   :subscriber_responses
+  has_many   :action_notices
+  has_many   :chatroom_chatters, as: :chatter
+  has_many   :chatrooms, through: :chatroom_chatters, source: :chatter, source_type: 'Subscriber'
+
+  has_many   :chats, as: :chatter, dependent: :destroy
 
   scope :search, -> (search) { where('lower(name) LIKE ? OR phone_number LIKE ?',"%#{search.to_s.downcase}%","%#{search.to_s.downcase}%") }
+
 
   validates :phone_number, presence:true, phone_number:true,
     uniqueness:{scope:[:user_id,:deleted_at]}
   validates :email, format: {with:/\A.+@.+\z/}, allow_blank:true
 
   before_validation :normalize_phone_number
+
+  def self.in_chatroom(chatroom)
+    includes(:chatroom_chatters).where('chatroom_chatters.chatroom_id = ?', chatroom.id).references(:chatroom_chatters)
+  end
 
   def self.find_by_phone_number(phone_number)
     ref_phone_number = Subscriber.format_phone_number(phone_number)
