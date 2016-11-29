@@ -20,13 +20,15 @@ class Subscriber < ActiveRecord::Base
   attr_accessible :name, :phone_number, :remarks, :email, :additional_attributes
 
   belongs_to :user
-  has_many :rule_activities, as: :ruleable
-  has_many :subscriptions
-  has_many :channels, :through => :subscriptions
-  has_many :delivery_notices
-  has_many :delivery_error_notices
-  has_many :subscriber_responses
-  has_many :action_notices
+  has_many   :rule_activities, as: :ruleable
+  has_many   :subscriptions
+  has_many   :channels, :through => :subscriptions
+  has_many   :delivery_notices
+  has_many   :delivery_error_notices
+  has_many   :subscriber_responses
+  has_many   :action_notices
+  has_many   :chatrooms
+  has_many   :chats
 
   scope :search, -> (search) { where('lower(name) LIKE ? OR phone_number LIKE ?',"%#{search.to_s.downcase}%","%#{search.to_s.downcase}%") }
 

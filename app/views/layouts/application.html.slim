@@ -17,7 +17,7 @@ html lang="en"
     = yield :head_js
 
   body data-controller="#{controller.controller_name}" data-action="#{controller.action_name}"
-    nav#top-menu.navbar.navbar-default.navbar-fixed-top
+    nav#top-menu.navbar.navbar-default.navbar-fixed-top.navbar-custom
       .container
         .navbar-header
           button.navbar-toggle.collapsed type="button" data-target="#app-navbar" data-toggle="collapse"
@@ -70,4 +70,5 @@ html lang="en"
                 .support-hours
                   span.color-silver
                     | from 9am to 8pm Eastern Time USA Monday to Friday
+    = render partial: 'shared/modal_window'
 

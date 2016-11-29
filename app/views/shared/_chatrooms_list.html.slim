@@ -1,0 +1,46 @@
+- message_model_class = Message
+
+#chatrooms-section.panel.panel-default.shared-table
+  .panel-heading
+    .row
+      .col-md-4
+        .panel-title Chatrooms
+        .counts
+      .col-md-3.pull-right.text-right
+        = link_to new_chatroom_path, class: "btn btn-primary btn-xs", id: 'message-new' do
+          span.glyphicon.glyphicon-plus
+          | New Chatroom
+
+  .panel-body
+    - if @chatrooms && @chatrooms.size > 0
+      .row
+        .col-md-12
+          table.table.table-striped#chatrooms_table
+            thead
+              tr
+                th Room
+                th Created at
+                th Subscribers Count
+                th
+            tbody
+              - @chatrooms.each_with_index do |chatroom, index|
+                tr.chatroom-row id="chatroom_#{chatroom.id}"
+                  td = link_to(chatroom.name, chatroom_path(chatroom))
+                  td = chatroom.created_at
+                  td
+                  td.text-right.col-md-3
+                    => link_to 'Edit', edit_chatroom_path(chatroom), class: 'btn btn-default btn-xs'
+      .row
+        .col-md-12.text-center
+          = will_paginate @chatrooms, param_name: "chatrooms_page"
+    - else
+      .notification-well
+        .icon
+          i.fa.fa-commenting
+        .message
+          h4 No Chatrooms
+          p Chat rooms are created to let users chat with each other for encouragement and support.
+          .add
+            = link_to new_chatroom_path, class: "btn btn-primary"
+              span.glyphicon.glyphicon-plus
+              | Add new chatroom
